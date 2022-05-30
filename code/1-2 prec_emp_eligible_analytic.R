@@ -1,0 +1,340 @@
+################################################################################
+
+# Persistent precarious employment and health - Understanding Society
+# 02 - create eligible pop and analytic sample dataframes
+# Andrew Pulford
+
+# Data source:
+# University of Essex, Institute for Social and Economic Research. (2021). 
+# Understanding Society: Waves 1-10, 2009-2019 and Harmonised BHPS: Waves 1-18, 
+# 1991-2009. [data collection]. 13th Edition. UK Data Service. SN: 6614, 
+# http://doi.org/10.5255/UKDA-SN-6614-14
+
+#### What this script does:
+# (a) Creates spine for non-working age individuals
+# (b) Creates spine for individuals with no valid response at study endpoint (wave 6 or 10)
+# (c) Creates eligible population dataframe for descriptive analysis
+# (d) Creates spine for censoring deceased individuals (at wave of death)
+# (e) Creates spine for censoring retired individuals (at wave of retirement)
+# (f) Checks non-response across survey waves (move from analytic spine script)
+# (g) Checks data completeness across waves
+# (h) Creates spine for censoring incomplete responses
+# (i) Creates analytic sample dataset for descriptive analysis
+
+#### Data output: spine for non-working age individuals; 
+# spine for individuals with no valid response at study endpoint; 
+# eligible population dataframe; wave of death spine look-up, 
+# incomplete data spine; sequence analysis of non-response (waves 3-6 and 7-10); 
+# sequence analysis of non-response (waves 1-10); analytic sample 1 dataset
+
+
+################################################################################
+
+## remove any existing objects from global environment
+rm(list=ls()) 
+
+
+################################################################################
+#####                            install packages                          #####
+################################################################################
+
+library(tidyverse) # all kinds of stuff 
+library(foreign) # for reading SPSS files
+
+
+################################################################################
+#####                         load and prepare data                        #####
+################################################################################
+
+## load master raw dataframe
+master_raw1 <- readRDS("./raw_data/master_raw1.rds")
+
+## convert age var to numeric to allow filtering
+master_raw1$age_dv <- as.numeric(master_raw1$age_dv)
+
+## split into master a (waves 3-6) and master b (waves 7-10)
+master_raw1a <- master_raw1 %>% filter(wv_n %in% c(3:6))
+master_raw1b <- master_raw1 %>% filter(wv_n %in% c(7:10))
+
+# check number of indivs in raw data -- relates to node A in flowchart --
+master_indivs_a <- length(unique(master_raw1a$pidp))
+master_indivs_b <- length(unique(master_raw1b$pidp))
+
+
+### create eligible pop dataframe for descriptive analysis
+## keep only working age for study period (>=19 and <=64 at study endpoint (waves 6 and 10))
+
+# create non-working age spines
+non_working_age_spine_a <- master_raw1a %>% 
+  filter(wv_n==6) %>% 
+  mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
+  select(pidp,age_dv,non_work_age_flag) %>% 
+  filter(non_work_age_flag==1) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
+
+non_working_age_spine_b <- master_raw1b %>% 
+  filter(wv_n == 10) %>% 
+  mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
+  select(pidp,age_dv,non_work_age_flag) %>% 
+  filter(non_work_age_flag==1) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
+
+# create working age dfs
+working_age_a <- master_raw1a %>% 
+  anti_join(non_working_age_spine_a)
+
+working_age_b <- master_raw1b %>% 
+  anti_join(non_working_age_spine_b)
+
+# check number of individuals working age
+length(unique(working_age_a$pidp))
+length(unique(working_age_b$pidp))
+
+# check number of individuals working age -- relates to flowchart node AA
+length(unique(non_working_age_spine_a$pidp))
+length(unique(non_working_age_spine_b$pidp))
+
+## keep only cases with valid study endpoint response
+# convert to wide format
+working_age_wide_a <- working_age_a %>% 
+  select(pidp,wv_n) %>% 
+  mutate(response=1) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
+
+endpoint_spine_a <- working_age_wide_a %>% 
+  filter(wv_6==1) %>% 
+  mutate(valid_6=1) %>% 
+  select(pidp, valid_6)
+
+working_age_wide_b <- working_age_b %>% 
+  select(pidp,wv_n) %>% 
+  mutate(response=1) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
+
+
+endpoint_spine_b <- working_age_wide_b %>% 
+  filter(wv_10==1) %>% 
+  mutate(valid_10=1) %>% 
+  select(pidp, valid_10)
+
+# join into single spine
+#endpoint_spine <- endpoint_spine_a %>% full_join(endpoint_spine_b)
+
+## create eligible pop df 
+#eligible_pop <- working_age %>% 
+#  semi_join(endpoint_spine) 
+
+eligible_pop_a <- working_age_a %>% 
+  right_join(endpoint_spine_a) 
+
+eligible_pop_b <- working_age_b %>% 
+  right_join(endpoint_spine_b) 
+
+## check only valid endpoint included
+sum(eligible_pop_a$valid_6!=1)
+sum(eligible_pop_b$valid_10!=1)
+
+## check number indivs excluded for no valid endpoint -- relates to flowchart node AA
+no_endpoint_a <- working_age_a %>% 
+  anti_join(endpoint_spine_a) 
+
+no_endpoint_b <- working_age_b %>% 
+  anti_join(endpoint_spine_b) 
+
+length(unique(no_endpoint_a$pidp))
+length(unique(no_endpoint_b$pidp))
+
+## check number of observations and individuals
+# observations
+nrow(eligible_pop_a)
+nrow(eligible_pop_b)
+# individuals
+length(unique(eligible_pop_a$pidp))
+length(unique(eligible_pop_b$pidp))
+## check min and max ages are correct
+min(eligible_pop_a$age_dv)
+max(eligible_pop_a$age_dv)
+min(eligible_pop_b$age_dv)
+max(eligible_pop_b$age_dv)
+
+## save dataframes
+write_rds(eligible_pop_a, "./working_data/eligible_pop_a.rds")
+write_rds(eligible_pop_b, "./working_data/eligible_pop_b.rds")
+
+
+################################################################################
+###### create spine for censoring deceased participants ------------------------
+################################################################################
+
+#### NOTE: don't think deaths required for this analysis as based on valid
+#### response at endpoint; keep for other analyses though
+
+## read in xwaveid data files by wave
+#
+#data_path <- "C:/Users/0510028p/Documents/UKDA-6614-spss/spss/spss25/"
+#
+#### waves 3-6
+#death_spine_a <- read.spss(paste0(data_path,"ukhls_wx/xwaveid.sav"), 
+#                       to.data.frame=TRUE, use.value.labels=TRUE) %>% 
+#    as_tibble() %>% 
+#  filter(dcsedw_dv != "inapplicable") %>% 
+#  mutate(wave_died = as.numeric(gsub("[^0-9.-]", "", dcsedw_dv))) %>% 
+#  select(pidp, wave_died) %>% 
+#  filter(pidp %in% eligible_pop_a$pidp) # keep only eligible pop
+#
+#  
+#write_rds(death_spine_a,("./look_ups/death_spine_a.rds"))
+
+#table(death_spine_a$wave_died)
+
+#### waves 7-10
+
+#death_spine_b <- read.spss(paste0(data_path,"ukhls_wx/xwaveid.sav"), 
+#                           to.data.frame=TRUE, use.value.labels=TRUE) %>% 
+#  as_tibble() %>% 
+#  filter(dcsedw_dv != "inapplicable") %>% 
+#  mutate(wave_died = as.numeric(gsub("[^0-9.-]", "", dcsedw_dv))) %>% 
+#  select(pidp, wave_died) %>% 
+#  filter(pidp %in% eligible_pop_b$pidp)# keep only eligible pop
+
+#write_rds(death_spine_b,("./look_ups/death_spine_b.rds"))
+#
+#table(death_spine_b$wave_died)
+
+################################################################################
+###### create spine for censoring retired participants -------------------------
+################################################################################
+
+#### waves 3-6
+retired_spine_a <- eligible_pop_a %>% 
+  select(pidp, wv_n, jbstat) %>% 
+  arrange(pidp, wv_n) %>% 
+  filter(jbstat=="retired" | jbstat=="Retired") %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% # keep only first occurrence 
+  rename(wave_retired = wv_n) %>% 
+  select(pidp, wave_retired) %>% 
+  ungroup()
+
+write_rds(retired_spine_a, "./look_ups/retired_spine_a.rds")
+
+#### waves 7-10
+retired_spine_b <- eligible_pop_b %>% 
+  select(pidp, wv_n, jbstat) %>% 
+  arrange(pidp, wv_n) %>% 
+  filter(jbstat=="retired" | jbstat=="Retired") %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% # keep only first occurrence 
+  rename(wave_retired = wv_n) %>% 
+  select(pidp, wave_retired) %>% 
+  ungroup()
+
+write_rds(retired_spine_b, "./look_ups/retired_spine_b.rds")
+
+
+################################################################################
+###### create spine for censoring incomplete responses  ------------------------
+################################################################################
+
+#### waves 3-6
+incomplete_spine_a <- eligible_pop_a %>% 
+  filter(wv_n==6) %>% 
+  # recode self-rated health variables into one
+  mutate(sf1 = as.character(sf1),
+         scsf1 = as.character(scsf1)) %>% 
+  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
+  mutate(no_age = ifelse(is.na(age_dv),1,0), 
+         no_sex = ifelse(sex_dv %in% c("missing", "inapplicable", "refusal", "don't know", 
+                         "inconsistent"),1,0),
+         no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
+                            "don't know"),1,0),
+         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+                          "Only available for IEMB", "Not available for IEMB",
+                          "don't know"),1,0),
+         no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
+                                               "don't know"), 1,
+           ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 1,
+           ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),1,0))),
+         no_j2has = ifelse(j2has %in% c("missing", "proxy", "refusal", 
+                        "Only available for IEMB", "Not available for IEMB",
+                        "don't know"),1,0),
+         no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
+         no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
+                            "don't know"),1,0)) %>% 
+  select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
+         no_srh, no_ghq)
+
+############ done to here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+##################
+## spine for all individuals in eligible pop
+spine_all <- eligible_descr %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  select(pidp) %>% 
+  ungroup()
+
+## spine for individuals in final wave
+spine_final <- eligible_descr %>% 
+  filter(wv_n==10) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  select(pidp) %>% 
+  ungroup()
+
+
+## spine for individuals NOT in final wave
+spine_lost <- spine_all %>% 
+  anti_join(spine_final)
+
+# check that no cases from spine final are in spine lost
+sum(spine_final$pidp %in% spine_lost)
+
+# add wave lost var == 10
+spine_lost$wave_lost <- 10
+
+write_rds(spine_lost, "./look_ups/spine_lost.rds")
+
+################################################################################
+###### create a combined spine to indicate the reason for censoring ------------
+################################################################################
+
+# join censoring spines together 
+censor_combined <- death_spine %>% 
+  full_join(retired_spine) %>% 
+  full_join(spine_lost) %>% 
+  # covert to long format 
+  pivot_longer(names_to = "censor_reason", cols = 2:4, values_to = "wave_censored") %>% 
+  # keep only first reason for censoring based on order below
+  arrange(pidp, match(censor_reason, c("wave_retired","wave_died","wave_lost"))) %>% 
+  filter(!is.na(wave_censored)) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup()
+
+# check number of indivs by reason for censoring
+table(censor_combined$censor_reason)
+
+write_rds(censor_combined, "./look_ups/censor_combined.rds")
+
+
+################################################################################
+###### Create descriptive analytic sample --------------------------------------
+################################################################################
+
+# remove censored cases from master raw to create analytic sample 1
+dfas1 <- eligible_descr %>% 
+  anti_join(censor_combined)
+
+write_rds(dfas1, "./analytic_sample_data/dfas1.rds")
+
