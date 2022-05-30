@@ -11,18 +11,10 @@
 # http://doi.org/10.5255/UKDA-SN-6614-14
 
 #### What this script does:
-# (a) Creates a data dictionary of the variables to be included in the analytic 
-#     dataset.  These were taken from the varaible search section on the U-Soc
-#     website, and can be changed for other analyses if the column headings are 
-#     retained
-# 
-# (b) Defines function "load_wave" to allow dataframes from U-Soc waves to be 
-#     created with only required variables.  
-#
-#     Function arguments:
-#       wv_n - wave number
-#       wv_l - wave letter
-#       datafile - UNderstanding Society datafile
+# (a) Creates a data dictionary of the variables to be included in the analytic dataset.  These were taken from the variable search section on the U-Soc website, and can be changed for other analyses if the column headings are retained.
+# (b) Defines function "load_wave" to allow data frames from U-Soc waves to be created.  
+# (c) Combines waves to create a master raw dataframe
+# Data output: variable spine look-up, master raw dataframe
 
 #### To be added:
 # add analysis worksheet code for emp and inc
@@ -67,6 +59,10 @@ write_rds(vars, "./variables/vars_master.rds")
 ##----------------------------------------------------------------------------##
 
 #### define load_wave function
+#     Function arguments:
+#       wv_n - wave number
+#       wv_l - wave letter
+#       datafile - UNderstanding Society datafile
 
 load_wave <- function(wv_n, wv_l, datafile) {
   temp_df <- read.spss(paste0(data_path,"ukhls_w",wv_n,"/",wv_l,"_indresp.sav"), 
