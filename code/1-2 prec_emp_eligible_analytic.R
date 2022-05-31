@@ -222,8 +222,8 @@ retired_spine_a <- eligible_pop_a %>%
   filter(jbstat=="retired" | jbstat=="Retired") %>% 
   group_by(pidp) %>% 
   slice(1) %>% # keep only first occurrence 
-  rename(wave_retired = wv_n) %>% 
-  select(pidp, wave_retired) %>% 
+  mutate(retired = 1) %>% 
+  select(pidp, retired) %>% 
   ungroup()
 
 write_rds(retired_spine_a, "./look_ups/retired_spine_a.rds")
@@ -235,8 +235,8 @@ retired_spine_b <- eligible_pop_b %>%
   filter(jbstat=="retired" | jbstat=="Retired") %>% 
   group_by(pidp) %>% 
   slice(1) %>% # keep only first occurrence 
-  rename(wave_retired = wv_n) %>% 
-  select(pidp, wave_retired) %>% 
+  mutate(retired = 1) %>% 
+  select(pidp, retired) %>% 
   ungroup()
 
 write_rds(retired_spine_b, "./look_ups/retired_spine_b.rds")
@@ -248,6 +248,7 @@ write_rds(retired_spine_b, "./look_ups/retired_spine_b.rds")
 
 #### waves 3-6
 incomplete_spine_a <- eligible_pop_a %>% 
+  anti_join(retired_spine_a) %>% 
   filter(wv_n==6) %>% 
   # recode self-rated health variables into one
   mutate(sf1 = as.character(sf1),
@@ -274,67 +275,111 @@ incomplete_spine_a <- eligible_pop_a %>%
   select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
          no_srh, no_ghq)
 
-############ done to here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-##################
-## spine for all individuals in eligible pop
-spine_all <- eligible_descr %>% 
-  group_by(pidp) %>% 
-  slice(1) %>% 
-  select(pidp) %>% 
-  ungroup()
-
-## spine for individuals in final wave
-spine_final <- eligible_descr %>% 
+#### waves 7-10
+incomplete_spine_b <- eligible_pop_b %>% 
+  anti_join(retired_spine_b) %>% 
   filter(wv_n==10) %>% 
+  # recode self-rated health variables into one
+  mutate(sf1 = as.character(sf1),
+         scsf1 = as.character(scsf1)) %>% 
+  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
+  mutate(no_age = ifelse(is.na(age_dv),1,0), 
+         no_sex = ifelse(sex_dv %in% c("missing", "inapplicable", "refusal", "don't know", 
+                                       "inconsistent"),1,0),
+         no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
+                                             "don't know"),1,0),
+         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+                                            "Only available for IEMB", "Not available for IEMB",
+                                            "don't know"),1,0),
+         no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
+                                               "don't know"), 1,
+                               ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 1,
+                                      ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),1,0))),
+         no_j2has = ifelse(j2has %in% c("missing", "proxy", "refusal", 
+                                        "Only available for IEMB", "Not available for IEMB",
+                                        "don't know"),1,0),
+         no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
+         no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
+                                          "don't know"),1,0)) %>% 
+  select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
+         no_srh, no_ghq)
+
+## save for use in sample characteristics table as missing data
+write_rds(incomplete_spine_a, "./working_data/incomplete_spine_a.rds")
+write_rds(incomplete_spine_b, "./working_data/incomplete_spine_b.rds")
+
+## create long format spine with only one flag for incomplete data
+incomplete_spine_a_long <- incomplete_spine_a %>% 
+  pivot_longer(names_to = "censor_reason", cols = 2:9, 
+               values_to = "incomplete") %>% 
+  filter(incomplete==1) %>% 
   group_by(pidp) %>% 
   slice(1) %>% 
-  select(pidp) %>% 
-  ungroup()
+  ungroup() %>% 
+  select(-censor_reason) 
 
-
-## spine for individuals NOT in final wave
-spine_lost <- spine_all %>% 
-  anti_join(spine_final)
-
-# check that no cases from spine final are in spine lost
-sum(spine_final$pidp %in% spine_lost)
-
-# add wave lost var == 10
-spine_lost$wave_lost <- 10
-
-write_rds(spine_lost, "./look_ups/spine_lost.rds")
+incomplete_spine_b_long <- incomplete_spine_b %>% 
+  pivot_longer(names_to = "censor_reason", cols = 2:9, 
+               values_to = "incomplete") %>% 
+  filter(incomplete==1) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-censor_reason) 
 
 ################################################################################
 ###### create a combined spine to indicate the reason for censoring ------------
 ################################################################################
 
-# join censoring spines together 
-censor_combined <- death_spine %>% 
-  full_join(retired_spine) %>% 
-  full_join(spine_lost) %>% 
+### join censoring spines together 
+## waves 3-6
+censor_combined_a <- retired_spine_a %>% 
+  full_join(incomplete_spine_a_long) %>%   
   # covert to long format 
-  pivot_longer(names_to = "censor_reason", cols = 2:4, values_to = "wave_censored") %>% 
+  pivot_longer(names_to = "censor_reason", cols = 2:3, values_to = "censored_flag") %>% 
+  filter(censored_flag==1) %>% 
   # keep only first reason for censoring based on order below
-  arrange(pidp, match(censor_reason, c("wave_retired","wave_died","wave_lost"))) %>% 
-  filter(!is.na(wave_censored)) %>% 
+  arrange(pidp, match(censor_reason, c("retired","incomplete"))) %>% 
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup()
 
-# check number of indivs by reason for censoring
-table(censor_combined$censor_reason)
+## waves 7-10
+censor_combined_b <- retired_spine_b %>% 
+  full_join(incomplete_spine_b_long) %>%   
+  # covert to long format 
+  pivot_longer(names_to = "censor_reason", cols = 2:3, values_to = "censored_flag") %>% 
+  filter(censored_flag==1) %>% 
+  # keep only first reason for censoring based on order below
+  arrange(pidp, match(censor_reason, c("retired","incomplete"))) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup()
 
-write_rds(censor_combined, "./look_ups/censor_combined.rds")
+
+# check number of indivs by reason for censoring
+table(censor_combined_a$censor_reason)
+table(censor_combined_b$censor_reason)
+
+## save combined censoring spine for flowchart
+write_rds(censor_combined_a, "./look_ups/censor_combined_a.rds")
+write_rds(censor_combined_b, "./look_ups/censor_combined_b.rds")
 
 
 ################################################################################
 ###### Create descriptive analytic sample --------------------------------------
 ################################################################################
 
-# remove censored cases from master raw to create analytic sample 1
-dfas1 <- eligible_descr %>% 
-  anti_join(censor_combined)
+### remove censored cases from eligible population to create analytic sample 1
+## (a) waves 3-6
+dfas1a <- eligible_pop_a %>% 
+  anti_join(censor_combined_a)
 
-write_rds(dfas1, "./analytic_sample_data/dfas1.rds")
+write_rds(dfas1a, "./analytic_sample_data/dfas1a.rds")
 
+## (b) waves 7-10
+dfas1b <- eligible_pop_b %>% 
+  anti_join(censor_combined_b)
+
+write_rds(dfas1a, "./analytic_sample_data/dfas1a.rds")
