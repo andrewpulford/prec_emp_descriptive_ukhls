@@ -171,6 +171,11 @@ max(eligible_pop_b$age_dv)
 write_rds(eligible_pop_a, "./working_data/eligible_pop_a.rds")
 write_rds(eligible_pop_b, "./working_data/eligible_pop_b.rds")
 
+write_rds(non_working_age_spine_a, "./look_ups/non_working_age_spine_a.rds")
+write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
+
+write_rds(no_endpoint_a, "./look_ups/no_endpoint_a.rds")
+write_rds(no_endpoint_b, "./look_ups/no_endpoint_b.rds")
 
 ################################################################################
 ###### create spine for censoring deceased participants ------------------------
@@ -382,4 +387,4 @@ write_rds(dfas1a, "./analytic_sample_data/dfas1a.rds")
 dfas1b <- eligible_pop_b %>% 
   anti_join(censor_combined_b)
 
-write_rds(dfas1a, "./analytic_sample_data/dfas1a.rds")
+write_rds(dfas1b, "./analytic_sample_data/dfas1b.rds")
