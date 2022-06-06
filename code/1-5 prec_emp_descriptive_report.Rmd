@@ -1,0 +1,406 @@
+---
+title: "Precarious employment - descriptive analysis"
+author: "Andrew Pulford"
+date: ""
+output: word_document
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## remove any existing objects from global environment
+rm(list=ls()) 
+
+## stop scientific notation
+options(scipen=999, digits = 1)
+
+### load packages
+library(tidyverse)
+library(DiagrammeR)
+library(knitr)
+library(TraMineR)
+remotes::install_github("rstudio/webshot2")
+
+##### load dataframes ----------------------------------------------------------
+
+### master raw data --------
+# This includes selected variables for all individual respondents across Understanding Society waves 3-10
+master_raw <- readRDS("../raw_data/master_raw1.rds")
+
+## waves 3-6
+master_raw_a <- master_raw %>% filter(wv_n %in% c(3:6))
+
+## waves 7-10
+master_raw_b <- master_raw %>% filter(wv_n %in% c(7:10))
+
+### non-working age ---------
+non_working_age_spine_a <- readRDS("../look_ups/non_working_age_spine_a.rds")
+non_working_age_spine_b <- readRDS("../look_ups/non_working_age_spine_b.rds")
+
+### no valid case at end-point ----------
+no_endpoint_a <- readRDS("../look_ups/no_endpoint_a.rds")
+no_endpoint_b <- readRDS("../look_ups/no_endpoint_b.rds")
+
+### eligible population ---------
+# This includes individual respondents aged 16-64; Understanding Society waves 3-10 
+eligible_a <- readRDS("../working_data/eligible_pop_a.rds") 
+eligible_b <- readRDS("../working_data/eligible_pop_b.rds") 
+
+### censored cases ---------
+censor_combined_a <- readRDS("../look_ups/censor_combined_a.rds")
+censor_combined_b <- readRDS("../look_ups/censor_combined_b.rds")
+
+### analytic samples  ---------
+dfas1a <- read_rds("../analytic_sample_data/dfas1a.rds")
+dfas1b <- read_rds("../analytic_sample_data/dfas1b.rds")
+
+
+##### flowchart nodes A to xx --------------------------------------------------
+
+### Node A:  ----------------
+### Total number of individuals and observations in study period
+## number of unique individuals (node A)
+raw_unique_indiv_a <- length(unique(master_raw_a$pidp))
+raw_unique_indiv_b <- length(unique(master_raw_b$pidp))
+
+## number of observations (node A)
+raw_observations_a <- nrow(master_raw_a)
+raw_observations_b <- nrow(master_raw_b)
+#raw_observations <- prettyNum(raw_observations, big.mark=",")
+
+### Node AA: ----------------
+### number of individuals excluded due to not being working-age or no valid 
+### response at study endpoint
+
+## non-working age
+non_work_age_a <- nrow(non_working_age_spine_a)
+non_work_age_b <- nrow(non_working_age_spine_b)
+#non_work_age <- prettyNum(non_work_age, big.mark=",")
+
+## no valid endpoint response
+no_valid_end_a <- length(unique(no_endpoint_a$pidp))
+no_valid_end_b <- length(unique(no_endpoint_b$pidp))
+#no_wv2 <- prettyNum(no_wv2, big.mark=",")
+
+
+### Node B: ----------------
+### number of individuals and observations in eligible population
+eligible_unique_indiv_a <- length(unique(eligible_a$pidp))
+eligible_unique_indiv_b <- length(unique(eligible_b$pidp))
+#eligible_descr_unique_indiv <- prettyNum(eligible_descr_unique_indiv, big.mark=",")
+
+
+### Node BB: ----------------
+### number of individuals censored due to retirement or incomplete
+
+## retired
+retired_spine_a <- censor_combined_a %>% 
+  filter(censor_reason=="retired")
+
+retired_spine_b <- censor_combined_b %>% 
+  filter(censor_reason=="retired")
+
+censor_retired_a <- nrow(retired_spine_a)
+censor_retired_b <- nrow(retired_spine_b)
+#censor_retired <- prettyNum(censor_retired, big.mark=",")
+
+
+## number of individuals censored due to incomplete data
+incomplete_spine_a <- censor_combined_a %>% 
+  filter(censor_reason=="incomplete")
+
+incomplete_spine_b <- censor_combined_b %>% 
+  filter(censor_reason=="incomplete")
+
+incomplete_a <- nrow(incomplete_spine_a)
+incomplete_b <- nrow(incomplete_spine_b)
+#censor_lost <- prettyNum(censor_lost, big.mark=",")
+
+
+### Node C: ---------------- 
+### Number of individuals and observations in analytic samples
+
+dfas1a_observations <- nrow(dfas1a)
+dfas1b_observations <- nrow(dfas1b)
+#dfas1_observations <- prettyNum(dfas1_observations, big.mark=",")
+
+dfas1a_unique_indivs <- length(unique(dfas1a$pidp))
+dfas1b_unique_indivs <- length(unique(dfas1b$pidp))
+#dfas1_unique_indivs <- prettyNum(dfas1_unique_indivs, big.mark=",")
+
+# done to here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+##### Study endpoint sample characteristics
+sample_chars_baseline_exp1_wide <- readRDS("../working_data/sample_chars_baseline_exp1_wide.rds")
+
+## formatting for table
+# for estimates set 1dp
+sample_chars_baseline_exp1_wide$permanent_est <- formatC(sample_chars_baseline_exp1_wide$permanent_est, digits = 1, format = "f")
+
+sample_chars_baseline_exp1_wide$not_permanent_est <- formatC(sample_chars_baseline_exp1_wide$not_permanent_est, digits = 1, format = "f")
+
+sample_chars_baseline_exp1_wide$inapplicable_est <- formatC(sample_chars_baseline_exp1_wide$inapplicable_est, digits = 1, format = "f")
+
+sample_chars_baseline_exp1_wide$dk_est <- formatC(sample_chars_baseline_exp1_wide$dk_est, digits = 1, format = "f")
+
+# for number of cases set 1,000 separator
+sample_chars_baseline_exp1_wide$permanent_n <- prettyNum(sample_chars_baseline_exp1_wide$permanent_n, big.mark=",")
+
+sample_chars_baseline_exp1_wide$not_permanent_n <- prettyNum(sample_chars_baseline_exp1_wide$not_permanent_n, big.mark=",")
+
+sample_chars_baseline_exp1_wide$inapplicable_n <- prettyNum(sample_chars_baseline_exp1_wide$inapplicable_n, big.mark=",")
+
+sample_chars_baseline_exp1_wide$dk_n <- prettyNum(sample_chars_baseline_exp1_wide$dk_n, big.mark=",")
+
+# for number of cases set <10 to -999 so can suppress low numbers
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  mutate(permanent_n = ifelse(permanent_n%in%c(1:10),-999,permanent_n))
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  mutate(not_permanent_n = ifelse(not_permanent_n%in%c(1:10),-999,not_permanent_n))
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  mutate(inapplicable_n = ifelse(inapplicable_n%in%c(1:10),-999,inapplicable_n))
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  mutate(dk_n = ifelse(dk_n%in%c(1:10),-999,dk_n))
+
+
+# for number of cases convert to character so NAs can be removed
+sample_chars_baseline_exp1_wide$permanent_n <- as.character(sample_chars_baseline_exp1_wide$permanent_n)
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  group_by(var) %>% 
+  mutate(row_n = row_number()) %>% 
+  mutate(var = ifelse(row_n==1,var,"")) %>% 
+  ungroup() %>% 
+  mutate(permanent_n = ifelse(permanent_n=="NA","",
+                    ifelse(permanent_n=="-999","-",permanent_n))) %>% 
+  select(-row_n)
+
+sample_chars_baseline_exp1_wide$not_permanent_n <- as.character(sample_chars_baseline_exp1_wide$not_permanent_n)
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  group_by(var) %>% 
+  mutate(row_n = row_number()) %>% 
+  mutate(var = ifelse(row_n==1,var,"")) %>% 
+  ungroup() %>% 
+  mutate(not_permanent_n = ifelse(not_permanent_n=="NA","",
+                    ifelse(not_permanent_n=="-999","-",not_permanent_n))) %>% 
+  select(-row_n)
+
+sample_chars_baseline_exp1_wide$inapplicable_n <- as.character(sample_chars_baseline_exp1_wide$inapplicable_n)
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  group_by(var) %>% 
+  mutate(row_n = row_number()) %>% 
+  mutate(var = ifelse(row_n==1,var,"")) %>% 
+  ungroup() %>% 
+  mutate(inapplicable_n = ifelse(inapplicable_n=="NA","",
+                    ifelse(inapplicable_n=="-999","-",inapplicable_n))) %>% 
+  select(-row_n)
+
+sample_chars_baseline_exp1_wide$dk_n <- as.character(sample_chars_baseline_exp1_wide$dk_n)
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+  group_by(var) %>% 
+  mutate(row_n = row_number()) %>% 
+  mutate(var = ifelse(row_n==1,var,"")) %>% 
+  ungroup() %>% 
+  mutate(dk_n = ifelse(dk_n=="NA","",
+                    ifelse(dk_n=="-999","-",dk_n))) %>% 
+  select(-row_n)
+
+### variable spine for labels and wave coverage
+#var_spine <- readRDS("../variables/vars_master.rds") %>%
+#  filter(variable %in% c("sex_dv",
+#                         "age_dv",
+#                         "ethn_dv",
+#                         "mlstat",
+#                         "hiqual_dv",
+#                         "jbstat",
+#                         "jbnssec3_dv",
+#                         "jbterm1",
+#                         "nmpsp_dv",
+#                         "nnmpsp_dv",
+#                         "nunmpsp_dv"))
+
+### health outcomes at follow-up (wave 10) (node EE)
+health_wv10 <- readRDS("../working_data/health_wv10.rds")
+
+## poor self-rated health
+srh_case <- health_wv10 %>% filter(var=="Self-rated health (binary)" &
+                                     measure=="Good, fair or poor")
+srh_case <- srh_case$n
+
+srh_nocase <- health_wv10 %>% filter(var=="Self-rated health (binary)" &
+                                     measure=="Excellent or very good")
+srh_nocase <- srh_nocase$n
+
+
+
+## GHQ12 caseness (3 or more)
+ghq_case <- health_wv10 %>% filter(var=="GHQ12 score" &
+                                     measure=="3 or more")
+ghq_case <- ghq_case$n
+
+ghq_nocase <- health_wv10 %>% filter(var=="GHQ12 score" &
+                                     measure=="0-2")
+ghq_nocase <- ghq_nocase$n
+
+
+```
+
+## Sample description
+
+A total of `r prettyNum(raw_unique_indiv, big.mark=",")` individuals participated in UKHLS waves 2-10 (Figure 1). We excluded `r prettyNum(non_work_age, big.mark=",")` individuals for not being working-age (16-64) for the full study period and `r prettyNum(no_wv2, big.mark=",")` individuals for not having a valid survey response at wave 2. From an eligible population of `r prettyNum(eligible_descr_unique_indiv, big.mark=",")` we excluded `r prettyNum(censor_retired, big.mark=",")` individuals who were retired during the study period, `r prettyNum(censor_death, big.mark=",")` who died and `r prettyNum(censor_lost, big.mark=",")` who did not have a valid response at wave 10. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
+
+
+**Figure 1: Flowchart for inclusion and exclusion of UKHLS respondents (waves 2-10) to create analytic sample**
+```{r, echo=FALSE, include=TRUE, fig.width=8}
+
+
+## flowchart - need to fix box AA to include no valid wave 2 response
+grViz(paste0("digraph {
+  graph []
+  node []
+    A [label = '",prettyNum(raw_unique_indiv, big.mark=",")," individuals
+    
+    (",prettyNum(raw_observations, big.mark=",")," observations)', shape = box, width = 3, height = 1]
+    AA [label = '",prettyNum(non_work_age, big.mark=",")," non-working age
+    
+    ",prettyNum(no_wv2, big.mark=",")," no valid wave 2 response' , shape = box, 
+    width = 3, height = 1]
+    B [label = '",prettyNum(eligible_descr_unique_indiv, big.mark=",")," eligible individuals' , shape = box, 
+    width = 3, height = 1]
+    BB [label = '",prettyNum(censor_retired, big.mark=",")," retired
+    
+    ",prettyNum(censor_death, big.mark=",")," died
+    
+    ",prettyNum(censor_lost, big.mark=",")," lost to follow-up', shape = box, width = 3, height = 1]
+    C [label = '",prettyNum(dfas1_unique_indivs, big.mark=",")," in analytic sample
+    
+    (",prettyNum(dfas1_observations, big.mark=",")," observations)', shape = box, 
+    width = 3, height = 1]
+    D [label = 'x in each employment history cluster' , shape = box, 
+    width = 3, height = 1]
+    E [label = '",prettyNum(srh_case, big.mark=",")," cases - poor self-reported health
+    
+    ",prettyNum(srh_nocase, big.mark=",")," event free - poor self-reported health
+    
+    ",prettyNum(ghq_case, big.mark=",")," cases - common mental health disorder
+    
+    ",prettyNum(ghq_nocase, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
+  edge []
+    A->B
+    A->AA
+    B->BB
+    B->C
+    C->D
+    D->E
+{ rank = same; A; AA }
+{ rank = same; B; BB }}"))
+```
+
+```{r, echo=FALSE}
+## add checks to ensure number of individuals adds up
+#doesn't current
+#check_AB <- eligible_descr_unique_indiv+non_work_age+no_wv2==raw_unique_indiv
+#
+#check_BC <- censor_death+censor_retired+censor_lost+dfas1_unique_indivs==eligible_descr_unique_indiv
+#
+#if(check_AB!=TRUE){print("boxes AA and B to not equal box A")}
+#if(check_BC!=TRUE){print("boxes BB and C to not equal box A")}
+
+```
+\newpage
+**Table 1: Analytic sample characteristics at baseline (UKHLS wave 2)**
+```{r, echo=FALSE}
+
+sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide[,c(1:10)]
+kable(sample_chars_baseline_exp1_wide, 
+      col.names = c("Variable", 
+                    "Measure", 
+                    "Permanent Employment (n)", 
+                    "Permanent Employment (%)", 
+                    "Non-permanent Employment (n)", 
+                    "Non-permanent Employment (%)", 
+                    "Inapplicable (n)", 
+                    "Inapplicable (%)", 
+                    "Don't know (n)", 
+                    "Don't know (%)"), 
+      format.args = list(big.mark = ","))
+
+```
+\newpage
+## Missing data
+```{r, include=FALSE, echo=FALSE}
+### total number of cases in each wave 16-64
+spine_total <- dfas1 %>% group_by(wv_n) %>% summarise(n=n()) %>% ungroup()
+
+## total number of cases by number of waves reported
+spine_waves <- dfas1 %>% 
+  group_by(pidp) %>% 
+  summarise(n_wvs = n()) %>% # calculate number of waves responded to
+  ungroup() %>% 
+  group_by(n_wvs) %>% 
+  summarise(n = n()) %>% # calculate number of cases
+  ungroup() %>% 
+  mutate(pc= n/sum(n)*100) # calculate percentage of cases
+
+### sequence analysis
+## wide format for sequencing data
+spine_wide <- dfas1 %>%
+  select(pidp,wv_n) %>% 
+  mutate(response=1) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
+
+spine_labs <- c("response", "missing")
+spine_code <- c("RESP", "NA")
+spine.seq <- seqdef(spine_wide, 2:10, states = spine_code,
+                    labels = spine_labs)
+
+
+```
+Responses to all nine waves in the study period were provided by `r spine_waves$pc[spine_waves$n_wvs==9]`% of the analytic sample (Figure 2). Response sequences ascending in order of frequency are presented in Figure 3.
+
+**Figure 2: Number of waves responded to by percentage of the analytic sample**
+```{r, echo=FALSE, fig.width=3,fig.height=3}
+# chart
+spine_waves %>% 
+  ggplot(aes(x=n_wvs, y=pc)) +
+  geom_col() +
+  scale_x_continuous(limits = c(1,11),breaks = 2:9) +
+  xlab("Number of waves responded to") +
+  ylab("Percentage of cases") +
+  theme_classic()
+```
+
+\newpage
+**Figure 3: UKHLS response sequences ascending in order of frequency (waves 2-10)**
+
+```{r, echo=FALSE, fig.width=12,fig.height=15}
+
+# sequence frequency plot (all common sequences)
+seqfplot(spine.seq, 
+         idxs=1:900, # to add more lines
+         with.legend = "right", 
+         border = NA, 
+         main = "Sequence frequency plot")
+```
+
+```{r, echo=FALSE, include=FALSE}
+
+
+```
+
+
+```{r, echo=FALSE, fig.width=9,fig.height=9}
+
+#
+
+
+```
