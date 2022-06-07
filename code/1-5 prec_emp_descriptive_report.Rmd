@@ -129,126 +129,64 @@ dfas1a_unique_indivs <- length(unique(dfas1a$pidp))
 dfas1b_unique_indivs <- length(unique(dfas1b$pidp))
 #dfas1_unique_indivs <- prettyNum(dfas1_unique_indivs, big.mark=",")
 
-# done to here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ##### Study endpoint sample characteristics
-sample_chars_baseline_exp1_wide <- readRDS("../working_data/sample_chars_baseline_exp1_wide.rds")
+sample_chars_endpoint <- readRDS("../working_data/sample_chars_endpoint.rds")  %>% 
+  mutate(measure=tolower(measure))
 
 ## formatting for table
 # for estimates set 1dp
-sample_chars_baseline_exp1_wide$permanent_est <- formatC(sample_chars_baseline_exp1_wide$permanent_est, digits = 1, format = "f")
-
-sample_chars_baseline_exp1_wide$not_permanent_est <- formatC(sample_chars_baseline_exp1_wide$not_permanent_est, digits = 1, format = "f")
-
-sample_chars_baseline_exp1_wide$inapplicable_est <- formatC(sample_chars_baseline_exp1_wide$inapplicable_est, digits = 1, format = "f")
-
-sample_chars_baseline_exp1_wide$dk_est <- formatC(sample_chars_baseline_exp1_wide$dk_est, digits = 1, format = "f")
+sample_chars_endpoint$est <- formatC(sample_chars_endpoint$est, digits = 1, format = "f")
 
 # for number of cases set 1,000 separator
-sample_chars_baseline_exp1_wide$permanent_n <- prettyNum(sample_chars_baseline_exp1_wide$permanent_n, big.mark=",")
-
-sample_chars_baseline_exp1_wide$not_permanent_n <- prettyNum(sample_chars_baseline_exp1_wide$not_permanent_n, big.mark=",")
-
-sample_chars_baseline_exp1_wide$inapplicable_n <- prettyNum(sample_chars_baseline_exp1_wide$inapplicable_n, big.mark=",")
-
-sample_chars_baseline_exp1_wide$dk_n <- prettyNum(sample_chars_baseline_exp1_wide$dk_n, big.mark=",")
+sample_chars_endpoint$n <- prettyNum(sample_chars_endpoint$n, big.mark=",")
 
 # for number of cases set <10 to -999 so can suppress low numbers
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  mutate(permanent_n = ifelse(permanent_n%in%c(1:10),-999,permanent_n))
+sample_chars_endpoint <- sample_chars_endpoint %>% 
+  mutate(n = ifelse(n%in%c(1:10),-999,n))
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  mutate(not_permanent_n = ifelse(not_permanent_n%in%c(1:10),-999,not_permanent_n))
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  mutate(inapplicable_n = ifelse(inapplicable_n%in%c(1:10),-999,inapplicable_n))
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  mutate(dk_n = ifelse(dk_n%in%c(1:10),-999,dk_n))
 
+sample_chars_endpoint_wide <- sample_chars_endpoint %>% 
+  filter(wv_n==6) %>% 
+  rename("n6" = "n",
+         "est6" = "est") %>% 
+  ungroup() %>% 
+  select(-wv_n)
+
+temp <- sample_chars_endpoint %>% 
+  filter(wv_n==10) %>% 
+  rename("n10" = "n",
+         "est10" = "est") %>% 
+  ungroup() %>% 
+  select(-wv_n)
+
+sample_chars_endpoint_wide <- sample_chars_endpoint_wide %>% 
+  full_join(temp, by = c("var", "measure"))
 
 # for number of cases convert to character so NAs can be removed
-sample_chars_baseline_exp1_wide$permanent_n <- as.character(sample_chars_baseline_exp1_wide$permanent_n)
+sample_chars_endpoint_wide$n6 <- as.character(sample_chars_endpoint_wide$n6)
+sample_chars_endpoint_wide$n10 <- as.character(sample_chars_endpoint_wide$n10)
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
+sample_chars_endpoint_wide <- sample_chars_endpoint_wide %>% 
   group_by(var) %>% 
   mutate(row_n = row_number()) %>% 
   mutate(var = ifelse(row_n==1,var,"")) %>% 
   ungroup() %>% 
-  mutate(permanent_n = ifelse(permanent_n=="NA","",
-                    ifelse(permanent_n=="-999","-",permanent_n))) %>% 
+  mutate(n6 = ifelse(n6=="NA","",
+                    ifelse(n6=="-999","-",n6)),
+         n10 = ifelse(n10=="NA","",
+                    ifelse(n10=="-999","-",n10))) %>% 
   select(-row_n)
 
-sample_chars_baseline_exp1_wide$not_permanent_n <- as.character(sample_chars_baseline_exp1_wide$not_permanent_n)
+#### Node E: -------------
+### Outcome caseness
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  group_by(var) %>% 
-  mutate(row_n = row_number()) %>% 
-  mutate(var = ifelse(row_n==1,var,"")) %>% 
-  ungroup() %>% 
-  mutate(not_permanent_n = ifelse(not_permanent_n=="NA","",
-                    ifelse(not_permanent_n=="-999","-",not_permanent_n))) %>% 
-  select(-row_n)
-
-sample_chars_baseline_exp1_wide$inapplicable_n <- as.character(sample_chars_baseline_exp1_wide$inapplicable_n)
-
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  group_by(var) %>% 
-  mutate(row_n = row_number()) %>% 
-  mutate(var = ifelse(row_n==1,var,"")) %>% 
-  ungroup() %>% 
-  mutate(inapplicable_n = ifelse(inapplicable_n=="NA","",
-                    ifelse(inapplicable_n=="-999","-",inapplicable_n))) %>% 
-  select(-row_n)
-
-sample_chars_baseline_exp1_wide$dk_n <- as.character(sample_chars_baseline_exp1_wide$dk_n)
-
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide %>% 
-  group_by(var) %>% 
-  mutate(row_n = row_number()) %>% 
-  mutate(var = ifelse(row_n==1,var,"")) %>% 
-  ungroup() %>% 
-  mutate(dk_n = ifelse(dk_n=="NA","",
-                    ifelse(dk_n=="-999","-",dk_n))) %>% 
-  select(-row_n)
-
-### variable spine for labels and wave coverage
-#var_spine <- readRDS("../variables/vars_master.rds") %>%
-#  filter(variable %in% c("sex_dv",
-#                         "age_dv",
-#                         "ethn_dv",
-#                         "mlstat",
-#                         "hiqual_dv",
-#                         "jbstat",
-#                         "jbnssec3_dv",
-#                         "jbterm1",
-#                         "nmpsp_dv",
-#                         "nnmpsp_dv",
-#                         "nunmpsp_dv"))
-
-### health outcomes at follow-up (wave 10) (node EE)
-health_wv10 <- readRDS("../working_data/health_wv10.rds")
-
-## poor self-rated health
-srh_case <- health_wv10 %>% filter(var=="Self-rated health (binary)" &
-                                     measure=="Good, fair or poor")
-srh_case <- srh_case$n
-
-srh_nocase <- health_wv10 %>% filter(var=="Self-rated health (binary)" &
-                                     measure=="Excellent or very good")
-srh_nocase <- srh_nocase$n
-
-
-
-## GHQ12 caseness (3 or more)
-ghq_case <- health_wv10 %>% filter(var=="GHQ12 score" &
-                                     measure=="3 or more")
-ghq_case <- ghq_case$n
-
-ghq_nocase <- health_wv10 %>% filter(var=="GHQ12 score" &
-                                     measure=="0-2")
-ghq_nocase <- ghq_nocase$n
-
+srh_case <- "x"
+srh_nocase <- "x" 
+ghq_case <- "x"
+ghq_nocase <- "x"
 
 ```
 
@@ -265,23 +203,21 @@ A total of `r prettyNum(raw_unique_indiv, big.mark=",")` individuals participate
 grViz(paste0("digraph {
   graph []
   node []
-    A [label = '",prettyNum(raw_unique_indiv, big.mark=",")," individuals
+    A [label = '",prettyNum(raw_unique_indiv_a, big.mark=",")," individuals
     
-    (",prettyNum(raw_observations, big.mark=",")," observations)', shape = box, width = 3, height = 1]
-    AA [label = '",prettyNum(non_work_age, big.mark=",")," non-working age
+    (",prettyNum(raw_observations_a, big.mark=",")," observations)', shape = box, width = 3, height = 1]
+    AA [label = '",prettyNum(non_work_age_a, big.mark=",")," non-working age
     
-    ",prettyNum(no_wv2, big.mark=",")," no valid wave 2 response' , shape = box, 
+    ",prettyNum(no_valid_end_a, big.mark=",")," no valid wave 6 response' , shape = box, 
     width = 3, height = 1]
-    B [label = '",prettyNum(eligible_descr_unique_indiv, big.mark=",")," eligible individuals' , shape = box, 
+    B [label = '",prettyNum(eligible_unique_indiv_a, big.mark=",")," eligible individuals' , shape = box, 
     width = 3, height = 1]
-    BB [label = '",prettyNum(censor_retired, big.mark=",")," retired
+    BB [label = '",prettyNum(censor_retired_a, big.mark=",")," retired
     
-    ",prettyNum(censor_death, big.mark=",")," died
+    ",prettyNum(incomplete_a, big.mark=",")," incomplete data', shape = box, width = 3, height = 1]
+    C [label = '",prettyNum(dfas1a_unique_indivs, big.mark=",")," in analytic sample A
     
-    ",prettyNum(censor_lost, big.mark=",")," lost to follow-up', shape = box, width = 3, height = 1]
-    C [label = '",prettyNum(dfas1_unique_indivs, big.mark=",")," in analytic sample
-    
-    (",prettyNum(dfas1_observations, big.mark=",")," observations)', shape = box, 
+    (",prettyNum(dfas1a_observations, big.mark=",")," observations)', shape = box, 
     width = 3, height = 1]
     D [label = 'x in each employment history cluster' , shape = box, 
     width = 3, height = 1]
@@ -318,18 +254,14 @@ grViz(paste0("digraph {
 **Table 1: Analytic sample characteristics at baseline (UKHLS wave 2)**
 ```{r, echo=FALSE}
 
-sample_chars_baseline_exp1_wide <- sample_chars_baseline_exp1_wide[,c(1:10)]
-kable(sample_chars_baseline_exp1_wide, 
+#sample_chars_endpoint_wide <- sample_chars_endpoint_wide[,c(1:10)]
+kable(sample_chars_endpoint_wide, 
       col.names = c("Variable", 
                     "Measure", 
-                    "Permanent Employment (n)", 
-                    "Permanent Employment (%)", 
-                    "Non-permanent Employment (n)", 
-                    "Non-permanent Employment (%)", 
-                    "Inapplicable (n)", 
-                    "Inapplicable (%)", 
-                    "Don't know (n)", 
-                    "Don't know (%)"), 
+                    "n (wave 6)", 
+                    "% (wave 6)", 
+                    "n (wave 10)", 
+                    "% (wave 10)"), 
       format.args = list(big.mark = ","))
 
 ```
