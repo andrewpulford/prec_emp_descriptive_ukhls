@@ -78,27 +78,27 @@ sample_chars_endpoint <- sex
 
 
 #### age -----------------------------------------------------------------------
-age_mean <- dfas1_end %>% group_by(wv_n,sex_dv) %>% 
+age_mean <- dfas1_end %>% group_by(wv_n) %>% 
   summarise(est = mean(as.numeric(as.numeric(age_dv)), na.rm = TRUE)) %>% 
   mutate(var="Age", measure="Mean", n=NA) %>% 
   select(wv_n, var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean)
 
-age_min <- dfas1_end %>% group_by(wv_n,sex_dv) %>% 
-  summarise(est = min(as.numeric(age_dv), na.rm = TRUE)) %>% 
-  mutate(var="Age", measure="Min", n=NA) %>% 
-  select(wv_n, var, measure, n, est)
-
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_min)
-
-
-age_max <- dfas1_end %>% group_by(wv_n,sex_dv) %>%   
-  summarise(est = max(as.numeric(age_dv), na.rm = TRUE)) %>% 
-  mutate(var="Age", measure="Max", n=NA) %>% 
-  select(wv_n, var, measure, n, est)
-
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_max)
+#age_min <- dfas1_end %>% group_by(wv_n,sex_dv) %>% 
+#  summarise(est = min(as.numeric(age_dv), na.rm = TRUE)) %>% 
+#  mutate(var="Age", measure="Min", n=NA) %>% 
+#  select(wv_n, var, measure, n, est)
+#
+#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_min)
+#
+#
+#age_max <- dfas1_end %>% group_by(wv_n,sex_dv) %>%   
+#  summarise(est = max(as.numeric(age_dv), na.rm = TRUE)) %>% 
+#  mutate(var="Age", measure="Max", n=NA) %>% 
+#  select(wv_n, var, measure, n, est)
+#
+#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_max)
 
 #### ethnicity -----------------------------------------------------------------
 ## full ethnicity coding
