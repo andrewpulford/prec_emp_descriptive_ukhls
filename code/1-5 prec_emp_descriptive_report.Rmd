@@ -540,3 +540,197 @@ seqlegend(emp_contract.seq.a, cex = 1.3)
 
 
 ```
+
+
+```{r, echo=FALSE, include=FALSE}
+#### ---------------------------------------------------------------------------
+#### Broken employment
+#### ---------------------------------------------------------------------------
+
+### employment spells -----
+# create numeric version
+dfas1a_seq2 <- dfas1a %>% 
+  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
+  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+
+dfas1b_seq2 <- dfas1b %>% 
+  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
+  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+
+# create binary version (one spell or more)
+dfas1a_seq2 <- dfas1a_seq2 %>% 
+  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
+                        ifelse(nmpsp_dvn>=1,"yes", NA)))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% 
+  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
+                               ifelse(nmpsp_dvn>=1,"yes", NA)))
+
+### non-employment spells -----
+# create numeric version
+dfas1a_seq2 <- dfas1a_seq2 %>% 
+  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
+  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% 
+  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
+  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
+
+# create binary version (one or more spell)
+dfas1a_seq2 <- dfas1a_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
+                                                           ifelse(nnmpsp_dvn>=1,"yes", 
+                                                                  NA)))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
+                                                               ifelse(nnmpsp_dvn>=1,"yes", 
+                                                                      NA)))
+
+### unemployment spells -----
+# create numeric version
+dfas1a_seq2 <- dfas1a_seq2 %>% 
+  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
+  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% 
+  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
+  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
+
+# create binary version (one or more spell)
+dfas1a_seq2 <- dfas1a_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
+                                                          ifelse(nunmpsp_dvn>=1,"yes", 
+                                                                 NA)))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
+                                                              ifelse(nunmpsp_dvn>=1,"yes", 
+                                                                     NA)))
+
+### create broken employment variable ------
+dfas1a_seq2 <- dfas1a_seq2 %>% 
+  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
+                             ifelse(emp_spells_bin=="yes" & 
+                                      nonemp_spells_bin=="no" & 
+                                      unemp_spells_bin=="no",
+                                    "Unbroken employment",
+                                    ifelse(emp_spells_bin=="yes" & 
+                                             (nonemp_spells_bin=="yes" |
+                                                unemp_spells_bin=="yes"),
+                                           "Broken employment","check"))))
+
+dfas1b_seq2 <- dfas1b_seq2 %>% 
+  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
+                             ifelse(emp_spells_bin=="yes" & 
+                                      nonemp_spells_bin=="no" & 
+                                      unemp_spells_bin=="no",
+                                    "Unbroken employment",
+                                    ifelse(emp_spells_bin=="yes" & 
+                                             (nonemp_spells_bin=="yes" |
+                                                unemp_spells_bin=="yes"),
+                                           "Broken employment","check"))))
+
+### wide format for creating sequence data
+dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
+  select(pidp,wv_n,broken_emp) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
+
+dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
+  select(pidp,wv_n,broken_emp) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
+
+### define labels and codes for sequence analysis
+## retaining missing values for now but plan to impute
+broken_emp_labs <- c("Broken employment", "Missing", "No employment spells", "Unbroken employment" )
+broken_emp_code <- c("BE","NA", "NE", "UE")
+
+### create sequence data
+broken_emp.seq.a <- seqdef(dfas1a_seq_wide2, 2:5, states = broken_emp_labs,
+                             labels = broken_emp_code)
+
+broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_labs,
+                             labels = broken_emp_code)
+
+```
+
+
+```{r, echo=FALSE, fig.width=9,fig.height=9}
+# sequence frequency plot (all common sequences)
+#png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
+par(mfrow=c(1,3))
+seqfplot(broken_emp.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Sequence frequency plot")
+seqfplot(broken_emp.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Sequence frequency plot")
+seqlegend(broken_emp.seq.a, cex = 1.3)
+
+```
+
+```{r, echo=FALSE, include=FALSE}
+
+#### ---------------------------------------------------------------------------
+#### Multiple jobs
+#### ---------------------------------------------------------------------------
+
+## collapse missing categories
+dfas1a$j2has <- as.character(dfas1a$j2has)
+dfas1b$j2has <- as.character(dfas1b$j2has)
+
+
+dfas1a_seq3 <- dfas1a %>% 
+  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
+                           "missing",j2has))
+
+dfas1b_seq3 <- dfas1b %>% 
+  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
+                           "missing",j2has))
+
+### wide format for creating sequence data
+dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
+  select(pidp,wv_n,j2has_dv) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
+
+dfas1b_seq_wide3  <-  dfas1b_seq3 %>% 
+  select(pidp,wv_n,j2has_dv) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
+
+### define labels and codes for sequence analysis
+## retaining missing values for now but plan to impute
+multi_jobs_labs <- c("Missing", "No", "Yes")
+multi_jobs_code <- c("NA","N", "Y")
+
+### create sequence data
+multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_labs,
+                           labels = multi_jobs_code)
+
+multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_labs,
+                           labels = multi_jobs_code)
+```
+
+```{r, echo=FALSE, fig.width=9,fig.height=9}
+# sequence frequency plot (all common sequences)
+#png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
+par(mfrow=c(1,3))
+seqfplot(multi_jobs.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Sequence frequency plot")
+seqfplot(multi_jobs.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Sequence frequency plot")
+seqlegend(multi_jobs.seq.a, cex = 1.3)
+```
