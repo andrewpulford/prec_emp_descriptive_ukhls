@@ -310,6 +310,46 @@ incomplete_spine_b <- eligible_pop_b %>%
   select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
          no_srh, no_ghq)
 
+
+### calculate totals
+
+## overall all totals by key variables
+incomplete_spine_a %>% select(-pidp) %>% 
+  summarise_all(funs(sum)) %>% 
+  pivot_longer(cols=1:8, names_to = "variable", values_to = "n") %>% 
+  mutate(pc = (n/nrow(endpoint_spine_a)*100))
+
+## check overlaps
+# demographics
+incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>% 
+  mutate(n_demogs_incompete = no_age + no_sex + no_hiqual) %>% 
+  filter(n_demogs_incompete!=0) %>% 
+  group_by(n_demogs_incompete) %>% 
+  summarise(n=n())
+
+incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>% 
+  summarise_all(funs(sum))
+
+
+
+### exposures
+incomplete_spine_a %>% select(no_jbterm1, no_emp_spell, no_j2has) %>% 
+  mutate(n_demogs_incompete = no_jbterm1 + no_emp_spell + no_j2has) %>% 
+  filter(n_demogs_incompete!=0) %>% 
+  group_by(n_demogs_incompete) %>% 
+  summarise(n=n())
+
+incomplete_spine_a %>% select(no_jbterm1, no_emp_spell, no_j2has) %>% 
+  summarise_all(funs(sum))
+
+### outcomes
+incomplete_spine_a %>% select(no_srh, no_ghq) %>% 
+  mutate(n_demogs_incompete = no_srh + no_ghq) %>% 
+  filter(n_demogs_incompete!=0) %>% 
+  group_by(n_demogs_incompete) %>% 
+  summarise(n=n())
+
+
 ## save for use in sample characteristics table as missing data
 write_rds(incomplete_spine_a, "./working_data/incomplete_spine_a.rds")
 write_rds(incomplete_spine_b, "./working_data/incomplete_spine_b.rds")
