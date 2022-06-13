@@ -802,6 +802,12 @@ write_rds(sample_chars_endpoint, "./working_data/sample_chars_endpoint.rds")
 #          "./working_data/sample_chars_endpoint_exp1_wide.rds")
 
 
+################################################################################
+#####                  Descriptive analysis of exposures                   #####
+################################################################################
+
+# cross tabs and ovelaps
+
 
 
 ################################################################################
@@ -836,7 +842,7 @@ dfas1a_seq <- dfas1a %>%
                                                     "doing something else",
                                                     "Doing something else"), 
                                                     "not in employment",
-                                                    "inapplicable")))))
+                                                    "missing")))))
 
 dfas1b_seq <- dfas1b %>% 
   mutate(emp_contract = ifelse(jbterm1 %in% c("not permanent job", 
@@ -861,7 +867,7 @@ dfas1b_seq <- dfas1b %>%
                                                                   "doing something else",
                                                                   "Doing something else"), 
                                                     "not in employment",
-                                                    "inapplicable")))))
+                                                    "missing")))))
 
 ### data checks
 # cases 
@@ -898,9 +904,9 @@ dfas1b_seq_wide  <-  dfas1b_seq %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to imput
-emp_contract_labs <- c("fixed term", "inapplicable", "missing", "not in employment", 
+emp_contract_labs <- c("fixed term", "missing", "not in employment", 
                 "permanent", "unemployed" )
-emp_contract_code <- c("FT", "IN", "NE", "PE", "UE", "NA")
+emp_contract_code <- c("FT", "NE", "PE", "UE", "NA")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
@@ -1077,11 +1083,11 @@ broken_emp_labs <- c("Broken employment", "Missing", "No employment spells", "Un
 broken_emp_code <- c("BE","NA", "NE", "UE")
 
 ### create sequence data
-broken_emp.seq.a <- seqdef(dfas1a_seq_wide2, 2:5, states = broken_emp_labs,
-                             labels = broken_emp_code)
+broken_emp.seq.a <- seqdef(dfas1a_seq_wide2, 2:5, states = broken_emp_code,
+                             labels = broken_emp_labs)
 
-broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_labs,
-                             labels = broken_emp_code)
+broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_code,
+                           labels = broken_emp_labs)
 
 ## first 10 sequences
 #png("./output/descriptive/seqiplot100_emp_contract.png", width = 960, height = 960)
@@ -1159,11 +1165,41 @@ dfas1b$j2has <- as.character(dfas1b$j2has)
 
 dfas1a_seq3 <- dfas1a %>% 
   mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing",j2has))
+                           "missing", 
+                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
+                                             "unemployed",
+                          ifelse(jbstat %in% c("on maternity leave",
+                                               "On maternity leave",
+                                               "Family care or home",
+                                               "full-time student",
+                                               "Full-time student",
+                                               "LT sick or disabled",
+                                               "Govt training scheme", # or fixed-term?
+                                               "On apprenticeship",    # or fixed-term?
+                                               "Unpaid, family business",
+                                               "doing something else",
+                                               "Doing something else"), 
+                                                    "not in employment",
+                                                    j2has))))
 
 dfas1b_seq3 <- dfas1b %>% 
   mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing",j2has))
+                           "missing", 
+                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
+                                  "unemployed",
+                                  ifelse(jbstat %in% c("on maternity leave",
+                                                       "On maternity leave",
+                                                       "Family care or home",
+                                                       "full-time student",
+                                                       "Full-time student",
+                                                       "LT sick or disabled",
+                                                       "Govt training scheme", # or fixed-term?
+                                                       "On apprenticeship",    # or fixed-term?
+                                                       "Unpaid, family business",
+                                                       "doing something else",
+                                                       "Doing something else"), 
+                                         "not in employment",
+                                         j2has))))
 
 ### wide format for creating sequence data
 dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
@@ -1180,12 +1216,12 @@ dfas1b_seq_wide3  <-  dfas1b_seq3 %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to impute
-multi_jobs_labs <- c("Missing", "No", "Yes")
-multi_jobs_code <- c("NA","N", "Y")
+multi_jobs_labs <- c("Missing", "No", "not in employment", "unemployed", "Yes")
+multi_jobs_code <- c("NA","N", "NE", "UE", "Y")
 
 ### create sequence data
-multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_labs,
-                           labels = multi_jobs_code)
+multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
+                           labels = multi_jobs_labs)
 
 multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_labs,
                            labels = multi_jobs_code)
