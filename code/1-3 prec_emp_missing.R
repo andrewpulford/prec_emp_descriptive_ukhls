@@ -234,7 +234,7 @@ jbterm1_code <- c("RESP","NA")
 # waves 3-6
 jbterm1_wide_a <- dfas1a %>%
   select(pidp,wv_n,jbterm1) %>% 
-  mutate(response = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+  mutate(response = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                                "Only available for IEMB", "Not available for IEMB",
                                "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
@@ -244,7 +244,7 @@ jbterm1_wide_a <- dfas1a %>%
 # waves 7-10
 jbterm1_wide_b <- dfas1b %>%
   select(pidp,wv_n,jbterm1) %>% 
-  mutate(response = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+  mutate(response = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                                           "Only available for IEMB", "Not available for IEMB",
                                           "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
