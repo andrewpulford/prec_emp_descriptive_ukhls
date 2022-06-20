@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 1-4 - descriptive analysis
+# 1-5 - descriptive analysis
 # Andrew Pulford
 
 # Data source:
@@ -32,6 +32,7 @@ rm(list=ls())
 ################################################################################
 
 library(tidyverse) # all kinds of stuff 
+library(broom) # for working with statistical outputs
 library(TraMineR) # for sequence analysis
 
 citation("TraMineR")
@@ -85,20 +86,6 @@ age_mean <- dfas1_end %>% group_by(wv_n) %>%
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean)
 
-#age_min <- dfas1_end %>% group_by(wv_n,sex_dv) %>% 
-#  summarise(est = min(as.numeric(age_dv), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Min", n=NA) %>% 
-#  select(wv_n, var, measure, n, est)
-#
-#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_min)
-#
-#
-#age_max <- dfas1_end %>% group_by(wv_n,sex_dv) %>%   
-#  summarise(est = max(as.numeric(age_dv), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Max", n=NA) %>% 
-#  select(wv_n, var, measure, n, est)
-#
-#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_max)
 
 #### ethnicity -----------------------------------------------------------------
 ## full ethnicity coding
@@ -110,13 +97,6 @@ ethnicity <- dfas1_end %>% group_by(wv_n,ethn_dv) %>%
   select(wv_n, var, measure, n, est)
 
 ## white/non-white
-dfas1_end <- dfas1_end %>% 
-  mutate(non_white = ifelse(ethn_dv=="british/english/scottish/welsh/northern irish", "White",
-                            ifelse(ethn_dv=="irish", "White",
-                                   ifelse(ethn_dv=="any other white background", "White",
-                                          ifelse(ethn_dv=="missing", "Missing",
-                                                 "Non-white")))))
-
 white_non <- dfas1_end %>% group_by(wv_n,non_white) %>% 
   summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
@@ -127,12 +107,11 @@ white_non <- dfas1_end %>% group_by(wv_n,non_white) %>%
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(white_non)
 
 #### Marital status -------------------------------------------------------------
-marital <- dfas1_end %>% group_by(wv_n,mlstat) %>% summarise(n=n()) %>%  
+marital <- dfas1_end %>% group_by(wv_n,marital_status) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Marital status") %>% 
-  rename("measure"= "mlstat") %>% 
+  rename("measure"= "marital_status") %>% 
   select(wv_n, var, measure, n, est)
-### need to sort inapplicable issue by including wv1 values<<<<<<<<<<<<<<<<<<<<<
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(marital)
 
@@ -151,41 +130,41 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain)
 #####----------------------------------------------------------------------#####
 
 #### Current employment status -------------------------------------------------
-emp <-  dfas1_end %>% 
-  group_by(wv_n,employ) %>% summarise(n=n()) %>%  
-  mutate(pc = n/sum(n)*100)
-
-#### current labour force status -----------------------------------------------
-lab_status <- dfas1_end %>% group_by(wv_n,jbstat) %>% summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Labour status") %>% 
-  rename("measure"= "jbstat") %>% 
-  select(wv_n,var, measure, n, est)
-
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(lab_status)
+#emp <-  dfas1_end %>% 
+#  group_by(wv_n,employ) %>% summarise(n=n()) %>%  
+#  mutate(pc = n/sum(n)*100)
+#
+##### current labour force status -----------------------------------------------
+#lab_status <- dfas1_end %>% group_by(wv_n,jbstat) %>% summarise(n=n()) %>%  
+#  mutate(est = n/sum(n)*100) %>% 
+#  mutate(var="Labour status") %>% 
+#  rename("measure"= "jbstat") %>% 
+#  select(wv_n,var, measure, n, est)
+#
+#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(lab_status)
 
 
 #### Current job: Three Class NS-SEC -------------------------------------------
-nssec3 <- dfas1_end %>% group_by(wv_n,jbnssec3_dv) %>% summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="NS-SEC3") %>% 
-  rename("measure"= "jbnssec3_dv") %>% 
-  select(wv_n,var, measure, n, est)
-# recode inapplicable based on emp status? <<<<<<<<<
-
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(nssec3)
+#nssec3 <- dfas1_end %>% group_by(wv_n,jbnssec3_dv) %>% summarise(n=n()) %>% 
+#  mutate(est = n/sum(n)*100) %>% 
+#  mutate(var="NS-SEC3") %>% 
+#  rename("measure"= "jbnssec3_dv") %>% 
+#  select(wv_n,var, measure, n, est)
+## recode inapplicable based on emp status? <<<<<<<<<
+#
+#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(nssec3)
 
 #### RG Social Class: present job ----------------------------------------------
-rg_class <- dfas1_end %>% group_by(wv_n,jbrgsc_dv) %>% summarise(n=n()) %>% 
-  mutate(pc = n/sum(n)*100)
+#rg_class <- dfas1_end %>% group_by(wv_n,jbrgsc_dv) %>% summarise(n=n()) %>% 
+#  mutate(pc = n/sum(n)*100)
 
 # don't add for now
 
 #### permanent or temporary ----------------------------------------------------
-perm_emp <- dfas1_end %>% group_by(wv_n,jbterm1) %>% summarise(n=n()) %>% 
+perm_emp <- dfas1_end %>% group_by(wv_n,emp_contract) %>% summarise(n=n()) %>% 
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Employment contract") %>% 
-  rename("measure"= "jbterm1") %>% 
+  rename("measure"= "emp_contract") %>% 
   select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp)
@@ -195,48 +174,48 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp)
 
 ### employment spells -----
 # create numeric version
-dfas1_end <- dfas1_end %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
-
-# create binary version (one spell or more)
-dfas1_end <- dfas1_end %>% mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-                                                ifelse(nmpsp_dvn>=1,"yes", NA)))
-
-### non-employment spells -----
-# create numeric version
-dfas1_end <- dfas1_end %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-
-# create binary version (one or more spell)
-dfas1_end <- dfas1_end %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-                                                   ifelse(nnmpsp_dvn>=1,"yes", 
-                                                          NA)))
-
-### unemployment spells -----
-# create numeric version
-dfas1_end <- dfas1_end %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-
-
-# create binary version (one or more spell)
-dfas1_end <- dfas1_end %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-                                                  ifelse(nunmpsp_dvn>=1,"yes", 
-                                                         NA)))
-
-### create broken employment variable ------
-dfas1_end <- dfas1_end %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-                             ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
-                                      unemp_spells_bin=="no",
-                                    "Unbroken employment",
-                                    ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
-                                                unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
+#dfas1_end <- dfas1_end %>% 
+#  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
+#  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+#
+## create binary version (one spell or more)
+#dfas1_end <- dfas1_end %>% mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
+#                                                ifelse(nmpsp_dvn>=1,"yes", NA)))
+#
+#### non-employment spells -----
+## create numeric version
+#dfas1_end <- dfas1_end %>% 
+#  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
+#  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
+#
+## create binary version (one or more spell)
+#dfas1_end <- dfas1_end %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
+#                                                   ifelse(nnmpsp_dvn>=1,"yes", 
+#                                                          NA)))
+#
+#### unemployment spells -----
+## create numeric version
+#dfas1_end <- dfas1_end %>% 
+#  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
+#  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
+#
+#
+## create binary version (one or more spell)
+#dfas1_end <- dfas1_end %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
+#                                                  ifelse(nunmpsp_dvn>=1,"yes", 
+#                                                         NA)))
+#
+#### create broken employment variable ------
+#dfas1_end <- dfas1_end %>% 
+#  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
+#                             ifelse(emp_spells_bin=="yes" & 
+#                                      nonemp_spells_bin=="no" & 
+#                                      unemp_spells_bin=="no",
+#                                    "Unbroken employment",
+#                                    ifelse(emp_spells_bin=="yes" & 
+#                                             (nonemp_spells_bin=="yes" |
+#                                                unemp_spells_bin=="yes"),
+#                                           "Broken employment","check"))))
 
 
 emp_broken <- dfas1_end %>% group_by(wv_n,broken_emp) %>% 
@@ -250,13 +229,13 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken)
 
 #### perceived job security in the next 12 months ------------------------------
 # even # waves only
-
+### here - reorder jbsec_dv <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # summary df
-job_sec <- dfas1_end %>% group_by(wv_n, jbsec) %>% summarise(n=n()) %>% 
+job_sec <- dfas1_end %>% group_by(wv_n, jbsec_dv) %>% summarise(n=n()) %>% 
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Perceived job security") %>% 
-  rename("measure"= "jbsec") %>% 
-  select(wv_n,var, measure, n, est)# recode inapplicable etc?
+  rename("measure"= "jbsec_dv") %>% 
+  select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(job_sec)
 
@@ -304,9 +283,9 @@ ltc <- dfas1_end %>% group_by(wv_n, health) %>% summarise(n=n()) %>%
 
 srh <- dfas1_end %>% 
   # recode self-rated health variables into one
-  mutate(sf1 = as.character(sf1),
-         scsf1 = as.character(scsf1)) %>% 
-  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
+#  mutate(sf1 = as.character(sf1),
+#         scsf1 = as.character(scsf1)) %>% 
+#  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
   group_by(wv_n, srh_dv) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Self-rated health") %>% 
@@ -318,21 +297,21 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh)
 
 #### GHQ-12 --------------------------------------------------------------------
 ## calculate caseness (cut point = 3)
-dfas1_end <- dfas1_end %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(scghq2_dv)),0,
-                                             ifelse(grepl("1",as.character(scghq2_dv)),0,
-                                                    ifelse(grepl("2",as.character(scghq2_dv)),0,
-                                                           ifelse(grepl("3",as.character(scghq2_dv)),1,
-                                                                  ifelse(grepl("4",as.character(scghq2_dv)),1,
-                                                                         ifelse(grepl("5",as.character(scghq2_dv)),1,
-                                                                                ifelse(grepl("6",as.character(scghq2_dv)),1,
-                                                                                       ifelse(grepl("7",as.character(scghq2_dv)),1,
-                                                                                              ifelse(grepl("8",as.character(scghq2_dv)),1,
-                                                                                                     ifelse(grepl("9",as.character(scghq2_dv)),1,
-                                                                                                            ifelse(grepl("10",as.character(scghq2_dv)),1,
-                                                                                                                   ifelse(grepl("11",as.character(scghq2_dv)),1,
-                                                                                                                          ifelse(grepl("12",as.character(scghq2_dv)),1,
-                                                                                                                                 as.character(scghq2_dv))))))))))))))) 
-
+#dfas1_end <- dfas1_end %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(scghq2_dv)),0,
+#                                             ifelse(grepl("1",as.character(scghq2_dv)),0,
+#                                                    ifelse(grepl("2",as.character(scghq2_dv)),0,
+#                                                           ifelse(grepl("3",as.character(scghq2_dv)),1,
+#                                                                  ifelse(grepl("4",as.character(scghq2_dv)),1,
+#                                                                         ifelse(grepl("5",as.character(scghq2_dv)),1,
+#                                                                                ifelse(grepl("6",as.character(scghq2_dv)),1,
+#                                                                                       ifelse(grepl("7",as.character(scghq2_dv)),1,
+#                                                                                              ifelse(grepl("8",as.character(scghq2_dv)),1,
+#                                                                                                     ifelse(grepl("9",as.character(scghq2_dv)),1,
+#                                                                                                            ifelse(grepl("10",as.character(scghq2_dv)),1,
+#                                                                                                                   ifelse(grepl("11",as.character(scghq2_dv)),1,
+#                                                                                                                          ifelse(grepl("12",as.character(scghq2_dv)),1,
+#                                                                                                                                 as.character(scghq2_dv))))))))))))))) 
+#
 ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="GHQ12 score") %>% 
@@ -411,403 +390,54 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
 write_rds(sample_chars_endpoint, "./working_data/sample_chars_endpoint.rds")
 
 ################################################################################
-#####                  sample characteristics at follow-up                 ##### 
-#####                  by exposure (fixed-term employment)                 #####
+#####           Descriptive analysis for exposure variables                #####
 ################################################################################
 
-#### select wave 2 only
-#dfas1_end_exp1 <- dfas1_end %>% 
-#  filter(wv_n==2)
-#
-######----------------------------------------------------------------------#####
-######                     Personal characteristics                         #####
-######----------------------------------------------------------------------#####
-#
-##### sex -----------------------------------------------------------------------
-#sex_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, sex_dv) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% 
-#  mutate(var="Sex") %>% 
-#  rename("measure"= "sex_dv") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sex_exp1
-#
-##### age -----------------------------------------------------------------------
-#age_mean_exp1 <- dfas1_end_exp1 %>% 
-#  group_by(jbterm1) %>% 
-#  summarise(est = mean(as.numeric(as.numeric(age_dv)), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Mean", n=NA) %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(age_mean_exp1)
-#
-#age_min_exp1 <- dfas1_end_exp1 %>%  
-#  group_by(jbterm1) %>% 
-#  summarise(est = min(as.numeric(age_dv), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Min", n=NA) %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(age_min_exp1)
-#
-#
-#age_max_exp1 <- dfas1_end_exp1 %>%  
-#  group_by(jbterm1) %>% 
-#  summarise(est = max(as.numeric(age_dv), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Max", n=NA) %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(age_max_exp1)
-#
-##### ethnicity -----------------------------------------------------------------
-### full ethnicity coding
-#ethnicity_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, ethn_dv) %>% 
-#  summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% 
-#  mutate(var="Ethnicity") %>% 
-#  rename("measure"= "ethn_dv") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-### white/non-white
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(non_white = ifelse(ethn_dv=="british/english/scottish/welsh/northern irish", "White",
-#                            ifelse(ethn_dv=="irish", "White",
-#                                   ifelse(ethn_dv=="any other white background", "White",
-#                                          ifelse(ethn_dv=="missing", "Missing",
-#                                                 "Non-white")))))
-#
-#white_non_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, non_white) %>% summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>%
-#  mutate(var="Ethnicity") %>% 
-#  rename("measure"= "non_white") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(white_non_exp1)
-#
-##### Marital status -------------------------------------------------------------
-#marital_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, mlstat) %>% summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>%
-#  mutate(var="Marital status") %>% 
-#  rename("measure"= "mlstat") %>% 
-#  select(var, measure, jbterm1, n, est)
-#### need to sort inapplicable issue by including wv1 values<<<<<<<<<<<<<<<<<<<<<
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(marital_exp1)
-#
-##### Educational attainment ----------------------------------------------------
-#ed_attain_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, hiqual_dv) %>% summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>%
-#  mutate(var="Educational attainment") %>% 
-#  rename("measure"= "hiqual_dv") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(ed_attain_exp1)
-#
-#
-######----------------------------------------------------------------------#####
-######               Employment and income characteristics                  #####
-######----------------------------------------------------------------------#####
-#
-##### Current employment status -------------------------------------------------
-#emp_exp1 <-  dfas1_end_exp1 %>% 
-#  group_by(jbterm1, employ) %>% summarise(n=n()) %>% 
-#  mutate(pc = n/sum(n)*100) %>% ungroup()
-#
-##### current labour force status -----------------------------------------------
-#lab_status_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, jbstat) %>% summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>%
-#  mutate(var="Labour status") %>% 
-#  rename("measure"= "jbstat") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(lab_status_exp1)
-#
-##### Current job: Three Class NS-SEC -------------------------------------------
-#nssec3_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, jbnssec3_dv) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>% 
-#  mutate(var="NS-SEC3") %>% 
-#  rename("measure"= "jbnssec3_dv") %>% 
-#  select(var, measure, jbterm1, n, est)
-## recode inapplicable based on emp status? <<<<<<<<<
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(nssec3_exp1)
-#
-##### RG Social Class: present job ----------------------------------------------
-#rg_class_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, jbrgsc_dv) %>% summarise(n=n()) %>%  
-#  mutate(pc = n/sum(n)*100) %>%ungroup()
-#
-#
-##### Employment spells since last interview ------------------------------------
-#
-#### employment spells -----
-## create numeric version
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-#  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
-#
-## create collapsed version (zero, one or more more than one spell)
-##dfas1_end <- dfas1_end %>% mutate(emp_spells_cat=ifelse(nmpsp_dvn>1,"more than one",nmpsp_dvn))
-#
-## create binary version (one spell or more)
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-#                                                        ifelse(nmpsp_dvn>=1,"yes", NA)))
-#
-## create binary version (more than one spell)
-##dfas1_end <- dfas1_end %>% mutate(multi_emp_spells=ifelse(nmpsp_dvn<=1,"no",
-##                                                  ifelse(nmpsp_dvn>1,"yes",
-##                                                         NA)))
-#
-#### non-employment spells -----
-## create numeric version
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-#  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-#
-## create binary version (one or more spell)
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-#                                                           ifelse(nnmpsp_dvn>=1,"yes", 
-#                                                                  NA)))
-#
-#### unemployment spells -----
-## create numeric version
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-#  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-#
-#
-## create binary version (one or more spell)
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-#                                                          ifelse(nunmpsp_dvn>=1,"yes", 
-#                                                                 NA)))
-#
-#### create broken employment variable ------
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-#                             ifelse(emp_spells_bin=="yes" & 
-#                                      nonemp_spells_bin=="no" & 
-#                                      unemp_spells_bin=="no",
-#                                    "Unbroken employment",
-#                                    ifelse(emp_spells_bin=="yes" & 
-#                                             (nonemp_spells_bin=="yes" |
-#                                                unemp_spells_bin=="yes"),
-#                                           "Broken employment","check"))))
-#
-#
-#emp_broken_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, broken_emp) %>% 
-#  summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>%
-#  mutate(var="Broken employment") %>% 
-#  rename("measure"= "broken_emp") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(emp_broken_exp1)
-#
-##### perceived job security in the next 12 months ------------------------------
-## even # waves only
-#
-## summary df
-#job_sec_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, jbsec) %>% 
-#  summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>% 
-#  mutate(var="Perceived job security") %>% 
-#  rename("measure"= "jbsec") %>% 
-#  select(var, measure, jbterm1, n, est)# recode inapplicable etc?
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(job_sec_exp1)
-#
-##### Multiple jobs -------------------------------------------------------------
-#### has a 2nd job ----
-#emp_2nd_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, j2has) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>%  ungroup() %>%
-#  mutate(var="Multiple jobs") %>% 
-#  rename("measure"= "j2has") %>% 
-#  select(var, measure, jbterm1, n, est)# recode inapplicable etc?
-## recode inapplicable etc?
-## include?
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(emp_2nd_exp1)
-#
-##### income --------------------------------------------------------------------
-### total net personal income (check what used in COVID modelling)
-## check monthly?
-#dfas1_end_exp1$fimnnet_dv <- as.numeric(as.character(dfas1_end_exp1$fimnnet_dv))
-#
-## descriptives
-##inc_mean <- mean(dfas1_end$fimnnet_dv)
-##inc_median <- median(dfas1_end$fimnnet_dv)
-##inc_min <- min(dfas1_end$fimnnet_dv)
-##inc_max <- max(dfas1_end$fimnnet_dv)
-##inc_quantile <- quantile(dfas1_end$fimnnet_dv)
-## present 25, 50, 75% quantiles in table?
-#
-#inc_quantile_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1) %>% 
-#  summarise(enframe(quantile(fimnnet_dv, c(0.25, 0.5, 0.75)), "measure", "est")) %>%
-#  #  mutate(measure=factor(measure)) %>% 
-#  mutate(measure = ifelse(measure=="25%","25% quantile", 
-#                          ifelse(measure=="50%","Median","75% quantile"))) %>% 
-#  mutate(var="Monthly net income (£)",
-#         n=NA) %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(inc_quantile_exp1)
-#
-#
-######----------------------------------------------------------------------#####
-######                       Health characteristics                         #####
-######----------------------------------------------------------------------#####
-#
-##### long-standing illness or impairment ---------------------------------------
-## risk of reverse causation - need to be incident from previous wave?
-#ltc_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, health) %>% summarise(n=n()) %>% 
-#  mutate(pc = n/sum(n)*100) %>% ungroup() 
-#
-##### self-rated health ---------------------------------------------------------
-## for waves 2-5 all responses are included in sf1 == use sf1
-#srh_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, sf1) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>% 
-#  mutate(var="Self-rated health") %>% 
-#  rename("measure"= "sf1") %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(srh_exp1)
-#
-#
-##### GHQ-12 --------------------------------------------------------------------
-### calculate caseness (cut point = 3)
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(scghq2_dv)),0,
-#                                                     ifelse(grepl("1",as.character(scghq2_dv)),0,
-#                                                            ifelse(grepl("2",as.character(scghq2_dv)),0,
-#                                                                   ifelse(grepl("3",as.character(scghq2_dv)),1,
-#                                                                          ifelse(grepl("4",as.character(scghq2_dv)),1,
-#                                                                                 ifelse(grepl("5",as.character(scghq2_dv)),1,
-#                                                                                        ifelse(grepl("6",as.character(scghq2_dv)),1,
-#                                                                                               ifelse(grepl("7",as.character(scghq2_dv)),1,
-#                                                                                                      ifelse(grepl("8",as.character(scghq2_dv)),1,
-#                                                                                                             ifelse(grepl("9",as.character(scghq2_dv)),1,
-#                                                                                                                    ifelse(grepl("10",as.character(scghq2_dv)),1,
-#                                                                                                                           ifelse(grepl("11",as.character(scghq2_dv)),1,
-#                                                                                                                                  ifelse(grepl("12",as.character(scghq2_dv)),1,
-#                                                                                                                                         as.character(scghq2_dv))))))))))))))) 
-#
-#ghq3_exp1 <- dfas1_end_exp1 %>% group_by(jbterm1, ghq_case3) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% ungroup() %>% 
-#  mutate(var="GHQ12 score") %>% 
-#  rename("measure"= "ghq_case3") %>% 
-#  mutate(measure = ifelse(measure=="0","0-2",
-#                          ifelse(measure=="1","3 or more",measure))) %>% 
-#  select(var, measure, jbterm1, n, est)
-#
-#sample_chars_endpoint_exp1 <- sample_chars_endpoint_exp1 %>% bind_rows(ghq3_exp1)
-#
-##### SF-12 mental component summary -------------------------------------------- 
-#
-## covnvert to numeric (to character stirng first to actual value is retained)
-#dfas1_end_exp1$sf12mcs_dv <- as.character(dfas1_end_exp1$sf12mcs_dv)
-#dfas1_end_exp1$sf12mcs_dv <- as.numeric(dfas1_end_exp1$sf12mcs_dv)
-#
-## distribution measures
-##mean(dfas1_end_exp1$sf12mcs_dv, na.rm = TRUE)
-##median(dfas1_end_exp1$sf12mcs_dv, na.rm = TRUE)
-##min(dfas1_end_exp1$sf12mcs_dv, na.rm = TRUE)
-##max(dfas1_end_exp1$sf12mcs_dv, na.rm = TRUE)
-##sf12_quantile_exp1 <- quantile(dfas1_end_exp1$sf12mcs_dv, na.rm = TRUE)
-#
-##### Job-related Wellbeing scale -------------
-## Higher values on the scale represent lower levels of anxiety
-#
-### Anxiety subscale
-## originally devised by Warr (1990): Anxiety subscale 
-## (from Warr’s “Anxiety-Contentment” scale). 
-#
-## covert to numeric
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(jwbs1_dv = ifelse(jwbs1_dv=="least anxious",15,
-#                           ifelse(jwbs1_dv%in%c("missing","don't know",
-#                                                "inapplicable","refusal", 
-#                                                "proxy"),"NA",jwbs1_dv))) %>% 
-#  mutate(jwbs1_dv = as.numeric(jwbs1_dv))
-#
-## distribution measures
-##mean(dfas1_end_exp1$jwbs1_dv, na.rm = TRUE)
-##median(dfas1_end_exp1$jwbs1_dv, na.rm = TRUE)
-##min(dfas1_end_exp1$jwbs1_dv, na.rm = TRUE)
-##max(dfas1_end_exp1$jwbs1_dv, na.rm = TRUE)
-##jb_anx_exp1 <- quantile(dfas1_end_exp1$jwbs1_dv, na.rm = TRUE)
-#
-### Depression subscale
-## originally devised by Warr (1990): Depression subscale 
-## (from Warr’s "Depression-Enthusiasm" scale)
-#
-## covert to numeric
-#dfas1_end_exp1 <- dfas1_end_exp1 %>% 
-#  mutate(jwbs2_dv = ifelse(jwbs2_dv=="least depressed",15,
-#                           ifelse(jwbs2_dv%in%c("missing","don't know",
-#                                                "inapplicable","refusal", 
-#                                                "proxy"),"NA",jwbs2_dv))) %>% 
-#  mutate(jwbs2_dv = as.numeric(jwbs2_dv))
-#
-#
-## distribution measures
-##mean(dfas1_end_exp1$jwbs2_dv, na.rm = TRUE)
-##median(dfas1_end_exp1$jwbs2_dv, na.rm = TRUE)
-##min(dfas1_end_exp1$jwbs2_dv, na.rm = TRUE)
-##max(dfas1_end_exp1$jwbs2_dv, na.rm = TRUE)
-##jb_dep_exp1 <- quantile(dfas1_end_exp1$jwbs2_dv, na.rm = TRUE)
+### cross tab for employment contract and broken employment spells
+## create df for cross tab
+expos_df1 <- dfas1_end %>% 
+  select(emp_contract, broken_emp) %>% 
+  group_by(emp_contract, broken_emp) %>% 
+  summarise(total=n()) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = broken_emp, values_from = total, values_fill = 0) 
 
-#####----------------------------------------------------------------------#####
-#####                  Create dataframe in format for table                #####
-#####----------------------------------------------------------------------#####
+## chi square test
+expos_df1 %>% 
+  select(-emp_contract) %>% 
+  chisq.test() %>% 
+  glance() #%>% 
+#  pull(p.value) # add this is you want to extract p value only
 
-#temp1 <- sample_chars_endpoint_exp1 %>% 
-#  ungroup() %>% 
-#  filter(jbterm1=="a permanent job") %>% 
-#  rename("permanent_n"="n", "permanent_est"="est") %>% 
-#  select(-jbterm1)
-#
-#temp2 <- sample_chars_endpoint_exp1 %>% 
-#  ungroup() %>% 
-#  filter(jbterm1=="not permanent job") %>% 
-#  rename("not_permanent_n"="n", "not_permanent_est"="est") %>% 
-#  select(-jbterm1)
-#
-#temp3 <-  sample_chars_endpoint_exp1 %>% 
-#  ungroup() %>% 
-#  filter(jbterm1=="inapplicable") %>% 
-#  rename("inapplicable_n"="n", "inapplicable_est"="est") %>% 
-#  select(-jbterm1)
-#  
-#temp4 <- sample_chars_endpoint_exp1 %>% 
-#  ungroup() %>% 
-#  filter(jbterm1=="don't know") %>% 
-#  rename("dk_n"="n", "dk_est"="est") %>% 
-#  select(-jbterm1)
-#
-#sample_chars_endpoint_exp1_wide <- temp1 %>% 
-#  full_join(temp2, by = c("var","measure")) %>% 
-#  full_join(temp3, by = c("var","measure")) %>% 
-#  full_join(temp4, by = c("var","measure")) 
-#
-#rm(temp1, temp2, temp3, temp4)
+### cross tab for employment contract and multiple jobs
+expos_df2 <- dfas1_end %>% 
+  select(emp_contract, j2has_dv) %>% 
+  group_by(emp_contract, j2has_dv) %>% 
+  summarise(total=n()) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = j2has_dv, values_from = total, values_fill = 0) 
 
-#####----------------------------------------------------------------------#####
-#####                         Save sample chars data                       #####
-#####----------------------------------------------------------------------#####
+## chi square test
+expos_df2 %>% 
+  select(-emp_contract) %>% 
+  chisq.test() %>% 
+  glance()  #%>% 
+#  pull(p.value) # add this is you want to extract p value only
 
-## as dataframe
-# long
-#write_rds(sample_chars_endpoint_exp1, 
-#          "./working_data/sample_chars_endpoint_exp1.rds")
+### cross tab for broken employment spells and multiple jobs
+expos_df3 <- dfas1_end %>% 
+  select(broken_emp, j2has_dv) %>% 
+  group_by(broken_emp, j2has_dv) %>% 
+  summarise(total=n()) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = j2has_dv, values_from = total, values_fill = 0) 
 
-# wide
-#write_rds(sample_chars_endpoint_exp1_wide, 
-#          "./working_data/sample_chars_endpoint_exp1_wide.rds")
-
-
-################################################################################
-#####                  Descriptive analysis of exposures                   #####
-################################################################################
-
-# cross tabs and ovelaps
-
+## chi square test
+expos_df3 %>% 
+  select(-broken_emp) %>% 
+  chisq.test() %>% 
+  glance()  #%>% 
+#  pull(p.value) # add this is you want to extract p value only
 
 
 ################################################################################
@@ -819,75 +449,9 @@ write_rds(sample_chars_endpoint, "./working_data/sample_chars_endpoint.rds")
 #### ---------------------------------------------------------------------------
 
 ### recode employment status variables to create an employment contract variable
-dfas1a_seq <- dfas1a %>% 
-  mutate(emp_contract = ifelse(jbterm1 %in% c("not permanent job", 
-                                              "or is there some way that it is not permanent?",
-                                              "Or is there some way that it is not permanent?"),
-                               "fixed-term",
-                               ifelse(jbterm1 %in% c("a permanent job",
-                                                     "A permanent job"),
-                                      "permanent",
-                                      ifelse(jbstat %in% c("Unemployed",
-                                                           "unemployed"),
-                                             "unemployed",
-                                             ifelse(jbstat %in% c("on maternity leave",
-                                                                  "On maternity leave",
-                                                                  "Family care or home",
-                                                    "full-time student",
-                                                    "Full-time student",
-                                                    "LT sick or disabled",
-                                                    "Govt training scheme", # or fixed-term?
-                                                    "On apprenticeship",    # or fixed-term?
-                                                    "Unpaid, family business",
-                                                    "doing something else",
-                                                    "Doing something else"), 
-                                                    "not in employment",
-                                                    "missing")))))
+dfas1a_seq <- dfas1a
 
-dfas1b_seq <- dfas1b %>% 
-  mutate(emp_contract = ifelse(jbterm1 %in% c("not permanent job", 
-                                              "or is there some way that it is not permanent?",
-                                              "Or is there some way that it is not permanent?"),
-                               "fixed-term",
-                               ifelse(jbterm1 %in% c("a permanent job",
-                                                     "A permanent job"),
-                                      "permanent",
-                                      ifelse(jbstat %in% c("Unemployed",
-                                                           "unemployed"),
-                                             "unemployed",
-                                             ifelse(jbstat %in% c("on maternity leave",
-                                                                  "On maternity leave",
-                                                                  "Family care or home",
-                                                                  "full-time student",
-                                                                  "Full-time student",
-                                                                  "LT sick or disabled",
-                                                                  "Govt training scheme", # or fixed-term?
-                                                                  "On apprenticeship",    # or fixed-term?
-                                                                  "Unpaid, family business",
-                                                                  "doing something else",
-                                                                  "Doing something else"), 
-                                                    "not in employment",
-                                                    "missing")))))
-
-### data checks
-# cases 
-dfas1a_seq %>% filter(jbstat %in% c("Unemployed",
-                                    "unemployed") & 
-                               jbterm1 %in% c("not permanent job", 
-                                              "or is there some way that it is not permanent?",
-                                              "Or is there some way that it is not permanent?"))
-# 63 cases where jbstat is unemployed but jbterm1 reports non-permanent job
-
-dfas1b_seq %>% filter(jbstat %in% c("Unemployed",
-                                    "unemployed") & 
-                        jbterm1 %in% c("not permanent job", 
-                                       "or is there some way that it is not permanent?",
-                                       "Or is there some way that it is not permanent?"))
-
-# 40 cases  where jbstat is unemployed but jbterm1 reports non-permanent job
-
-# jbterm2 usually seems to have additional emp info
-# propose using jbterm1 as primary coding source for emp_contract
+dfas1b_seq <- dfas1b 
 
 ### wide format for creating sequence data
 dfas1a_seq_wide  <-  dfas1a_seq %>% 
@@ -986,83 +550,9 @@ seqlegend(emp_contract.seq.a, cex = 1.3)
 
 ### employment spells -----
 # create numeric version
-dfas1a_seq2 <- dfas1a %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+dfas1a_seq2 <- dfas1a
 
-dfas1b_seq2 <- dfas1b %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
-
-# create binary version (one spell or more)
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-                        ifelse(nmpsp_dvn>=1,"yes", NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-                               ifelse(nmpsp_dvn>=1,"yes", NA)))
-
-### non-employment spells -----
-# create numeric version
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-
-# create binary version (one or more spell)
-dfas1a_seq2 <- dfas1a_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-                                                           ifelse(nnmpsp_dvn>=1,"yes", 
-                                                                  NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-                                                               ifelse(nnmpsp_dvn>=1,"yes", 
-                                                                      NA)))
-
-### unemployment spells -----
-# create numeric version
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-
-# create binary version (one or more spell)
-dfas1a_seq2 <- dfas1a_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-                                                          ifelse(nunmpsp_dvn>=1,"yes", 
-                                                                 NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-                                                              ifelse(nunmpsp_dvn>=1,"yes", 
-                                                                     NA)))
-
-### create broken employment variable ------
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-                             ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
-                                      unemp_spells_bin=="no",
-                                    "Unbroken employment",
-                                    ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
-                                                unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-                             ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
-                                      unemp_spells_bin=="no",
-                                    "Unbroken employment",
-                                    ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
-                                                unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
+dfas1b_seq2 <- dfas1b 
 
 ### wide format for creating sequence data
 dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
@@ -1158,48 +648,8 @@ seqlegend(broken_emp.seq.a, cex = 1.3)
 #### Multiple jobs
 #### ---------------------------------------------------------------------------
 
-## collapse missing categories
-dfas1a$j2has <- as.character(dfas1a$j2has)
-dfas1b$j2has <- as.character(dfas1b$j2has)
-
-
-dfas1a_seq3 <- dfas1a %>% 
-  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing", 
-                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
-                                             "unemployed",
-                          ifelse(jbstat %in% c("on maternity leave",
-                                               "On maternity leave",
-                                               "Family care or home",
-                                               "full-time student",
-                                               "Full-time student",
-                                               "LT sick or disabled",
-                                               "Govt training scheme", # or fixed-term?
-                                               "On apprenticeship",    # or fixed-term?
-                                               "Unpaid, family business",
-                                               "doing something else",
-                                               "Doing something else"), 
-                                                    "not in employment",
-                                                    j2has))))
-
-dfas1b_seq3 <- dfas1b %>% 
-  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing", 
-                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
-                                  "unemployed",
-                                  ifelse(jbstat %in% c("on maternity leave",
-                                                       "On maternity leave",
-                                                       "Family care or home",
-                                                       "full-time student",
-                                                       "Full-time student",
-                                                       "LT sick or disabled",
-                                                       "Govt training scheme", # or fixed-term?
-                                                       "On apprenticeship",    # or fixed-term?
-                                                       "Unpaid, family business",
-                                                       "doing something else",
-                                                       "Doing something else"), 
-                                         "not in employment",
-                                         j2has))))
+dfas1a_seq3 <- dfas1a
+dfas1b_seq3 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
