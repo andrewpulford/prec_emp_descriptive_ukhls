@@ -40,7 +40,7 @@ library(janitor) # cleaning up
 #####                         load and prepare data                        #####
 ################################################################################
 
-var_path <- "C:/Users/0510028p/Documents/prec_emp_understanding_soc/variables/"
+var_path <- "C:/Users/0510028p/Documents/prec_emp_descriptive_ukhls/variables/"
 data_path <- "C:/Users/0510028p/Documents/UKDA-6614-spss/spss/spss25/"
 
 
@@ -166,6 +166,8 @@ load_raw_wave(wv_n = 10, wv_l = "j", datafile = "indresp")
 
 ## bind listed dfs into single master raw df
 master_raw1 <- bind_rows(df_list)#, .id = "column_label")
+
+
 
 ## write as RDS
 write_rds(master_raw1, "./raw_data/master_raw1.rds")
