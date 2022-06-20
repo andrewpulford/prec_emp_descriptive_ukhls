@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 02 - create eligible pop and analytic sample dataframes
+# 1-3 - create eligible pop and analytic sample dataframes
 # Andrew Pulford
 
 # Data source:
@@ -47,7 +47,7 @@ library(foreign) # for reading SPSS files
 ################################################################################
 
 ## load master raw dataframe
-master_raw1 <- readRDS("./raw_data/master_raw1.rds")
+master_raw1 <- readRDS("./working_data/master_raw1_clean.rds")
 
 ## convert age var to numeric to allow filtering
 master_raw1$age_dv <- as.numeric(master_raw1$age_dv)
@@ -264,7 +264,7 @@ incomplete_spine_a <- eligible_pop_a %>%
                          "inconsistent"),1,0),
          no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
                             "don't know"),1,0),
-         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                           "Only available for IEMB", "Not available for IEMB",
                           "don't know"),1,0),
          no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
@@ -294,7 +294,7 @@ incomplete_spine_b <- eligible_pop_b %>%
                                        "inconsistent"),1,0),
          no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
                                              "don't know"),1,0),
-         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "proxy", "refusal", 
+         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                                             "Only available for IEMB", "Not available for IEMB",
                                             "don't know"),1,0),
          no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
