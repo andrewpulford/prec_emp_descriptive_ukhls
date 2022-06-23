@@ -158,10 +158,16 @@ master_raw1 <- master_raw1 %>%
 
 #### recode employment spells vars to create a broken employment variable
 ### employment spells -----
+# change to character var
+master_raw1$nmpsp_dv <- as.character(master_raw1$nmpsp_dv)
 # create numeric version
 master_raw1 <- master_raw1 %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
+  mutate(nmpsp_dv=ifelse(nmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
+    ifelse(nmpsp_dv=="none","0",nmpsp_dv))) %>% 
   mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+
+# check
+table(master_raw1$nmpsp_dv,master_raw1$nmpsp_dvn)
 
 # create binary version (one spell or more)
 master_raw1 <- master_raw1 %>% 
@@ -170,10 +176,16 @@ master_raw1 <- master_raw1 %>%
 
 
 ### non-employment spells -----
+# change to character var
+master_raw1$nnmpsp_dv <- as.character(master_raw1$nnmpsp_dv)
 # create numeric version
 master_raw1 <- master_raw1 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
+  mutate(nnmpsp_dv=ifelse(nnmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
+                         ifelse(nnmpsp_dv=="none","0",nnmpsp_dv))) %>% 
   mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
+
+# check
+table(master_raw1$nnmpsp_dv,master_raw1$nnmpsp_dvn)
 
 # create binary version (one or more spell)
 master_raw1 <- master_raw1 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn==0,"no",
@@ -182,10 +194,16 @@ master_raw1 <- master_raw1 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn==0,"no
 
 
 ### unemployment spells -----
+# change to character var
+master_raw1$nunmpsp_dv <- as.character(master_raw1$nunmpsp_dv)
 # create numeric version
 master_raw1 <- master_raw1 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
+  mutate(nunmpsp_dv=ifelse(nunmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
+                          ifelse(nunmpsp_dv=="none","0",nnmpsp_dv))) %>% 
   mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
+
+# check
+table(master_raw1$nunmpsp_dv,master_raw1$nunmpsp_dvn)
 
 # create binary version (one or more spell)
 master_raw1 <- master_raw1 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn==0,"no",
@@ -215,21 +233,7 @@ master_raw1 <- master_raw1 %>%
                            "missing",
                            ifelse(j2has %in% c("Yes","yes"),
                                   "yes",
-                                  ifelse(jbstat %in% c("Unemployed", "unemployed"),
-                                         "unemployed",
-                                         ifelse(jbstat %in% c("on maternity leave",
-                                                              "On maternity leave",
-                                                              "Family care or home",
-                                                              "full-time student",
-                                                              "Full-time student",
-                                                              "LT sick or disabled",
-                                                              "Govt training scheme", # or fixed-term?
-                                                              "On apprenticeship",    # or fixed-term?
-                                                              "Unpaid, family business",
-                                                              "doing something else",
-                                                              "Doing something else"), 
-                                                "not in employment",
-                                                "no")))))
+                                  "no")))
 
 ################################################################################
 #####                            health outcomes                           #####
@@ -241,7 +245,31 @@ master_raw1 <- master_raw1 %>%
   # recode self-rated health variables into one
   mutate(sf1 = as.character(sf1),
          scsf1 = as.character(scsf1)) %>% 
-  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1))
+  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
+  mutate(srh_dv = ifelse(srh_dv %in% c("excellent", "Excellent"),
+                         "excellent",
+                  ifelse(srh_dv %in% c("very good", "Very good"),
+                         "very good",
+                  ifelse(srh_dv %in% c( "good","Good"),
+                         "good",
+                  ifelse(srh_dv %in% c("fair", "Fair"),
+                         "fair",
+                  ifelse(srh_dv %in% c("poor", "Poor", "or Poor?"),
+                         "poor",
+                  ifelse(srh_dv %in% c("don't know", "inapplicable",
+                                       "missing", "proxy",  "refusal"),
+                         "missing",
+                         "check"
+                         )))))))
+           
+## binary version for outcome analysis
+master_raw1 <- master_raw1 %>% 
+  mutate(srh_bin = ifelse(srh_dv %in% c("excellent","very good"),
+                          "excellent/very good",
+                   ifelse(srh_dv %in% c("good","fair","poor"),
+                          "good/fair/poor",
+                          NA)))
+
 
 #### recode GHQ-12 caseness for analysis
 ## calculate caseness (cut point = 3)
@@ -259,6 +287,15 @@ master_raw1 <- master_raw1 %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(
                                                                                                                                ifelse(grepl("11",as.character(scghq2_dv)),1,
                                                                                                                                       ifelse(grepl("12",as.character(scghq2_dv)),1,
                                                                                                                                              as.character(scghq2_dv))))))))))))))) 
+
+master_raw1 <- master_raw1 %>% 
+  mutate(ghq_case3 = ifelse(ghq_case3=="0","0-2",
+                          ifelse(ghq_case3=="1","3 or more",
+                                 ifelse(ghq_case3 %in% c("inapplicable", 
+                                                         "missing", 
+                                                         "proxy"),
+                                        "missing",
+                                        ghq_case3))))
 
 ################################################################################
 #####                         save cleaned dataframe                       #####
