@@ -229,7 +229,15 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken)
 
 #### perceived job security in the next 12 months ------------------------------
 # even # waves only
-### here - reorder jbsec_dv <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+# reorder jbsec_dv variable
+dfas1_end$jbsec_dv <- factor(dfas1_end$jbsec_dv, 
+                             levels = c("very likely",
+                                        "likely",      
+                                        "unlikely",
+                                        "very unlikely", 
+                                        "missing"))
+
 # summary df
 job_sec <- dfas1_end %>% group_by(wv_n, jbsec_dv) %>% summarise(n=n()) %>% 
   mutate(est = n/sum(n)*100) %>% 
@@ -245,8 +253,7 @@ emp_2nd <- dfas1_end %>% group_by(wv_n, j2has) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Multiple jobs") %>% 
   rename("measure"= "j2has") %>% 
-  select(wv_n,var, measure, n, est)# recode inapplicable etc?
-# recode inapplicable etc?
+  select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd)
 
@@ -274,18 +281,18 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile)
 
 #### long-standing illness or impairment ---------------------------------------
 # risk of reverse causation - need to be incident from previous wave?
-ltc <- dfas1_end %>% group_by(wv_n, health) %>% summarise(n=n()) %>%  
-  mutate(pc = n/sum(n)*100)
-
+#ltc <- dfas1_end %>% group_by(wv_n, health) %>% summarise(n=n()) %>%  
+#  mutate(pc = n/sum(n)*100)
+#
 # don't add for now
 
 #### self-rated health ---------------------------------------------------------
 
+dfas1_end$srh_dv <- factor(dfas1_end$srh_dv, 
+                           levels = c("excellent", "very good", "good",
+                                      "fair", "poor"))
+
 srh <- dfas1_end %>% 
-  # recode self-rated health variables into one
-#  mutate(sf1 = as.character(sf1),
-#         scsf1 = as.character(scsf1)) %>% 
-#  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
   group_by(wv_n, srh_dv) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Self-rated health") %>% 
@@ -296,28 +303,11 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh)
 
 
 #### GHQ-12 --------------------------------------------------------------------
-## calculate caseness (cut point = 3)
-#dfas1_end <- dfas1_end %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(scghq2_dv)),0,
-#                                             ifelse(grepl("1",as.character(scghq2_dv)),0,
-#                                                    ifelse(grepl("2",as.character(scghq2_dv)),0,
-#                                                           ifelse(grepl("3",as.character(scghq2_dv)),1,
-#                                                                  ifelse(grepl("4",as.character(scghq2_dv)),1,
-#                                                                         ifelse(grepl("5",as.character(scghq2_dv)),1,
-#                                                                                ifelse(grepl("6",as.character(scghq2_dv)),1,
-#                                                                                       ifelse(grepl("7",as.character(scghq2_dv)),1,
-#                                                                                              ifelse(grepl("8",as.character(scghq2_dv)),1,
-#                                                                                                     ifelse(grepl("9",as.character(scghq2_dv)),1,
-#                                                                                                            ifelse(grepl("10",as.character(scghq2_dv)),1,
-#                                                                                                                   ifelse(grepl("11",as.character(scghq2_dv)),1,
-#                                                                                                                          ifelse(grepl("12",as.character(scghq2_dv)),1,
-#                                                                                                                                 as.character(scghq2_dv))))))))))))))) 
-#
+
 ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="GHQ12 score") %>% 
   rename("measure"= "ghq_case3") %>% 
-  mutate(measure = ifelse(measure=="0","0-2",
-                          ifelse(measure=="1","3 or more",measure))) %>% 
   select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
@@ -439,6 +429,13 @@ expos_df3 %>%
   glance()  #%>% 
 #  pull(p.value) # add this is you want to extract p value only
 
+
+test <- dfas1_end %>% 
+  filter(emp_contract!="unemployed/not in employment" & 
+           broken_emp == "No employment spells") %>% 
+  select(pidp,wv_n,emp_contract,broken_emp, emp_spells_bin, nmpsp_dv, 
+         unemp_spells_bin, nunmpsp_dv, nonemp_spells_bin, nnmpsp_dv, jbterm1,
+         employ,jbstat)
 
 ################################################################################
 #####                           sequence analysis                          #####
