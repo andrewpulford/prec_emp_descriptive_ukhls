@@ -255,59 +255,37 @@ write_rds(retired_spine_b, "./look_ups/retired_spine_b.rds")
 incomplete_spine_a <- eligible_pop_a %>% 
   anti_join(retired_spine_a) %>% 
   filter(wv_n==6) %>% 
-  # recode self-rated health variables into one
-  mutate(sf1 = as.character(sf1),
-         scsf1 = as.character(scsf1)) %>% 
-  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
   mutate(no_age = ifelse(is.na(age_dv),1,0), 
          no_sex = ifelse(sex_dv %in% c("missing", "inapplicable", "refusal", "don't know", 
                          "inconsistent"),1,0),
          no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
                             "don't know"),1,0),
-         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
-                          "Only available for IEMB", "Not available for IEMB",
-                          "don't know"),1,0),
-         no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
-                                               "don't know"), 1,
-           ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 1,
-           ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),1,0))),
-         no_j2has = ifelse(j2has %in% c("missing", "proxy", "refusal", 
-                        "Only available for IEMB", "Not available for IEMB",
-                        "don't know"),1,0),
+         no_emp_contract = ifelse(emp_contract == "missing",1,0),
+         no_broken_emp = ifelse(broken_emp == "missing",1,0),
+         no_j2has_dv = ifelse(j2has_dv == "missing",1,0),
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
          no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
                             "don't know"),1,0)) %>% 
-  select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
+  select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
 
 
 #### waves 7-10
 incomplete_spine_b <- eligible_pop_b %>% 
   anti_join(retired_spine_b) %>% 
-  filter(wv_n==10) %>% 
-  # recode self-rated health variables into one
-  mutate(sf1 = as.character(sf1),
-         scsf1 = as.character(scsf1)) %>% 
-  mutate(srh_dv = ifelse(sf1=="inapplicable",scsf1, sf1)) %>% 
+  filter(wv_n==6) %>% 
   mutate(no_age = ifelse(is.na(age_dv),1,0), 
          no_sex = ifelse(sex_dv %in% c("missing", "inapplicable", "refusal", "don't know", 
                                        "inconsistent"),1,0),
          no_hiqual = ifelse(hiqual_dv %in% c("missing", "inapplicable", "refusal", 
                                              "don't know"),1,0),
-         no_jbterm1 = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
-                                            "Only available for IEMB", "Not available for IEMB",
-                                            "don't know"),1,0),
-         no_emp_spell = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
-                                               "don't know"), 1,
-                               ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 1,
-                                      ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),1,0))),
-         no_j2has = ifelse(j2has %in% c("missing", "proxy", "refusal", 
-                                        "Only available for IEMB", "Not available for IEMB",
-                                        "don't know"),1,0),
+         no_emp_contract = ifelse(emp_contract == "missing",1,0),
+         no_broken_emp = ifelse(broken_emp == "missing",1,0),
+         no_j2has_dv = ifelse(j2has_dv == "missing",1,0),
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
          no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
                                           "don't know"),1,0)) %>% 
-  select(pidp, no_age, no_sex, no_hiqual, no_jbterm1, no_emp_spell, no_j2has, 
+  select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
 
 
@@ -333,13 +311,13 @@ incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>%
 
 
 ### exposures
-incomplete_spine_a %>% select(no_jbterm1, no_emp_spell, no_j2has) %>% 
-  mutate(n_demogs_incompete = no_jbterm1 + no_emp_spell + no_j2has) %>% 
+incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+  mutate(n_demogs_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
   filter(n_demogs_incompete!=0) %>% 
   group_by(n_demogs_incompete) %>% 
   summarise(n=n())
 
-incomplete_spine_a %>% select(no_jbterm1, no_emp_spell, no_j2has) %>% 
+incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   summarise_all(funs(sum))
 
 ### outcomes
