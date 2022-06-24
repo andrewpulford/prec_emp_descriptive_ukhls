@@ -160,67 +160,71 @@ master_raw1 <- master_raw1 %>%
 ### employment spells -----
 # change to character var
 master_raw1$nmpsp_dv <- as.character(master_raw1$nmpsp_dv)
-# create numeric version
 master_raw1 <- master_raw1 %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
-    ifelse(nmpsp_dv=="none","0",nmpsp_dv))) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+  mutate(nmpsp_dv=ifelse(nmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),"missing",
+                       ifelse(nmpsp_dv=="none","0",nmpsp_dv))) 
 
-# check
-table(master_raw1$nmpsp_dv,master_raw1$nmpsp_dvn)
-
-# create binary version (one spell or more)
 master_raw1 <- master_raw1 %>% 
-  mutate(emp_spells_bin=ifelse(nmpsp_dvn==0,"no",
-                               ifelse(nmpsp_dvn>=1,"yes", NA)))
+  mutate(emp_spells_bin = ifelse(nmpsp_dv == "missing", "missing",
+                          ifelse(nmpsp_dv == "0","no",
+                                 "yes")))
 
+# checks
+table(master_raw1$nmpsp_dv,master_raw1$emp_spells_bin)
+table(master_raw1$emp_spells_bin,master_raw1$wv_n)
+
+sum(master_raw1$emp_spells_bin=="missing")
 
 ### non-employment spells -----
 # change to character var
 master_raw1$nnmpsp_dv <- as.character(master_raw1$nnmpsp_dv)
-# create numeric version
+
 master_raw1 <- master_raw1 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
-                         ifelse(nnmpsp_dv=="none","0",nnmpsp_dv))) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
+  mutate(nnmpsp_dv=ifelse(nnmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),"missing",
+                          ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)))
 
-# check
-table(master_raw1$nnmpsp_dv,master_raw1$nnmpsp_dvn)
+master_raw1 <- master_raw1 %>% 
+  mutate(non_emp_spells_bin = ifelse(nnmpsp_dv == "missing", "missing",
+                                 ifelse(nnmpsp_dv == "0","no",
+                                        "yes")))
 
-# create binary version (one or more spell)
-master_raw1 <- master_raw1 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn==0,"no",
-                                                               ifelse(nnmpsp_dvn>=1,"yes", 
-                                                                      NA)))
+# checks
+table(master_raw1$nnmpsp_dv,master_raw1$non_emp_spells_bin)
+table(master_raw1$non_emp_spells_bin,master_raw1$wv_n)
+
+sum(master_raw1$non_emp_spells_bin=="missing")
 
 
 ### unemployment spells -----
 # change to character var
 master_raw1$nunmpsp_dv <- as.character(master_raw1$nunmpsp_dv)
-# create numeric version
+
 master_raw1 <- master_raw1 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),NA,
-                          ifelse(nunmpsp_dv=="none","0",nnmpsp_dv))) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
+  mutate(nunmpsp_dv=ifelse(nunmpsp_dv %in% c( "missing", "inapplicable", "proxy", "refusal", "don't know"),"missing",
+                          ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)))
 
-# check
-table(master_raw1$nunmpsp_dv,master_raw1$nunmpsp_dvn)
+master_raw1 <- master_raw1 %>% 
+  mutate(unemp_spells_bin = ifelse(nunmpsp_dv == "missing", "missing",
+                                     ifelse(nunmpsp_dv == "0","no",
+                                            "yes")))
 
-# create binary version (one or more spell)
-master_raw1 <- master_raw1 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn==0,"no",
-                                                              ifelse(nunmpsp_dvn>=1,"yes", 
-                                                                     NA)))
+# checks
+table(master_raw1$nunmpsp_dv,master_raw1$unemp_spells_bin)
+table(master_raw1$unemp_spells_bin,master_raw1$wv_n)
+
+sum(master_raw1$unemp_spells_bin=="missing")
 
 ### create broken employment variable ------
 master_raw1 <- master_raw1 %>% 
   mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
                              ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
+                                      non_emp_spells_bin=="no" & 
                                       unemp_spells_bin=="no",
                                     "Unbroken employment",
                                     ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
+                                             (non_emp_spells_bin=="yes" |
                                                 unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
+                                           "Broken employment","missing"))))
 
 #### recode multiple jobs var for analysis
 
