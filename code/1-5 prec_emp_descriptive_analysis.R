@@ -465,9 +465,8 @@ dfas1b_seq_wide  <-  dfas1b_seq %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to imput
-emp_contract_labs <- c("fixed term", "missing", "not in employment", 
-                "permanent", "unemployed" )
-emp_contract_code <- c("FT", "NE", "PE", "UE", "NA")
+emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
+emp_contract_code <- c("FT", "NA", "PE", "UE")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
@@ -476,8 +475,8 @@ emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
 emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
                              labels = emp_contract_labs)
 
-## first 10 sequences
-#png("./output/descriptive/seqiplot100_emp_contract.png", width = 960, height = 960)
+## first 100 sequences
+png("./output/descriptive/emp_contract_seqiplot100.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(emp_contract.seq.a,
          idxs=1:100, # to add more lines
@@ -489,11 +488,11 @@ seqiplot(emp_contract.seq.b,
          with.legend = F, 
          main = "Index plot (100 first sequences)",
          border = NA)
-seqlegend(emp_contract.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(emp_contract.seq.a, cex = 1.3)
+dev.off()
 
 ## all sequences
-#png("output/descriptive/seqiplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/emp_contract_seqiplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(emp_contract.seq.a,
          with.legend = F, 
@@ -503,11 +502,11 @@ seqIplot(emp_contract.seq.b,
          with.legend = F, 
          main = "Index plot (all sequences)",
          border = NA)
-seqlegend(emp_contract.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(emp_contract.seq.a, cex = 1.3)
+dev.off()
 
 # sequence frequency plot (all common sequences)
-#png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/emp_contract_seqfplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(emp_contract.seq.a, 
          idxs=1:900, # to add more lines
@@ -519,11 +518,11 @@ seqfplot(emp_contract.seq.b,
          with.legend = F, 
          border = NA, 
          main = "Sequence frequency plot")
-seqlegend(emp_contract.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(emp_contract.seq.a, cex = 1.3)
+dev.off()
 
 # state distribution plot
-#png("output/descriptive/seqdplot_emp_contract.png", width = 960, height = 960)
+png("output/descriptive/emp_contract_seqdplot.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(emp_contract.seq.a, 
          with.legend = F, 
@@ -533,13 +532,13 @@ seqdplot(emp_contract.seq.b,
          with.legend = F, 
          border = NA, 
          main = "State distribution plot")
-seqlegend(emp_contract.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(emp_contract.seq.a, cex = 1.3)
+dev.off()
 
 # legend
-#png("output/descriptive/legend_emp_contract.png", width = 240, height = 190)
+png("output/descriptive/emp_contract_legend.png", width = 400, height = 250)
 seqlegend(emp_contract.seq.a, cex = 1.3)
-#dev.off()
+dev.off()
 
 #### ---------------------------------------------------------------------------
 #### Broken employment
@@ -555,11 +554,13 @@ dfas1b_seq2 <- dfas1b
 dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
   select(pidp,wv_n,broken_emp) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
+#  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
   select(pidp,wv_n,broken_emp) %>% 
+  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
   select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
@@ -577,7 +578,7 @@ broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_code,
                            labels = broken_emp_labs)
 
 ## first 10 sequences
-#png("./output/descriptive/seqiplot100_emp_contract.png", width = 960, height = 960)
+png("./output/descriptive/broken_emp_seqiplot100.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(broken_emp.seq.a,
          idxs=1:100, # to add more lines
@@ -589,11 +590,11 @@ seqiplot(broken_emp.seq.b,
          with.legend = F, 
          main = "Index plot (100 first sequences)",
          border = NA)
-seqlegend(broken_emp.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(broken_emp.seq.a, cex = 1.3)
+dev.off()
 
 ## all sequences
-#png("output/descriptive/seqiplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/broken_emp_seqiplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(broken_emp.seq.a,
          with.legend = F, 
@@ -603,11 +604,11 @@ seqIplot(broken_emp.seq.b,
          with.legend = F, 
          main = "Index plot (all sequences)",
          border = NA)
-seqlegend(broken_emp.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(broken_emp.seq.a, cex = 1.3)
+dev.off()
 
 # sequence frequency plot (all common sequences)
-#png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/broken_emp_seqfplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(broken_emp.seq.a, 
          idxs=1:900, # to add more lines
@@ -619,11 +620,11 @@ seqfplot(broken_emp.seq.b,
          with.legend = F, 
          border = NA, 
          main = "Sequence frequency plot")
-seqlegend(broken_emp.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(broken_emp.seq.a, cex = 1.3)
+dev.off()
 
 # state distribution plot
-#png("output/descriptive/seqdplot_emp_contract.png", width = 960, height = 960)
+png("output/descriptive/broken_emp_seqdplot.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(broken_emp.seq.a, 
          with.legend = F, 
@@ -633,13 +634,13 @@ seqdplot(broken_emp.seq.b,
          with.legend = F, 
          border = NA, 
          main = "State distribution plot")
-seqlegend(broken_emp.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(broken_emp.seq.a, cex = 1.3)
+dev.off()
 
 # legend
-#png("output/descriptive/legend_emp_contract.png", width = 240, height = 190)
+png("output/descriptive/broken_emp_legend.png", width = 400, height = 250)
 seqlegend(broken_emp.seq.a, cex = 1.3)
-#dev.off()
+dev.off()
 
 #### ---------------------------------------------------------------------------
 #### Multiple jobs
