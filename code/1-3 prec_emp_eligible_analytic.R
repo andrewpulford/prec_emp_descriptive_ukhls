@@ -264,7 +264,7 @@ incomplete_spine_a <- eligible_pop_a %>%
          no_broken_emp = ifelse(broken_emp == "missing",1,0),
          no_j2has_dv = ifelse(j2has_dv == "missing",1,0),
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
-         no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
+         no_ghq = ifelse(ghq_case3 %in% c("missing", "inapplicable", "proxy","refusal", 
                             "don't know"),1,0)) %>% 
   select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
@@ -273,7 +273,7 @@ incomplete_spine_a <- eligible_pop_a %>%
 #### waves 7-10
 incomplete_spine_b <- eligible_pop_b %>% 
   anti_join(retired_spine_b) %>% 
-  filter(wv_n==6) %>% 
+  filter(wv_n==10) %>% 
   mutate(no_age = ifelse(is.na(age_dv),1,0), 
          no_sex = ifelse(sex_dv %in% c("missing", "inapplicable", "refusal", "don't know", 
                                        "inconsistent"),1,0),
@@ -283,7 +283,7 @@ incomplete_spine_b <- eligible_pop_b %>%
          no_broken_emp = ifelse(broken_emp == "missing",1,0),
          no_j2has_dv = ifelse(j2has_dv == "missing",1,0),
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
-         no_ghq = ifelse(scghq2_dv %in% c("missing", "inapplicable", "proxy","refusal", 
+         no_ghq = ifelse(ghq_case3 %in% c("missing", "inapplicable", "proxy","refusal", 
                                           "don't know"),1,0)) %>% 
   select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
@@ -312,9 +312,9 @@ incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>%
 
 ### exposures
 incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
-  mutate(n_demogs_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
-  filter(n_demogs_incompete!=0) %>% 
-  group_by(n_demogs_incompete) %>% 
+  mutate(n_exp_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
+  filter(n_exp_incompete!=0) %>% 
+  group_by(n_exp_incompete) %>% 
   summarise(n=n())
 
 incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
@@ -322,9 +322,9 @@ incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>%
 
 ### outcomes
 incomplete_spine_a %>% select(no_srh, no_ghq) %>% 
-  mutate(n_demogs_incompete = no_srh + no_ghq) %>% 
-  filter(n_demogs_incompete!=0) %>% 
-  group_by(n_demogs_incompete) %>% 
+  mutate(n_outcomes_incompete = no_srh + no_ghq) %>% 
+  filter(n_outcomes_incompete!=0) %>% 
+  group_by(n_outcomes_incompete) %>% 
   summarise(n=n())
 
 
