@@ -69,11 +69,14 @@ dfas1_end <- dfas1a_end %>% bind_rows(dfas1b_end)
 #####----------------------------------------------------------------------#####
 
 #### sex -----------------------------------------------------------------------
+#dfas1_end$sex_dv <- droplevels(dfas1_end$sex_dv)
+
 sex <- dfas1_end %>% group_by(wv_n,sex_dv) %>% summarise(n=n()) %>% 
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Sex") %>% 
   rename("measure"= "sex_dv") %>% 
-  select(wv_n, var, measure, n, est)
+  select(wv_n, var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("Female","Male")))
 
 sample_chars_endpoint <- sex
 
@@ -102,7 +105,9 @@ white_non <- dfas1_end %>% group_by(wv_n,non_white) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Ethnicity") %>% 
   rename("measure"= "non_white") %>% 
-  select(wv_n, var, measure, n, est)
+  select(wv_n, var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("White","Non-white","Missing")))
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(white_non)
 
@@ -111,7 +116,9 @@ marital <- dfas1_end %>% group_by(wv_n,marital_status) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Marital status") %>% 
   rename("measure"= "marital_status") %>% 
-  select(wv_n, var, measure, n, est)
+  select(wv_n, var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("married/civil partnership","divorced/separated/widowed","single","missing")))
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(marital)
 
@@ -120,7 +127,14 @@ ed_attain <- dfas1_end %>% group_by(wv_n,hiqual_dv) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Educational attainment") %>% 
   rename("measure"= "hiqual_dv") %>% 
-  select(wv_n, var, measure, n, est)
+  select(wv_n, var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("degree",
+                                           "other higher degree",
+                                           "a-level etc",
+                                           "gcse etc",
+                                           "other qualification",
+                                           "no qualification")))
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain)
 
@@ -165,7 +179,12 @@ perm_emp <- dfas1_end %>% group_by(wv_n,emp_contract) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Employment contract") %>% 
   rename("measure"= "emp_contract") %>% 
-  select(wv_n,var, measure, n, est)
+  select(wv_n,var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("fixed-term",
+                                           "permanent",
+                                           "unemployed/not in employment")))
+
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp)
 
@@ -223,7 +242,11 @@ emp_broken <- dfas1_end %>% group_by(wv_n,broken_emp) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Broken employment") %>% 
   rename("measure"= "broken_emp") %>% 
-  select(wv_n,var, measure, n, est)
+  select(wv_n,var, measure, n, est)  %>% 
+  arrange(wv_n, factor(measure, levels = c("unbroken employment",
+                                           "broken employment",
+                                           "no employment spells")))
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken)
 
@@ -253,7 +276,11 @@ emp_2nd <- dfas1_end %>% group_by(wv_n, j2has) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Multiple jobs") %>% 
   rename("measure"= "j2has") %>% 
-  select(wv_n,var, measure, n, est)
+  select(wv_n,var, measure, n, est)  %>% 
+  arrange(wv_n, factor(measure, levels = c("no",
+                                           "yes")))
+
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd)
 
@@ -308,7 +335,10 @@ ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="GHQ12 score") %>% 
   rename("measure"= "ghq_case3") %>% 
-  select(wv_n,var, measure, n, est)
+  select(wv_n,var, measure, n, est) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more")))
+
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
 
@@ -430,12 +460,12 @@ expos_df3 %>%
 #  pull(p.value) # add this is you want to extract p value only
 
 
-test <- dfas1_end %>% 
-  filter(emp_contract!="unemployed/not in employment" & 
-           broken_emp == "No employment spells") %>% 
-  select(pidp,wv_n,emp_contract,broken_emp, emp_spells_bin, nmpsp_dv, 
-         unemp_spells_bin, nunmpsp_dv, nonemp_spells_bin, nnmpsp_dv, jbterm1,
-         employ,jbstat)
+#test <- dfas1_end %>% 
+#  filter(emp_contract!="unemployed/not in employment" & 
+#           broken_emp == "No employment spells") %>% 
+#  select(pidp,wv_n,emp_contract,broken_emp, emp_spells_bin, nmpsp_dv, 
+#         unemp_spells_bin, nunmpsp_dv, nonemp_spells_bin, nnmpsp_dv, jbterm1,
+#         employ,jbstat)
 
 ################################################################################
 #####                           sequence analysis                          #####
@@ -664,18 +694,18 @@ dfas1b_seq_wide3  <-  dfas1b_seq3 %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to impute
-multi_jobs_labs <- c("Missing", "No", "not in employment", "unemployed", "Yes")
-multi_jobs_code <- c("NA","N", "NE", "UE", "Y")
+multi_jobs_labs <- c("Missing", "No", "Yes")
+multi_jobs_code <- c("NA","N", "Y")
 
 ### create sequence data
 multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
                            labels = multi_jobs_labs)
 
-multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_labs,
-                           labels = multi_jobs_code)
+multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_code,
+                           labels = multi_jobs_labs)
 
 ## first 10 sequences
-#png("./output/descriptive/seqiplot100_emp_contract.png", width = 960, height = 960)
+png("./output/descriptive/multi_emp_seqiplot100.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(multi_jobs.seq.a,
          idxs=1:100, # to add more lines
@@ -687,11 +717,11 @@ seqiplot(multi_jobs.seq.b,
          with.legend = F, 
          main = "Index plot (100 first sequences)",
          border = NA)
-seqlegend(multi_jobs.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(multi_jobs.seq.a, cex = 1.3)
+dev.off()
 
 ## all sequences
-#png("output/descriptive/seqiplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/multi_emp_seqiplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(multi_jobs.seq.a,
          with.legend = F, 
@@ -701,11 +731,11 @@ seqIplot(multi_jobs.seq.b,
          with.legend = F, 
          main = "Index plot (all sequences)",
          border = NA)
-seqlegend(multi_jobs.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(multi_jobs.seq.a, cex = 1.3)
+dev.off()
 
 # sequence frequency plot (all common sequences)
-#png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
+png("output/descriptive/multi_emp_seqfplot.png", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(multi_jobs.seq.a, 
          idxs=1:900, # to add more lines
@@ -717,11 +747,11 @@ seqfplot(multi_jobs.seq.b,
          with.legend = F, 
          border = NA, 
          main = "Sequence frequency plot")
-seqlegend(multi_jobs.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(multi_jobs.seq.a, cex = 1.3)
+dev.off()
 
 # state distribution plot
-#png("output/descriptive/seqdplot_emp_contract.png", width = 960, height = 960)
+png("output/descriptive/multi_emp_seqdplot.png", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(multi_jobs.seq.a, 
          with.legend = F, 
@@ -731,16 +761,80 @@ seqdplot(multi_jobs.seq.b,
          with.legend = F, 
          border = NA, 
          main = "State distribution plot")
-seqlegend(multi_jobs.seq.a, cex = 1.3)
-#dev.off()
+#seqlegend(multi_jobs.seq.a, cex = 1.3)
+dev.off()
 
 # legend
-#png("output/descriptive/legend_emp_contract.png", width = 240, height = 190)
+png("output/descriptive/multi_emp_legend.png", width = 400, height = 250)
 seqlegend(multi_jobs.seq.a, cex = 1.3)
-#dev.off()
+dev.off()
 
 ################################################################################
-#####                           cluster analysis                           #####
+#####                            Manual grouping                          #####
+################################################################################
+
+#### Employment contract -------------------------------------------------------
+
+
+
+### create vars to calculate groupings
+## create df and single sequence variable
+emp_contract_group_dfa <- data.frame(emp_contract.seq.a) %>% mutate(seq_list = paste0(wv_3,"-",wv_4,"-",wv_5,"-",wv_6))
+emp_contract_group_dfb <- data.frame(emp_contract.seq.b) %>% mutate(seq_list = paste0(wv_7,"-",wv_8,"-",wv_9,"-",wv_10))
+
+## count number of occurrences of each state in sequence
+emp_contract_group_dfa$pe_n <- str_count(emp_contract_group_dfa$seq_list,"PE")
+emp_contract_group_dfb$pe_n <- str_count(emp_contract_group_dfb$seq_list,"PE")
+
+emp_contract_group_dfa$ft_n <- str_count(emp_contract_group_dfa$seq_list,"FT")
+emp_contract_group_dfb$ft_n <- str_count(emp_contract_group_dfb$seq_list,"FT")
+
+emp_contract_group_dfa$ue_n <- str_count(emp_contract_group_dfa$seq_list,"UE")
+emp_contract_group_dfb$ue_n <- str_count(emp_contract_group_dfb$seq_list,"UE")
+
+emp_contract_group_dfa$na_n <- str_count(emp_contract_group_dfa$seq_list,"NA")
+emp_contract_group_dfb$na_n <- str_count(emp_contract_group_dfb$seq_list,"NA")
+
+### code groupings as new variable 
+emp_contract_group_dfa <- emp_contract_group_dfa %>% 
+  mutate(emp_contract_group = ifelse(pe_n==4,"steady: permanent",
+                              ifelse(pe_n==3&na_n==1, "steady: permanent",
+                              ifelse(ft_n==4,"steady: non-permanent",
+                              ifelse(ft_n==3&na_n==1,"steady: non-permanent",
+                              ifelse(ue_n==4,"steady: un/non-employed",
+                              ifelse(ue_n==3&na_n==1,"steady: un/non-employed",
+                              ifelse(pe_n==3&ft_n==1,"blip: non-permanent",
+                              ifelse(pe_n==3&ue_n==1,"blip: un/non-employed",
+                              ifelse(na_n>1,"incomplete",
+                                     "churn"))))))))))
+
+emp_contract_group_dfb <- emp_contract_group_dfb %>% 
+  mutate(emp_contract_group = ifelse(pe_n==4,"steady: permanent",
+                              ifelse(pe_n==3&na_n==1, "steady: permanent",
+                              ifelse(ft_n==4,"steady: non-permanent",
+                              ifelse(ft_n==3&na_n==1,"steady: non-permanent",
+                              ifelse(ue_n==4,"steady: un/non-employed",
+                              ifelse(ue_n==3&na_n==1,"steady: un/non-employed",
+                              ifelse(pe_n==3&ft_n==1,"blip: non-permanent",
+                              ifelse(pe_n==3&ue_n==1,"blip: un/non-employed",
+                              ifelse(na_n>1,"incomplete",
+                                     "churn"))))))))))
+
+### create long versions of dfs
+emp_contract_group_dfa_long <- emp_contract_group_dfa %>% 
+  group_by(emp_contract_group) %>% 
+  summarise(n_a=n()) %>% 
+  ungroup() %>% 
+  mutate(pc_a=n_a/sum(n_a)*100)
+                                     
+emp_contract_group_dfb_long <- emp_contract_group_dfb %>% 
+  group_by(emp_contract_group) %>% 
+  summarise(n_b=n()) %>% 
+  ungroup() %>% 
+  mutate(pc_b=n_b/sum(n_b)*100)
+
+################################################################################
+#####                         Latent class analysis                        #####
 ################################################################################
 
 ################################################################################
