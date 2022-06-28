@@ -55,6 +55,10 @@ censor_combined_b <- readRDS("../look_ups/censor_combined_b.rds")
 dfas1a <- read_rds("../analytic_sample_data/dfas1a.rds")
 dfas1b <- read_rds("../analytic_sample_data/dfas1b.rds")
 
+### a priori exposure groupings
+emp_contract_group_df <- readRDS("../working_data/emp_contract_group_df.rds")
+emp_spells_group_df <- readRDS("../working_data/emp_spells_group_df.rds")
+multi_jobs_group_df<- readRDS("../working_data/multi_jobs_group_df.rds")
 
 ##### flowchart nodes A to xx --------------------------------------------------
 
@@ -180,22 +184,61 @@ sample_chars_endpoint_wide <- sample_chars_endpoint_wide %>%
                     ifelse(n10=="-999","-",n10))) %>% 
   select(-row_n)
 
+#### Node D: -------------
+### Exposure groupings
+
+# to be added
+
 #### Node E: -------------
 ### Outcome caseness
 
+## self-rated health
+
+# events
 srh_case <- "x"
-srh_nocase <- "x" 
+srh_case_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="good/fair/poor")
+srh_case_a <- srh_case_a %>% nrow()
+  
+srh_case_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="good/fair/poor")
+srh_case_b <- srh_case_b %>% nrow()
+
+# non-events
+srh_nocase <- "x"
+srh_nocase_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="excellent/very good")
+srh_nocase_a <- srh_nocase_a %>% nrow()
+  
+srh_nocase_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="excellent/very good")
+srh_nocase_b <- srh_nocase_b %>% nrow()
+## GHQ-12
+# events
 ghq_case <- "x"
+
+ghq_case_a <- dfas1a %>% filter(wv_n==6 & ghq_case3=="3 or more")
+ghq_case_a <- ghq_case_a %>% nrow()
+
+ghq_case_b <- dfas1b %>% filter(wv_n==10 & ghq_case3=="3 or more")
+ghq_case_b <- ghq_case_b %>% nrow()
+
+# non-events
 ghq_nocase <- "x"
+ghq_nocase_a <- dfas1a %>% filter(wv_n==6 & ghq_case3=="0-2")
+ghq_nocase_a <- ghq_nocase_a %>% nrow()
+
+ghq_nocase_b <- dfas1b %>% filter(wv_n==10 & ghq_case3=="0-2")
+ghq_nocase_b <- ghq_nocase_b %>% nrow()
 
 ```
 
-## Sample description
+*UNWEIGHTED RESULTS - FOR ILLUSTRATIVE PURPOSES ONLY*
 
-A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_a, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_valid_end_a, big.mark=",")` and `r prettyNum(no_valid_end_b, big.mark=",")` individuals for not having a valid survey response at wave 6 or 10 respectively. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_a, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
+##Sample description
+
+A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_a, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_valid_end_a, big.mark=",")` and `r prettyNum(no_valid_end_b, big.mark=",")` individuals for not having a valid survey response at wave 6 or 10 respectively. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
 
 
-**Figure 1: Flowchart for inclusion and exclusion of UKHLS respondents (waves 2-10) to create analytic sample**
+**Figure 1: Flowcharts for inclusion and exclusion of UKHLS respondents to create analytic sample**
+
+**(a) Sample A (waves 3-6)**
 ```{r, echo=FALSE, include=TRUE, fig.width=8}
 
 
@@ -221,13 +264,13 @@ grViz(paste0("digraph {
     width = 3, height = 1]
     D [label = 'x in each employment history cluster' , shape = box, 
     width = 3, height = 1]
-    E [label = '",prettyNum(srh_case, big.mark=",")," cases - poor self-reported health
+    E [label = '",prettyNum(srh_case_a, big.mark=",")," cases - poor self-reported health
     
-    ",prettyNum(srh_nocase, big.mark=",")," event free - poor self-reported health
+    ",prettyNum(srh_nocase_a, big.mark=",")," event free - poor self-reported health
     
-    ",prettyNum(ghq_case, big.mark=",")," cases - common mental health disorder
+    ",prettyNum(ghq_case_a, big.mark=",")," cases - common mental health disorder
     
-    ",prettyNum(ghq_nocase, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
+    ",prettyNum(ghq_nocase_a, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
   edge []
     A->B
     A->AA
@@ -238,6 +281,8 @@ grViz(paste0("digraph {
 { rank = same; A; AA }
 { rank = same; B; BB }}"))
 ```
+
+**(b) Sample B (waves 7-10)**
 ```{r, echo=FALSE, include=TRUE, fig.width=8}
 
 
@@ -263,13 +308,13 @@ grViz(paste0("digraph {
     width = 3, height = 1]
     D [label = 'x in each employment history cluster' , shape = box, 
     width = 3, height = 1]
-    E [label = '",prettyNum(srh_case, big.mark=",")," cases - poor self-reported health
+    E [label = '",prettyNum(srh_case_b, big.mark=",")," cases - poor self-reported health
     
-    ",prettyNum(srh_nocase, big.mark=",")," event free - poor self-reported health
+    ",prettyNum(srh_nocase_b, big.mark=",")," event free - poor self-reported health
     
-    ",prettyNum(ghq_case, big.mark=",")," cases - common mental health disorder
+    ",prettyNum(ghq_case_b, big.mark=",")," cases - common mental health disorder
     
-    ",prettyNum(ghq_nocase, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
+    ",prettyNum(ghq_nocase_b, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
   edge []
     A->B
     A->AA
@@ -297,7 +342,7 @@ if(check_BC_b!=TRUE){print("Sample B - boxes BB and C to not equal box B")}
 
 ```
 \newpage
-**Table 1: Analytic sample characteristics at baseline (UKHLS waves 6 and 10)**
+**Table 1: Analytic sample characteristics at study endpoint (UKHLS waves 6 and 10)**
 ```{r, echo=FALSE}
 
 #sample_chars_endpoint_wide <- sample_chars_endpoint_wide[,c(1:10)]
@@ -384,7 +429,7 @@ spine_waves_a <- dfas1a %>%
   summarise(n = n()) %>% 
   ungroup() %>% 
   mutate(pc= n/sum(n)*100) %>% 
-  mutate(as = "a")
+  mutate(as = "Sample A (waves 3-6)")
 
 ## waves 7-10
 spine_waves_b <- dfas1b %>% 
@@ -395,13 +440,13 @@ spine_waves_b <- dfas1b %>%
   summarise(n = n()) %>% 
   ungroup() %>% 
   mutate(pc= n/sum(n)*100) %>% 
-  mutate(as = "b")
+  mutate(as = "Sample B (waves 7-10")
 
 ```
 Responses to all four waves in the study period were provided by `r spine_waves_a$pc[spine_waves_a$n_wvs==9]`% of analytic sample A and `r spine_waves_a$pc[spine_waves_a$n_wvs==9]`% of analytic sample B (Figure 2). Response sequences ascending in order of frequency are presented in Figure 3.
 
 **Figure 2: Number of waves responded to by percentage of the analytic sample**
-```{r, echo=FALSE, fig.width=3,fig.height=3}
+```{r, echo=FALSE, fig.width=4,fig.height=3}
 ## join together
 spine_waves <- spine_waves_a %>% bind_rows(spine_waves_b)
 
@@ -419,7 +464,7 @@ spine_waves %>%
 ```
 
 \newpage
-**Figure 3: UKHLS response sequences ascending in order of frequency (waves 3-10)**
+**Figure 3: Valid response sequences ascending in order of frequency**
 
 ```{r, echo=FALSE, fig.width=12,fig.height=15}
 
@@ -430,68 +475,24 @@ seqfplot(spine.seq.a,
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "a")
+         main = "Sample A (waves 3-6)")
 seqfplot(spine.seq.b, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "b")
+         main = "Sample B (waves 7-10)")
 seqlegend(spine.seq.a, cex = 1.3)
 #dev.off()
 ```
 
+
+
 ```{r, echo=FALSE, include=FALSE}
 
 ### recode employment status variables to create an employment contract variable
-dfas1a_seq <- dfas1a %>% 
-  mutate(emp_contract = ifelse(jbterm1 %in% c("not permanent job", 
-                                              "or is there some way that it is not permanent?",
-                                              "Or is there some way that it is not permanent?"),
-                               "fixed-term",
-                               ifelse(jbterm1 %in% c("a permanent job",
-                                                     "A permanent job"),
-                                      "permanent",
-                                      ifelse(jbstat %in% c("Unemployed",
-                                                           "unemployed"),
-                                             "unemployed",
-                                             ifelse(jbstat %in% c("on maternity leave",
-                                                                  "On maternity leave",
-                                                                  "Family care or home",
-                                                    "full-time student",
-                                                    "Full-time student",
-                                                    "LT sick or disabled",
-                                                    "Govt training scheme", # or fixed-term?
-                                                    "On apprenticeship",    # or fixed-term?
-                                                    "Unpaid, family business",
-                                                    "doing something else",
-                                                    "Doing something else"), 
-                                                    "not in employment",
-                                                    "missing")))))
+dfas1a_seq <- dfas1a
 
-dfas1b_seq <- dfas1b %>% 
-  mutate(emp_contract = ifelse(jbterm1 %in% c("not permanent job", 
-                                              "or is there some way that it is not permanent?",
-                                              "Or is there some way that it is not permanent?"),
-                               "fixed-term",
-                               ifelse(jbterm1 %in% c("a permanent job",
-                                                     "A permanent job"),
-                                      "permanent",
-                                      ifelse(jbstat %in% c("Unemployed",
-                                                           "unemployed"),
-                                             "unemployed",
-                                             ifelse(jbstat %in% c("on maternity leave",
-                                                                  "On maternity leave",
-                                                                  "Family care or home",
-                                                                  "full-time student",
-                                                                  "Full-time student",
-                                                                  "LT sick or disabled",
-                                                                  "Govt training scheme", # or fixed-term?
-                                                                  "On apprenticeship",    # or fixed-term?
-                                                                  "Unpaid, family business",
-                                                                  "doing something else",
-                                                                  "Doing something else"), 
-                                                    "not in employment",
-                                                    "missing")))))
+dfas1b_seq <- dfas1b 
 
 ### wide format for creating sequence data
 dfas1a_seq_wide  <-  dfas1a_seq %>% 
@@ -508,9 +509,8 @@ dfas1b_seq_wide  <-  dfas1b_seq %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to imput
-emp_contract_labs <- c("fixed term","missing", "not in employment", 
-                "permanent", "unemployed" )
-emp_contract_code <- c("FT", "NE", "PE", "UE", "NA")
+emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
+emp_contract_code <- c("FT", "NA", "PE", "UE")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
@@ -518,9 +518,20 @@ emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
 
 emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
                              labels = emp_contract_labs)
+
 ```
 
+\newpage
 
+## Sequence analysis of precrious employment exposures of interest
+
+hhdgfd
+
+### Employment contract
+
+ndjfhdj
+
+**Figure 4: Employment contract sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
 
 #
@@ -530,12 +541,12 @@ seqfplot(emp_contract.seq.a,
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample A (waves 3-6)")
 seqfplot(emp_contract.seq.b, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample B (waves 7-10)")
 seqlegend(emp_contract.seq.a, cex = 1.3)
 
 
@@ -549,93 +560,21 @@ seqlegend(emp_contract.seq.a, cex = 1.3)
 
 ### employment spells -----
 # create numeric version
-dfas1a_seq2 <- dfas1a %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
+dfas1a_seq2 <- dfas1a
 
-dfas1b_seq2 <- dfas1b %>% 
-  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
-
-# create binary version (one spell or more)
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-                        ifelse(nmpsp_dvn>=1,"yes", NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-                               ifelse(nmpsp_dvn>=1,"yes", NA)))
-
-### non-employment spells -----
-# create numeric version
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-
-# create binary version (one or more spell)
-dfas1a_seq2 <- dfas1a_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-                                                           ifelse(nnmpsp_dvn>=1,"yes", 
-                                                                  NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-                                                               ifelse(nnmpsp_dvn>=1,"yes", 
-                                                                      NA)))
-
-### unemployment spells -----
-# create numeric version
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-
-# create binary version (one or more spell)
-dfas1a_seq2 <- dfas1a_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-                                                          ifelse(nunmpsp_dvn>=1,"yes", 
-                                                                 NA)))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-                                                              ifelse(nunmpsp_dvn>=1,"yes", 
-                                                                     NA)))
-
-### create broken employment variable ------
-dfas1a_seq2 <- dfas1a_seq2 %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-                             ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
-                                      unemp_spells_bin=="no",
-                                    "Unbroken employment",
-                                    ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
-                                                unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
-
-dfas1b_seq2 <- dfas1b_seq2 %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-                             ifelse(emp_spells_bin=="yes" & 
-                                      nonemp_spells_bin=="no" & 
-                                      unemp_spells_bin=="no",
-                                    "Unbroken employment",
-                                    ifelse(emp_spells_bin=="yes" & 
-                                             (nonemp_spells_bin=="yes" |
-                                                unemp_spells_bin=="yes"),
-                                           "Broken employment","check"))))
+dfas1b_seq2 <- dfas1b 
 
 ### wide format for creating sequence data
 dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
   select(pidp,wv_n,broken_emp) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
+#  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
   select(pidp,wv_n,broken_emp) %>% 
+  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
   select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
@@ -650,11 +589,28 @@ broken_emp.seq.a <- seqdef(dfas1a_seq_wide2, 2:5, states = broken_emp_code,
                              labels = broken_emp_labs)
 
 broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_code,
-                             labels = broken_emp_labs)
+                           labels = broken_emp_labs)
+
+```
+
+**Table x: **
+```{r, echo=FALSE}
+kable(emp_contract_group_df, 
+      col.names = c("A priori employment contract grouping", 
+                    "n (Sample A)", 
+                    "% (Sample A)", 
+                    "n (Sample B)", 
+                    "% (Sample B)"), 
+      format.args = list(big.mark = ","))
 
 ```
 
 
+### Employment spells
+hghgh
+
+
+**Figure 5: Employment spell sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
 # sequence frequency plot (all common sequences)
 #png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
@@ -663,13 +619,25 @@ seqfplot(broken_emp.seq.a,
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample A (waves 3-6)")
 seqfplot(broken_emp.seq.b, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample A (waves 7-10)")
 seqlegend(broken_emp.seq.a, cex = 1.3)
+
+```
+
+**Table x: **
+```{r, echo=FALSE}
+kable(emp_spells_group_df, 
+      col.names = c("A priori broken employment spells grouping", 
+                    "n (Sample A)", 
+                    "% (Sample A)", 
+                    "n (Sample B)", 
+                    "% (Sample B)"), 
+      format.args = list(big.mark = ","))
 
 ```
 
@@ -679,49 +647,8 @@ seqlegend(broken_emp.seq.a, cex = 1.3)
 #### Multiple jobs
 #### ---------------------------------------------------------------------------
 
-## collapse missing categories
-dfas1a$j2has <- as.character(dfas1a$j2has)
-dfas1b$j2has <- as.character(dfas1b$j2has)
-
-
-dfas1a_seq3 <- dfas1a %>% 
-  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing", 
-                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
-                                             "unemployed",
-                          ifelse(jbstat %in% c("on maternity leave",
-                                               "On maternity leave",
-                                               "Family care or home",
-                                               "full-time student",
-                                               "Full-time student",
-                                               "LT sick or disabled",
-                                               "Govt training scheme", # or fixed-term?
-                                               "On apprenticeship",    # or fixed-term?
-                                               "Unpaid, family business",
-                                               "doing something else",
-                                               "Doing something else"), 
-                                                    "not in employment",
-                                                    j2has))))
-
-dfas1b_seq3 <- dfas1b %>% 
-  mutate(j2has_dv = ifelse(j2has %in% c("proxy","missing","refusal","don't know"),
-                           "missing", 
-                           ifelse(jbstat %in% c("Unemployed", "unemployed"),
-                                  "unemployed",
-                                  ifelse(jbstat %in% c("on maternity leave",
-                                                       "On maternity leave",
-                                                       "Family care or home",
-                                                       "full-time student",
-                                                       "Full-time student",
-                                                       "LT sick or disabled",
-                                                       "Govt training scheme", # or fixed-term?
-                                                       "On apprenticeship",    # or fixed-term?
-                                                       "Unpaid, family business",
-                                                       "doing something else",
-                                                       "Doing something else"), 
-                                         "not in employment",
-                                         j2has))))
-
+dfas1a_seq3 <- dfas1a
+dfas1b_seq3 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
@@ -738,8 +665,8 @@ dfas1b_seq_wide3  <-  dfas1b_seq3 %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to impute
-multi_jobs_labs <- c("Missing", "No", "not in employment", "unemployed", "Yes")
-multi_jobs_code <- c("NA","N", "NE", "UE", "Y")
+multi_jobs_labs <- c("Missing", "No", "Yes")
+multi_jobs_code <- c("NA","N", "Y")
 
 ### create sequence data
 multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
@@ -747,8 +674,13 @@ multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
 
 multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_code,
                            labels = multi_jobs_labs)
+
 ```
 
+### Multiple jobs
+
+
+**Figure 6: Multiple job sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
 # sequence frequency plot (all common sequences)
 #png("output/descriptive/seqfplot_emp_contract.png", width = 960, height = 1920)
@@ -757,11 +689,22 @@ seqfplot(multi_jobs.seq.a,
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample A (waves 3-6)")
 seqfplot(multi_jobs.seq.b, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Sequence frequency plot")
+         main = "Sample B (waves 7-10)")
 seqlegend(multi_jobs.seq.a, cex = 1.3)
+```
+**Table x: **
+```{r, echo=FALSE}
+kable(multi_jobs_group_df, 
+      col.names = c("A priori multiple grouping", 
+                    "n (Sample A)", 
+                    "% (Sample A)", 
+                    "n (Sample B)", 
+                    "% (Sample B)"), 
+      format.args = list(big.mark = ","))
+
 ```
