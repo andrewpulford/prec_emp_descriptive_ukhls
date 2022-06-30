@@ -231,9 +231,10 @@ ghq_nocase_b <- ghq_nocase_b %>% nrow()
 
 *UNWEIGHTED RESULTS - FOR ILLUSTRATIVE PURPOSES ONLY*
 
-##Sample description
 
-A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_a, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_valid_end_a, big.mark=",")` and `r prettyNum(no_valid_end_b, big.mark=",")` individuals for not having a valid survey response at wave 6 or 10 respectively. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
+## Sample description
+
+A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_b, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_valid_end_a, big.mark=",")` and `r prettyNum(no_valid_end_b, big.mark=",")` individuals for not having a valid survey response at wave 6 or 10 respectively. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
 
 
 **Figure 1: Flowcharts for inclusion and exclusion of UKHLS respondents to create analytic sample**
@@ -431,6 +432,7 @@ spine_waves_a <- dfas1a %>%
   mutate(pc= n/sum(n)*100) %>% 
   mutate(as = "Sample A (waves 3-6)")
 
+
 ## waves 7-10
 spine_waves_b <- dfas1b %>% 
   group_by(pidp) %>% 
@@ -443,7 +445,7 @@ spine_waves_b <- dfas1b %>%
   mutate(as = "Sample B (waves 7-10")
 
 ```
-Responses to all four waves in the study period were provided by `r spine_waves_a$pc[spine_waves_a$n_wvs==9]`% of analytic sample A and `r spine_waves_a$pc[spine_waves_a$n_wvs==9]`% of analytic sample B (Figure 2). Response sequences ascending in order of frequency are presented in Figure 3.
+Responses to all four waves in the study period were provided by `r spine_waves_a$pc[spine_waves_a$n_wvs==4]`% of analytic sample A and `r spine_waves_b$pc[spine_waves_b$n_wvs==4]`% of analytic sample B (Figure 2). Valid response sequences ascending in order of frequency are presented in Figure 3.
 
 **Figure 2: Number of waves responded to by percentage of the analytic sample**
 ```{r, echo=FALSE, fig.width=4,fig.height=3}
@@ -525,11 +527,9 @@ emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
 
 ## Sequence analysis of precrious employment exposures of interest
 
-hhdgfd
-
 ### Employment contract
 
-ndjfhdj
+Figure 4 presents employment contract sequences ascending in order of frequency and Table 2 present frequencies and percentages of manually calculated grouping based on assumptions of likely grouping made a priori to sequence analysis of the data. The majority of participants were found to be in steady permanent employment in both analytic samples (`r emp_contract_group_df$pc_a[emp_contract_group_df$emp_contract_group=="steady: permanent"]`% in Sample A and `r emp_contract_group_df$pc_b[emp_contract_group_df$emp_contract_group=="steady: permanent"]`% in Sample B). Under one percent of either sample reported steady non-permanent employment (`r emp_contract_group_df$pc_a[emp_contract_group_df$emp_contract_group=="steady: non-permanent"]`% in Sample A and `r emp_contract_group_df$pc_b[emp_contract_group_df$emp_contract_group=="steady: non-permanent"]`% in Sample B). A larger proportion of the analytic samples were classed as a "blip" (one wave of non-permanent employment and three waves of permanent employment) (`r emp_contract_group_df$pc_a[emp_contract_group_df$emp_contract_group=="blip: non-permanent"]`% in Sample A and `r emp_contract_group_df$pc_b[emp_contract_group_df$emp_contract_group=="blip: non-permanent"]`% in Sample B); or as "churning" between employment contract states (`r emp_contract_group_df$pc_a[emp_contract_group_df$emp_contract_group=="churn"]`% in Sample A and `r emp_contract_group_df$pc_b[emp_contract_group_df$emp_contract_group=="churn"]`% in Sample B).
 
 **Figure 4: Employment contract sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
@@ -593,7 +593,7 @@ broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_code,
 
 ```
 
-**Table x: **
+**Table 2: A priori employment contract history groupings**
 ```{r, echo=FALSE}
 kable(emp_contract_group_df, 
       col.names = c("A priori employment contract grouping", 
@@ -607,8 +607,7 @@ kable(emp_contract_group_df,
 
 
 ### Employment spells
-hghgh
-
+Figure 5 presents employment spell sequences ascending in order of frequency and Table 3 present frequencies and percentages of manually calculated grouping based on a priori assumptions of likely groupings. The majority of participants were found to be in steady unbroken employment in both analytic samples (`r emp_spells_group_df$pc_a[emp_spells_group_df$emp_spells_group=="steady: unbroken"]`% in Sample A and `r emp_spells_group_df$pc_b[emp_spells_group_df$emp_spells_group=="steady: unbroken"]`% in Sample B). Under one percent of either sample reported steady broken employment (`r emp_spells_group_df$pc_a[emp_spells_group_df$emp_spells_group=="steady: broken"]`% in Sample A and `r emp_spells_group_df$pc_b[emp_spells_group_df$emp_spells_group=="steady: broken"]`% in Sample B). A larger proportion of the analytic samples were classed as a "blip" (one wave of broken employment and three waves of unbroken employment) (`r emp_spells_group_df$pc_a[emp_spells_group_df$emp_spells_group=="blip: broken"]`% in Sample A and `r emp_spells_group_df$pc_b[emp_spells_group_df$emp_spells_group=="blip: broken"]`% in Sample B); or as "churning" between employment spells states (`r emp_spells_group_df$pc_a[emp_spells_group_df$emp_spells_group=="churn"]`% in Sample A and `r emp_spells_group_df$pc_b[emp_spells_group_df$emp_spells_group=="churn"]`% in Sample B).
 
 **Figure 5: Employment spell sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
@@ -629,7 +628,7 @@ seqlegend(broken_emp.seq.a, cex = 1.3)
 
 ```
 
-**Table x: **
+**Table 3: A priori employment spells history groupings**
 ```{r, echo=FALSE}
 kable(emp_spells_group_df, 
       col.names = c("A priori broken employment spells grouping", 
@@ -679,6 +678,7 @@ multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_code,
 
 ### Multiple jobs
 
+Figure 6 presents mutliple job sequences ascending in order of frequency and Table 4 present frequencies and percentages of manually calculated grouping based on a priori assumptions of likely groupings. Multiple jobs were relatively uncommon in both analytic samples. Steady multiple employment was reported in `r multi_jobs_group_df$pc_a[multi_jobs_group_df$multi_jobs_group=="steady: multiple jobs"]`% in Sample A and `r multi_jobs_group_df$pc_b[multi_jobs_group_df$multi_jobs_group=="steady: multiple jobs"]`% in Sample B. A larger proportion of the analytic samples were classed as a "blip" (one wave of multiple employment and three waves without) (`r multi_jobs_group_df$pc_a[multi_jobs_group_df$multi_jobs_group=="blip: multiple jobs"]`% in Sample A and `r multi_jobs_group_df$pc_b[multi_jobs_group_df$multi_jobs_group=="blip: multiple jobs"]`% in Sample B); or as "churning" between multiple employment states (`r multi_jobs_group_df$pc_a[multi_jobs_group_df$multi_jobs_group=="churn"]`% in Sample A and `r multi_jobs_group_df$pc_b[multi_jobs_group_df$multi_jobs_group=="churn"]`% in Sample B).
 
 **Figure 6: Multiple job sequences ascending in order of frequency**
 ```{r, echo=FALSE, fig.width=9,fig.height=9}
@@ -697,7 +697,7 @@ seqfplot(multi_jobs.seq.b,
          main = "Sample B (waves 7-10)")
 seqlegend(multi_jobs.seq.a, cex = 1.3)
 ```
-**Table x: **
+**Table 4: A priori multiple employment history groupings**
 ```{r, echo=FALSE}
 kable(multi_jobs_group_df, 
       col.names = c("A priori multiple grouping", 
