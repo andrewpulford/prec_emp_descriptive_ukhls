@@ -49,6 +49,10 @@ library(foreign) # for reading SPSS files
 ## load master raw dataframe
 master_raw1 <- readRDS("./working_data/master_raw1_clean.rds")
 
+## load weight spines
+weight_spine_a <- readRDS("./look_ups/non_weights_spine_a.rds")
+weight_spine_b <- readRDS("./look_ups/non_weights_spine_b.rds")
+
 ## convert age var to numeric to allow filtering
 master_raw1$age_dv <- as.numeric(master_raw1$age_dv)
 
@@ -61,11 +65,38 @@ master_indivs_a <- length(unique(master_raw1a$pidp))
 master_indivs_b <- length(unique(master_raw1b$pidp))
 
 
-### create eligible pop dataframe for descriptive analysis
-## keep only working age for study period (>=19 and <=64 at study endpoint (waves 6 and 10))
+##### create eligible pop dataframe for descriptive analysis -------------------
 
+## keep only cases with valid weights
+# create no valid weight spines
+no_weight_spine_a <- master_raw1a %>% 
+  anti_join(weight_spine_a) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
+
+no_weight_spine_b <- master_raw1b %>% 
+  anti_join(weight_spine_b) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
+
+# create valid weights dfs
+valid_weight_a <- weight_spine_a %>% 
+  left_join(master_raw1a)
+
+valid_weight_b <- weight_spine_b %>% 
+  left_join(master_raw1b)
+
+# check number of individuals no valid weight -- relates to flowchart node AA
+length(unique(no_weight_spine_a$pidp))
+length(unique(no_weight_spine_b$pidp))
+
+## keep only working age for study period (>=19 and <=64 at study endpoint (waves 6 and 10))
 # create non-working age spines
-non_working_age_spine_a <- master_raw1a %>% 
+non_working_age_spine_a <- valid_weight_a %>% 
   filter(wv_n==6) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
   select(pidp,age_dv,non_work_age_flag) %>% 
@@ -75,7 +106,7 @@ non_working_age_spine_a <- master_raw1a %>%
   ungroup() %>% 
   select(pidp)
 
-non_working_age_spine_b <- master_raw1b %>% 
+non_working_age_spine_b <- valid_weight_b %>% 
   filter(wv_n == 10) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
   select(pidp,age_dv,non_work_age_flag) %>% 
@@ -96,7 +127,7 @@ working_age_b <- master_raw1b %>%
 length(unique(working_age_a$pidp))
 length(unique(working_age_b$pidp))
 
-# check number of individuals working age -- relates to flowchart node AA
+# check number of individuals not working age -- relates to flowchart node AA
 length(unique(non_working_age_spine_a$pidp))
 length(unique(non_working_age_spine_b$pidp))
 
@@ -170,6 +201,9 @@ max(eligible_pop_b$age_dv)
 ## save dataframes
 write_rds(eligible_pop_a, "./working_data/eligible_pop_a.rds")
 write_rds(eligible_pop_b, "./working_data/eligible_pop_b.rds")
+
+write_rds(no_weight_spine_a, "./look_ups/no_weight_spine_a.rds")
+write_rds(no_weight_spine_b, "./look_ups/no_weight_spine_b.rds")
 
 write_rds(non_working_age_spine_a, "./look_ups/non_working_age_spine_a.rds")
 write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
