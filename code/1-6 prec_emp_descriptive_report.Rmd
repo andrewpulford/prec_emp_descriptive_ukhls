@@ -34,6 +34,10 @@ master_raw_a <- master_raw %>% filter(wv_n %in% c(3:6))
 ## waves 7-10
 master_raw_b <- master_raw %>% filter(wv_n %in% c(7:10))
 
+### no valid weight ---------
+non_weight_spine_a <- readRDS("../look_ups/no_weight_spine_a.rds")
+non_weight_spine_b <- readRDS("../look_ups/no_weight_spine_b.rds")
+
 ### non-working age ---------
 non_working_age_spine_a <- readRDS("../look_ups/non_working_age_spine_a.rds")
 non_working_age_spine_b <- readRDS("../look_ups/non_working_age_spine_b.rds")
@@ -74,8 +78,12 @@ raw_observations_b <- nrow(master_raw_b)
 #raw_observations <- prettyNum(raw_observations, big.mark=",")
 
 ### Node AA: ----------------
-### number of individuals excluded due to not being working-age or no valid 
-### response at study endpoint
+### number of individuals excluded due to having no valid weight, not being 
+### working-age or no valid response at study endpoint
+
+## no valid weight
+no_weight_a <- nrow(non_weight_spine_a)
+no_weight_b <- nrow(non_weight_spine_b)
 
 ## non-working age
 non_work_age_a <- nrow(non_working_age_spine_a)
@@ -234,7 +242,7 @@ ghq_nocase_b <- ghq_nocase_b %>% nrow()
 
 ## Sample description
 
-A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_b, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_valid_end_a, big.mark=",")` and `r prettyNum(no_valid_end_b, big.mark=",")` individuals for not having a valid survey response at wave 6 or 10 respectively. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
+A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_b, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_weight_b, big.mark=",")` and `r prettyNum(no_weight_a, big.mark=",")` individuals respectively who did not have valid weights. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2).
 
 
 **Figure 1: Flowcharts for inclusion and exclusion of UKHLS respondents to create analytic sample**
@@ -252,7 +260,7 @@ grViz(paste0("digraph {
     (",prettyNum(raw_observations_a, big.mark=",")," observations)', shape = box, width = 3, height = 1]
     AA [label = '",prettyNum(non_work_age_a, big.mark=",")," non-working age
     
-    ",prettyNum(no_valid_end_a, big.mark=",")," no valid wave 6 response' , shape = box, 
+    ",prettyNum(no_weight_a, big.mark=",")," no valid weight' , shape = box, 
     width = 3, height = 1]
     B [label = '",prettyNum(eligible_unique_indiv_a, big.mark=",")," eligible individuals' , shape = box, 
     width = 3, height = 1]
@@ -296,7 +304,7 @@ grViz(paste0("digraph {
     (",prettyNum(raw_observations_b, big.mark=",")," observations)', shape = box, width = 3, height = 1]
     AA [label = '",prettyNum(non_work_age_b, big.mark=",")," non-working age
     
-    ",prettyNum(no_valid_end_b, big.mark=",")," no valid wave 10 response' , shape = box, 
+    ",prettyNum(no_weight_b, big.mark=",")," no valid weight' , shape = box, 
     width = 3, height = 1]
     B [label = '",prettyNum(eligible_unique_indiv_b, big.mark=",")," eligible individuals' , shape = box, 
     width = 3, height = 1]
@@ -329,10 +337,10 @@ grViz(paste0("digraph {
 
 ```{r, echo=FALSE}
 ## add checks to ensure number of individuals adds up
-check_AB_a <- eligible_unique_indiv_a+non_work_age_a+no_valid_end_a==raw_unique_indiv_a
+check_AB_a <- eligible_unique_indiv_a+non_work_age_a+no_weight_a==raw_unique_indiv_a
 check_BC_a <- censor_retired_a+incomplete_a+dfas1a_unique_indivs==eligible_unique_indiv_a
 
-check_AB_b <- eligible_unique_indiv_b+non_work_age_b+no_valid_end_b==raw_unique_indiv_b
+check_AB_b <- eligible_unique_indiv_b+non_work_age_b+no_weight_b==raw_unique_indiv_b
 check_BC_b <- censor_retired_b+incomplete_b+dfas1b_unique_indivs==eligible_unique_indiv_b
 
 if(check_AB_a!=TRUE){print("Sample A - boxes AA and B to not equal box A")}
