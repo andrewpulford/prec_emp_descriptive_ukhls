@@ -46,12 +46,12 @@ temp_df <- read.spss(paste0(data_path,"ukhls_w6/f_indresp.sav"),
 
 weight_spine_a  <- temp_df %>% 
   select(pidp, f_indinub_xw) %>% 
-  filter(f_indinub_xw!=0)
+  mutate(weight_flag = ifelse(f_indinub_xw!=0,1,0))
 
 rm(temp_df)
 
 ## save spine for analytic sample a
-write_rds(weight_spine_a, "./look_ups/non_weights_spine_a.rds")
+write_rds(weight_spine_a, "./look_ups/weights_spine_a.rds")
 
 ################################################################################
 #####                        weights for waves 7-10                        ##### 
@@ -63,10 +63,10 @@ temp_df <- read.spss(paste0(data_path,"ukhls_w10/j_indresp.sav"),
 
 weight_spine_b  <- temp_df %>% 
   select(pidp, j_indinui_xw) %>% 
-  filter(j_indinui_xw!=0)
+  mutate(weight_flag = ifelse(j_indinui_xw!=0,1,0))
 
 rm(temp_df)
 
 ## save spine for analytic sample b
-write_rds(weight_spine_b, "./look_ups/non_weights_spine_b.rds")
+write_rds(weight_spine_b, "./look_ups/weights_spine_b.rds")
 
