@@ -49,10 +49,6 @@ library(foreign) # for reading SPSS files
 ## load master raw dataframe
 master_raw1 <- readRDS("./working_data/master_raw1_clean.rds")
 
-## load weight spines
-weight_spine_a <- readRDS("./look_ups/non_weights_spine_a.rds")
-weight_spine_b <- readRDS("./look_ups/non_weights_spine_b.rds")
-
 ## convert age var to numeric to allow filtering
 master_raw1$age_dv <- as.numeric(master_raw1$age_dv)
 
@@ -64,39 +60,15 @@ master_raw1b <- master_raw1 %>% filter(wv_n %in% c(7:10))
 master_indivs_a <- length(unique(master_raw1a$pidp))
 master_indivs_b <- length(unique(master_raw1b$pidp))
 
+## load weight spines
+weight_spine_a <- readRDS("./look_ups/weights_spine_a.rds")
+weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds")
 
 ##### create eligible pop dataframe for descriptive analysis -------------------
 
-## keep only cases with valid weights
-# create no valid weight spines
-no_weight_spine_a <- master_raw1a %>% 
-  anti_join(weight_spine_a) %>% 
-  group_by(pidp) %>% 
-  slice(1) %>% 
-  ungroup() %>% 
-  select(pidp)
-
-no_weight_spine_b <- master_raw1b %>% 
-  anti_join(weight_spine_b) %>% 
-  group_by(pidp) %>% 
-  slice(1) %>% 
-  ungroup() %>% 
-  select(pidp)
-
-# create valid weights dfs
-valid_weight_a <- weight_spine_a %>% 
-  left_join(master_raw1a)
-
-valid_weight_b <- weight_spine_b %>% 
-  left_join(master_raw1b)
-
-# check number of individuals no valid weight -- relates to flowchart node AA
-length(unique(no_weight_spine_a$pidp))
-length(unique(no_weight_spine_b$pidp))
-
 ## keep only working age for study period (>=19 and <=64 at study endpoint (waves 6 and 10))
 # create non-working age spines
-non_working_age_spine_a <- valid_weight_a %>% 
+non_working_age_spine_a <- master_raw1a %>% 
   filter(wv_n==6) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
   select(pidp,age_dv,non_work_age_flag) %>% 
@@ -106,7 +78,7 @@ non_working_age_spine_a <- valid_weight_a %>%
   ungroup() %>% 
   select(pidp)
 
-non_working_age_spine_b <- valid_weight_b %>% 
+non_working_age_spine_b <- master_raw1b %>% 
   filter(wv_n == 10) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
   select(pidp,age_dv,non_work_age_flag) %>% 
@@ -124,66 +96,55 @@ working_age_b <- master_raw1b %>%
   anti_join(non_working_age_spine_b)
 
 # check number of individuals working age
-length(unique(working_age_a$pidp))
-length(unique(working_age_b$pidp))
+working_age_indivs_a <- length(unique(working_age_a$pidp))
+working_age_indivs_b <- length(unique(working_age_b$pidp))
 
 # check number of individuals not working age -- relates to flowchart node AA
-length(unique(non_working_age_spine_a$pidp))
-length(unique(non_working_age_spine_b$pidp))
-
-## keep only cases with valid study endpoint response
-# convert to wide format
-working_age_wide_a <- working_age_a %>% 
-  select(pidp,wv_n) %>% 
-  mutate(response=1) %>% 
-  mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
-  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
-
-endpoint_spine_a <- working_age_wide_a %>% 
-  filter(wv_6==1) %>% 
-  mutate(valid_6=1) %>% 
-  select(pidp, valid_6)
-
-working_age_wide_b <- working_age_b %>% 
-  select(pidp,wv_n) %>% 
-  mutate(response=1) %>% 
-  mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
-  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
+non_work_age_indivs_a <- length(unique(non_working_age_spine_a$pidp))
+non_work_age_indivs_b <- length(unique(non_working_age_spine_b$pidp))
 
 
-endpoint_spine_b <- working_age_wide_b %>% 
-  filter(wv_10==1) %>% 
-  mutate(valid_10=1) %>% 
-  select(pidp, valid_10)
+## keep only cases with valid weights
+# create no valid weight spines
+no_weight_spine_a <- working_age_a %>% 
+  left_join(weight_spine_a) %>% 
+  # recode missing values as zero 
+  mutate(weight_flag = ifelse(is.na(weight_flag),0,weight_flag)) %>% 
+  filter(weight_flag==0) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
 
-# join into single spine
-#endpoint_spine <- endpoint_spine_a %>% full_join(endpoint_spine_b)
+no_weight_spine_b <- working_age_b %>% 
+  left_join(weight_spine_b) %>% 
+  # recode missing values as zero 
+  mutate(weight_flag = ifelse(is.na(weight_flag),0,weight_flag)) %>% 
+  filter(weight_flag==0) %>% 
+  group_by(pidp) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(pidp)
 
-## create eligible pop df 
-#eligible_pop <- working_age %>% 
-#  semi_join(endpoint_spine) 
-
+# create eligible pop df by including only valid weights
 eligible_pop_a <- working_age_a %>% 
-  right_join(endpoint_spine_a) 
+  left_join(weight_spine_a) %>% 
+  filter(weight_flag==1)
+
 
 eligible_pop_b <- working_age_b %>% 
-  right_join(endpoint_spine_b) 
+  left_join(weight_spine_b) %>% 
+  filter(weight_flag==1)
 
-## check only valid endpoint included
-sum(eligible_pop_a$valid_6!=1)
-sum(eligible_pop_b$valid_10!=1)
+# check number of individuals with valid weight -- relates to flowchart node B
+eligible_pop_indivs_a <- length(unique(eligible_pop_a$pidp))
+eligible_pop_indivs_b <- length(unique(eligible_pop_b$pidp))
 
-## check number indivs excluded for no valid endpoint -- relates to flowchart node AA
-no_endpoint_a <- working_age_a %>% 
-  anti_join(endpoint_spine_a) 
 
-no_endpoint_b <- working_age_b %>% 
-  anti_join(endpoint_spine_b) 
+# check number of individuals no valid weight -- relates to flowchart node AA
+no_weight_indivs_a <- length(unique(no_weight_spine_a$pidp))
+no_weight_indivs_b <- length(unique(no_weight_spine_b$pidp))
 
-length(unique(no_endpoint_a$pidp))
-length(unique(no_endpoint_b$pidp))
 
 ## check number of observations and individuals
 # observations
@@ -207,9 +168,6 @@ write_rds(no_weight_spine_b, "./look_ups/no_weight_spine_b.rds")
 
 write_rds(non_working_age_spine_a, "./look_ups/non_working_age_spine_a.rds")
 write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
-
-write_rds(no_endpoint_a, "./look_ups/no_endpoint_a.rds")
-write_rds(no_endpoint_b, "./look_ups/no_endpoint_b.rds")
 
 ################################################################################
 ###### create spine for censoring deceased participants ------------------------
@@ -329,7 +287,12 @@ incomplete_spine_b <- eligible_pop_b %>%
 incomplete_spine_a %>% select(-pidp) %>% 
   summarise_all(funs(sum)) %>% 
   pivot_longer(cols=1:8, names_to = "variable", values_to = "n") %>% 
-  mutate(pc = (n/nrow(endpoint_spine_a)*100))
+  mutate(pc = (n/nrow(incomplete_spine_a)*100))
+
+incomplete_spine_b %>% select(-pidp) %>% 
+  summarise_all(funs(sum)) %>% 
+  pivot_longer(cols=1:8, names_to = "variable", values_to = "n") %>% 
+  mutate(pc = (n/nrow(incomplete_spine_b)*100))
 
 ## check overlaps
 # demographics
@@ -342,6 +305,14 @@ incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>%
 incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>% 
   summarise_all(funs(sum))
 
+incomplete_spine_b %>% select(no_age, no_sex, no_hiqual) %>% 
+  mutate(n_demogs_incompete = no_age + no_sex + no_hiqual) %>% 
+  filter(n_demogs_incompete!=0) %>% 
+  group_by(n_demogs_incompete) %>% 
+  summarise(n=n())
+
+incomplete_spine_b %>% select(no_age, no_sex, no_hiqual) %>% 
+  summarise_all(funs(sum))
 
 
 ### exposures
@@ -352,6 +323,15 @@ incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>%
   summarise(n=n())
 
 incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+  summarise_all(funs(sum))
+
+incomplete_spine_b %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+  mutate(n_exp_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
+  filter(n_exp_incompete!=0) %>% 
+  group_by(n_exp_incompete) %>% 
+  summarise(n=n())
+
+incomplete_spine_b %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   summarise_all(funs(sum))
 
 ### outcomes
@@ -440,3 +420,4 @@ dfas1b <- eligible_pop_b %>%
   anti_join(censor_combined_b)
 
 write_rds(dfas1b, "./analytic_sample_data/dfas1b.rds")
+
