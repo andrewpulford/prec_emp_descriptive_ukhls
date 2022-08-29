@@ -44,14 +44,14 @@ citation("TraMineR")
 
 ### analytic sample 1a - waves 3-6
 dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds") %>% 
-  mutate(sample_group = "a") %>% select(-valid_6)
+  mutate(sample_group = "a")# %>% select(-valid_6)
 
 ## endpoint only
 dfas1a_end <- dfas1a %>% filter(wv_n==6)
 
 ### analytic sample 1b - waves 7-10
 dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>% 
-  mutate(sample_group = "b") %>% select(-valid_10)
+  mutate(sample_group = "b")# %>% select(-valid_10)
 
 ## endpoint only
 dfas1b_end <- dfas1b %>% filter(wv_n==10) 
