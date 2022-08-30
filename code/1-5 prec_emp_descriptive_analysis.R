@@ -34,6 +34,8 @@ rm(list=ls())
 library(tidyverse) # all kinds of stuff 
 library(broom) # for working with statistical outputs
 library(TraMineR) # for sequence analysis
+library(poLCA) # for latent class analysis
+#library(srvyr) # for applying survey weights to analysis
 
 citation("TraMineR")
 
@@ -75,7 +77,7 @@ sex <- dfas1_end %>% group_by(wv_n,sex_dv) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Sex") %>% 
   rename("measure"= "sex_dv") %>% 
-  select(wv_n, var, measure, n, est) %>% 
+  dplyr::select(wv_n, var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("Female","Male")))
 
 sample_chars_endpoint <- sex
@@ -85,7 +87,7 @@ sample_chars_endpoint <- sex
 age_mean <- dfas1_end %>% group_by(wv_n) %>% 
   summarise(est = mean(as.numeric(as.numeric(age_dv)), na.rm = TRUE)) %>% 
   mutate(var="Age", measure="Mean", n=NA) %>% 
-  select(wv_n, var, measure, n, est)
+  dplyr::select(wv_n, var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean)
 
@@ -97,7 +99,7 @@ ethnicity <- dfas1_end %>% group_by(wv_n,ethn_dv) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Ethnicity") %>% 
   rename("measure"= "ethn_dv") %>% 
-  select(wv_n, var, measure, n, est)
+  dplyr::select(wv_n, var, measure, n, est)
 
 ## white/non-white
 white_non <- dfas1_end %>% group_by(wv_n,non_white) %>% 
@@ -105,7 +107,7 @@ white_non <- dfas1_end %>% group_by(wv_n,non_white) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Ethnicity") %>% 
   rename("measure"= "non_white") %>% 
-  select(wv_n, var, measure, n, est) %>% 
+  dplyr::select(wv_n, var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("White","Non-white","Missing")))
 
 
@@ -116,7 +118,7 @@ marital <- dfas1_end %>% group_by(wv_n,marital_status) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Marital status") %>% 
   rename("measure"= "marital_status") %>% 
-  select(wv_n, var, measure, n, est) %>% 
+  dplyr::select(wv_n, var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("married/civil partnership","divorced/separated/widowed","single","missing")))
 
 
@@ -127,7 +129,7 @@ ed_attain <- dfas1_end %>% group_by(wv_n,hiqual_dv) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Educational attainment") %>% 
   rename("measure"= "hiqual_dv") %>% 
-  select(wv_n, var, measure, n, est) %>% 
+  dplyr::select(wv_n, var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("degree",
                                            "other higher degree",
                                            "a-level etc",
@@ -179,7 +181,7 @@ perm_emp <- dfas1_end %>% group_by(wv_n,emp_contract) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Employment contract") %>% 
   rename("measure"= "emp_contract") %>% 
-  select(wv_n,var, measure, n, est) %>% 
+  dplyr::select(wv_n,var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("fixed-term",
                                            "permanent",
                                            "unemployed/not in employment")))
@@ -242,7 +244,7 @@ emp_broken <- dfas1_end %>% group_by(wv_n,broken_emp) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Broken employment") %>% 
   rename("measure"= "broken_emp") %>% 
-  select(wv_n,var, measure, n, est)  %>% 
+  dplyr::select(wv_n,var, measure, n, est)  %>% 
   arrange(wv_n, factor(measure, levels = c("unbroken employment",
                                            "broken employment",
                                            "no employment spells")))
@@ -266,7 +268,7 @@ job_sec <- dfas1_end %>% group_by(wv_n, jbsec_dv) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Perceived job security") %>% 
   rename("measure"= "jbsec_dv") %>% 
-  select(wv_n,var, measure, n, est)
+  dplyr::select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(job_sec)
 
@@ -276,7 +278,7 @@ emp_2nd <- dfas1_end %>% group_by(wv_n, j2has) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Multiple jobs") %>% 
   rename("measure"= "j2has") %>% 
-  select(wv_n,var, measure, n, est)  %>% 
+  dplyr::select(wv_n,var, measure, n, est)  %>% 
   arrange(wv_n, factor(measure, levels = c("no",
                                            "yes")))
 
@@ -297,7 +299,7 @@ inc_quantile <- dfas1_end %>% group_by(wv_n) %>%
                         ifelse(measure=="50%","Median","75% quantile"))) %>% 
   mutate(var="Monthly net income (£)",
          n=NA) %>% 
-  select(wv_n,var, measure, n, est)
+  dplyr::select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile)
 
@@ -324,7 +326,7 @@ srh <- dfas1_end %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="Self-rated health") %>% 
   rename("measure"= "srh_dv") %>% 
-  select(wv_n,var, measure, n, est)
+  dplyr::select(wv_n,var, measure, n, est)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh)
 
@@ -335,7 +337,7 @@ ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="GHQ12 score") %>% 
   rename("measure"= "ghq_case3") %>% 
-  select(wv_n,var, measure, n, est) %>% 
+  dplyr::select(wv_n,var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more")))
 
@@ -416,7 +418,7 @@ write_rds(sample_chars_endpoint, "./working_data/sample_chars_endpoint.rds")
 ### cross tab for employment contract and broken employment spells
 ## create df for cross tab
 expos_df1 <- dfas1_end %>% 
-  select(emp_contract, broken_emp) %>% 
+  dplyr::select(emp_contract, broken_emp) %>% 
   group_by(emp_contract, broken_emp) %>% 
   summarise(total=n()) %>% 
   ungroup() %>% 
@@ -424,14 +426,14 @@ expos_df1 <- dfas1_end %>%
 
 ## chi square test
 expos_df1 %>% 
-  select(-emp_contract) %>% 
+  dplyr::select(-emp_contract) %>% 
   chisq.test() %>% 
   glance() #%>% 
 #  pull(p.value) # add this is you want to extract p value only
 
 ### cross tab for employment contract and multiple jobs
 expos_df2 <- dfas1_end %>% 
-  select(emp_contract, j2has_dv) %>% 
+  dplyr::select(emp_contract, j2has_dv) %>% 
   group_by(emp_contract, j2has_dv) %>% 
   summarise(total=n()) %>% 
   ungroup() %>% 
@@ -439,14 +441,14 @@ expos_df2 <- dfas1_end %>%
 
 ## chi square test
 expos_df2 %>% 
-  select(-emp_contract) %>% 
+  dplyr::select(-emp_contract) %>% 
   chisq.test() %>% 
   glance()  #%>% 
 #  pull(p.value) # add this is you want to extract p value only
 
 ### cross tab for broken employment spells and multiple jobs
 expos_df3 <- dfas1_end %>% 
-  select(broken_emp, j2has_dv) %>% 
+  dplyr::select(broken_emp, j2has_dv) %>% 
   group_by(broken_emp, j2has_dv) %>% 
   summarise(total=n()) %>% 
   ungroup() %>% 
@@ -454,7 +456,7 @@ expos_df3 <- dfas1_end %>%
 
 ## chi square test
 expos_df3 %>% 
-  select(-broken_emp) %>% 
+  dplyr::select(-broken_emp) %>% 
   chisq.test() %>% 
   glance()  #%>% 
 #  pull(p.value) # add this is you want to extract p value only
@@ -482,15 +484,15 @@ dfas1b_seq <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide  <-  dfas1a_seq %>% 
-  select(pidp,wv_n,emp_contract) %>% 
+  dplyr::select(pidp,wv_n,emp_contract) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing")
 
 dfas1b_seq_wide  <-  dfas1b_seq %>% 
-  select(pidp,wv_n,emp_contract) %>% 
+  dplyr::select(pidp,wv_n,emp_contract) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -582,17 +584,17 @@ dfas1b_seq2 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
-  select(pidp,wv_n,broken_emp) %>% 
+  dplyr::select(pidp,wv_n,broken_emp) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
 #  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
-  select(pidp,wv_n,broken_emp) %>% 
+  dplyr::select(pidp,wv_n,broken_emp) %>% 
   mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -681,15 +683,15 @@ dfas1b_seq3 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
-  select(pidp,wv_n,j2has_dv) %>% 
+  dplyr::select(pidp,wv_n,j2has_dv) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
 
 dfas1b_seq_wide3  <-  dfas1b_seq3 %>% 
-  select(pidp,wv_n,j2has_dv) %>% 
+  dplyr::select(pidp,wv_n,j2has_dv) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -1007,7 +1009,45 @@ write_rds(multi_jobs_group_df, "./working_data/multi_jobs_group_df.rds")
 #####                         Latent class analysis                        #####
 ################################################################################
 
+### use poLCA package for LCA
+
+
+## convert variables to factors so that they have numeric values
+dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3)
+dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4)
+dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5)
+dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6)
+
+# check levels - note no missing in last wave
+levels(dfas1a_seq_wide$wv_3)
+levels(dfas1a_seq_wide$wv_4)
+levels(dfas1a_seq_wide$wv_5)
+levels(dfas1a_seq_wide$wv_6)
+
+### start with basic formulation (no covariates, 2 classes)
+
+f <- cbind(wv_3, wv_4,wv_5, wv_6) ~ 1
+
+poLCA(f, dfas1a_seq_wide, nclass = 2)
+
+## note - 2 classes seems to ID permanent and unemployed
+
+### no covariates, 3 classes
+poLCA(f, dfas1a_seq_wide, nclass = 3)
+
+## note - 3 classes gives additional mixed grouping
+## check the model fit criteria
+
+### no covariates, 4 classes
+poLCA(f, dfas1a_seq_wide, nclass = 4)
+
+### no covariates, 5 classes
+poLCA(f, dfas1a_seq_wide, nclass = 5)
+
+
+
 ################################################################################
 #####                           outcome analysis                           #####
 ################################################################################
+
 
