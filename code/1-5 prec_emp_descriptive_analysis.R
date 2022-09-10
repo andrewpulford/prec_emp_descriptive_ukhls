@@ -1075,6 +1075,11 @@ lca5_ent <- poLCA.entropy(lca_5)
 ### no covariates, 6 classes
 lca_6 <- poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = FALSE)
 
+# save plot
+png("output/descriptive/empcontract_lca6.png", width = 1400, height = 1400)
+poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = TRUE)
+dev.off()
+
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca6_ent <- poLCA.entropy(lca_6)
 
@@ -1090,7 +1095,7 @@ lca_8 <- poLCA(f, dfas1a_seq_wide, nclass = 8, maxiter = 8000, graphs = FALSE)#,
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca8_ent <- poLCA.entropy(lca_8)
 
-nclass_vector <- c(1:8)
+nclass_vector <- c(2:8)
 bic_vector <- c(lca_2$bic, lca_3$bic, lca_4$bic, lca_5$bic, lca_6$bic, lca_7$bic, lca_8$bic)
 aic_vector <- c(lca_2$aic, lca_3$aic, lca_4$aic, lca_5$aic, lca_6$aic, lca_7$aic, lca_8$aic)
 Gsq_vector <- c(lca_2$Gsq, lca_3$Gsq, lca_4$Gsq, lca_5$Gsq, lca_6$Gsq, lca_7$Gsq, lca_8$Gsq)
