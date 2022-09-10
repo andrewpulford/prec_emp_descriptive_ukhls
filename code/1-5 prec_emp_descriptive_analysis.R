@@ -35,6 +35,7 @@ library(tidyverse) # all kinds of stuff
 library(broom) # for working with statistical outputs
 library(TraMineR) # for sequence analysis
 library(poLCA) # for latent class analysis
+#library(randomLCA) # for repeated measures latent class analysis
 #library(srvyr) # for applying survey weights to analysis
 
 citation("TraMineR")
@@ -1010,13 +1011,14 @@ write_rds(multi_jobs_group_df, "./working_data/multi_jobs_group_df.rds")
 ################################################################################
 
 ### use poLCA package for LCA
+### use randomLCA for longitudinal/repeated measures LCA?
 
 
 ## convert variables to factors so that they have numeric values
-dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3)
-dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4)
-dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5)
-dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6)
+dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
+dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
+dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
+dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
 
 # check levels - note no missing in last wave
 levels(dfas1a_seq_wide$wv_3)
@@ -1028,22 +1030,92 @@ levels(dfas1a_seq_wide$wv_6)
 
 f <- cbind(wv_3, wv_4,wv_5, wv_6) ~ 1
 
-poLCA(f, dfas1a_seq_wide, nclass = 2)
+lca_2 <- poLCA(f, dfas1a_seq_wide, nclass = 2, maxiter = 4000,graphs = TRUE)
 
-## note - 2 classes seems to ID permanent and unemployed
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca2_ent <- poLCA.entropy(lca_2)
+
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_seq_wide, "pred_class2" = lca_2$predclass)
+
+## create totals for class membership
+mem2totals <- dfas1a_pred_class %>% 
+  group_by(pred_class2) %>% 
+  summarise(n=n())
 
 ### no covariates, 3 classes
-poLCA(f, dfas1a_seq_wide, nclass = 3)
+lca_3 <- poLCA(f, dfas1a_seq_wide, nclass = 3, maxiter = 4000, graphs = TRUE)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca3_ent <- poLCA.entropy(lca_3)
+
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class3" = lca_3$predclass)
+
+## create totals for class membership
+mem3totals <- dfas1a_pred_class %>% 
+  group_by(pred_class3) %>% 
+  summarise(n=n())
 
 ## note - 3 classes gives additional mixed grouping
 ## check the model fit criteria
 
 ### no covariates, 4 classes
-poLCA(f, dfas1a_seq_wide, nclass = 4)
+lca_4 <- poLCA(f, dfas1a_seq_wide, nclass = 4, maxiter = 8000, graphs = TRUE)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca4_ent <- poLCA.entropy(lca_4)
 
 ### no covariates, 5 classes
-poLCA(f, dfas1a_seq_wide, nclass = 5)
+lca_5 <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, graphs = TRUE)
 
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca5_ent <- poLCA.entropy(lca_5)
+
+### no covariates, 6 classes
+lca_6 <- poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = FALSE)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca6_ent <- poLCA.entropy(lca_6)
+
+### no covariates, 7 classes
+lca_7 <- poLCA(f, dfas1a_seq_wide, nclass = 7, maxiter = 8000, graphs = FALSE)#, nrep = 10)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca7_ent <- poLCA.entropy(lca_7)
+
+### no covariates, 8 classes
+lca_8 <- poLCA(f, dfas1a_seq_wide, nclass = 8, maxiter = 8000, graphs = FALSE)#, nrep = 10)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca8_ent <- poLCA.entropy(lca_8)
+
+nclass_vector <- c(1:8)
+bic_vector <- c(lca_2$bic, lca_3$bic, lca_4$bic, lca_5$bic, lca_6$bic, lca_7$bic, lca_8$bic)
+aic_vector <- c(lca_2$aic, lca_3$aic, lca_4$aic, lca_5$aic, lca_6$aic, lca_7$aic, lca_8$aic)
+Gsq_vector <- c(lca_2$Gsq, lca_3$Gsq, lca_4$Gsq, lca_5$Gsq, lca_6$Gsq, lca_7$Gsq, lca_8$Gsq)
+Chisq_vector <- c(lca_2$Chisq, lca_3$Chisq, lca_4$Chisq, lca_5$Chisq, lca_6$Chisq, lca_7$Chisq, lca_8$Chisq)
+entropy_vector <- c(lca2_ent, lca3_ent, lca4_ent, lca5_ent, lca6_ent, lca7_ent, lca8_ent)
+
+## create df for model fit stats
+fit_stats <- data.frame(cbind(nclass_vector, bic_vector, aic_vector,Gsq_vector, Chisq_vector, entropy_vector))
+names(fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
+
+# model with lowest bic
+fit_stats %>%  filter(bic==min(bic))
+
+# bic elbow plot
+fit_stats %>% dplyr::select(nclass, bic) %>% 
+  ggplot(aes(x=nclass,y=bic)) + 
+  geom_line()
+
+# model with lowest aic
+fit_stats %>%  filter(aic==min(aic))
+
+# aic elbow plot
+fit_stats %>% dplyr::select(nclass, aic) %>% 
+  ggplot(aes(x=nclass,y=aic)) + 
+  geom_line()
 
 
 ################################################################################
