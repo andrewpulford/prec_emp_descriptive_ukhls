@@ -21,6 +21,10 @@ library(DiagrammeR)
 library(knitr)
 library(TraMineR)
 remotes::install_github("rstudio/webshot2")
+library(poLCA)
+library(magick)
+library(tinytex)
+#webshot::install_phantomjs()
 
 ##### load dataframes ----------------------------------------------------------
 
@@ -165,14 +169,14 @@ sample_chars_endpoint_wide <- sample_chars_endpoint %>%
   rename("n6" = "n",
          "est6" = "est") %>% 
   ungroup() %>% 
-  select(-wv_n)
+  dplyr::select(-wv_n)
 
 temp <- sample_chars_endpoint %>% 
   filter(wv_n==10) %>% 
   rename("n10" = "n",
          "est10" = "est") %>% 
   ungroup() %>% 
-  select(-wv_n)
+  dplyr::select(-wv_n)
 
 sample_chars_endpoint_wide <- sample_chars_endpoint_wide %>% 
   full_join(temp, by = c("var", "measure"))
@@ -190,7 +194,7 @@ sample_chars_endpoint_wide <- sample_chars_endpoint_wide %>%
                     ifelse(n6=="-999","-",n6)),
          n10 = ifelse(n10=="NA","",
                     ifelse(n10=="-999","-",n10))) %>% 
-  select(-row_n)
+  dplyr::select(-row_n)
 
 #### Node D: -------------
 ### Exposure groupings
@@ -407,18 +411,18 @@ spine_code <- c("RESP", "NA")
 ## wide format for sequencing data
 # waves 3-6
 spine_wide_a <- dfas1a %>%
-  select(pidp,wv_n) %>% 
+  dplyr::select(pidp,wv_n) %>% 
   mutate(response=1) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 # waves 7-10
 spine_wide_b <- dfas1b %>%
-  select(pidp,wv_n) %>% 
+  dplyr::select(pidp,wv_n) %>% 
   mutate(response=1) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 
@@ -506,15 +510,15 @@ dfas1b_seq <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide  <-  dfas1a_seq %>% 
-  select(pidp,wv_n,emp_contract) %>% 
+  dplyr::select(pidp,wv_n,emp_contract) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing")
 
 dfas1b_seq_wide  <-  dfas1b_seq %>% 
-  select(pidp,wv_n,emp_contract) %>% 
+  dplyr::select(pidp,wv_n,emp_contract) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -574,17 +578,17 @@ dfas1b_seq2 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide2  <-  dfas1a_seq2 %>% 
-  select(pidp,wv_n,broken_emp) %>% 
+  dplyr::select(pidp,wv_n,broken_emp) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
 #  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
-  select(pidp,wv_n,broken_emp) %>% 
+  dplyr::select(pidp,wv_n,broken_emp) %>% 
   mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -659,15 +663,15 @@ dfas1b_seq3 <- dfas1b
 
 ### wide format for creating sequence data
 dfas1a_seq_wide3  <-  dfas1a_seq3 %>% 
-  select(pidp,wv_n,j2has_dv) %>% 
+  dplyr::select(pidp,wv_n,j2has_dv) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
 
 dfas1b_seq_wide3  <-  dfas1b_seq3 %>% 
-  select(pidp,wv_n,j2has_dv) %>% 
+  dplyr::select(pidp,wv_n,j2has_dv) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
@@ -716,3 +720,22 @@ kable(multi_jobs_group_df,
       format.args = list(big.mark = ","))
 
 ```
+
+## Latent class analaysis
+
+### Emploment contract - Sample A
+
+```{r, echo=FALSE}
+
+empcontract_fit_stats <- read.csv("../output/descriptive/empcontract_fit_stats.csv")
+kable(empcontract_fit_stats)
+image_read("../output/descriptive/empcontract_lca_elbow.tiff")
+```
+
+#### Sample A - five class model
+```{r, echo=FALSE}
+readRDS("../output/descriptive/empcontract_lca5.rds")
+
+image_read("../output/descriptive/empcontract_lca5.tiff")
+```
+
