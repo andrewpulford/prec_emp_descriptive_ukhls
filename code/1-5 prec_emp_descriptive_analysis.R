@@ -509,7 +509,7 @@ emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
                              labels = emp_contract_labs)
 
 ## first 100 sequences
-png("./output/descriptive/emp_contract_seqiplot100.png", width = 960, height = 960)
+tiff("./output/descriptive/emp_contract_seqiplot100.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(emp_contract.seq.a,
          idxs=1:100, # to add more lines
@@ -525,7 +525,7 @@ seqiplot(emp_contract.seq.b,
 dev.off()
 
 ## all sequences
-png("output/descriptive/emp_contract_seqiplot.png", width = 960, height = 1920)
+tiff("output/descriptive/emp_contract_seqiplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(emp_contract.seq.a,
          with.legend = F, 
@@ -539,7 +539,7 @@ seqIplot(emp_contract.seq.b,
 dev.off()
 
 # sequence frequency plot (all common sequences)
-png("output/descriptive/emp_contract_seqfplot.png", width = 960, height = 1920)
+tiff("output/descriptive/emp_contract_seqfplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(emp_contract.seq.a, 
          idxs=1:900, # to add more lines
@@ -555,7 +555,7 @@ seqfplot(emp_contract.seq.b,
 dev.off()
 
 # state distribution plot
-png("output/descriptive/emp_contract_seqdplot.png", width = 960, height = 960)
+tiff("output/descriptive/emp_contract_seqdplot.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(emp_contract.seq.a, 
          with.legend = F, 
@@ -569,7 +569,7 @@ seqdplot(emp_contract.seq.b,
 dev.off()
 
 # legend
-png("output/descriptive/emp_contract_legend.png", width = 400, height = 250)
+tiff("output/descriptive/emp_contract_legend.tiff", width = 400, height = 250)
 seqlegend(emp_contract.seq.a, cex = 1.3)
 dev.off()
 
@@ -611,7 +611,7 @@ broken_emp.seq.b <- seqdef(dfas1b_seq_wide2, 2:5, states = broken_emp_code,
                            labels = broken_emp_labs)
 
 ## first 10 sequences
-png("./output/descriptive/broken_emp_seqiplot100.png", width = 960, height = 960)
+tiff("./output/descriptive/broken_emp_seqiplot100.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(broken_emp.seq.a,
          idxs=1:100, # to add more lines
@@ -627,7 +627,7 @@ seqiplot(broken_emp.seq.b,
 dev.off()
 
 ## all sequences
-png("output/descriptive/broken_emp_seqiplot.png", width = 960, height = 1920)
+tiff("output/descriptive/broken_emp_seqiplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(broken_emp.seq.a,
          with.legend = F, 
@@ -641,7 +641,7 @@ seqIplot(broken_emp.seq.b,
 dev.off()
 
 # sequence frequency plot (all common sequences)
-png("output/descriptive/broken_emp_seqfplot.png", width = 960, height = 1920)
+tiff("output/descriptive/broken_emp_seqfplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(broken_emp.seq.a, 
          idxs=1:900, # to add more lines
@@ -657,7 +657,7 @@ seqfplot(broken_emp.seq.b,
 dev.off()
 
 # state distribution plot
-png("output/descriptive/broken_emp_seqdplot.png", width = 960, height = 960)
+tiff("output/descriptive/broken_emp_seqdplot.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(broken_emp.seq.a, 
          with.legend = F, 
@@ -671,7 +671,7 @@ seqdplot(broken_emp.seq.b,
 dev.off()
 
 # legend
-png("output/descriptive/broken_emp_legend.png", width = 400, height = 250)
+tiff("output/descriptive/broken_emp_legend.tiff", width = 400, height = 250)
 seqlegend(broken_emp.seq.a, cex = 1.3)
 dev.off()
 
@@ -708,7 +708,7 @@ multi_jobs.seq.b <- seqdef(dfas1b_seq_wide3, 2:5, states = multi_jobs_code,
                            labels = multi_jobs_labs)
 
 ## first 10 sequences
-png("./output/descriptive/multi_emp_seqiplot100.png", width = 960, height = 960)
+tiff("./output/descriptive/multi_emp_seqiplot100.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqiplot(multi_jobs.seq.a,
          idxs=1:100, # to add more lines
@@ -724,7 +724,7 @@ seqiplot(multi_jobs.seq.b,
 dev.off()
 
 ## all sequences
-png("output/descriptive/multi_emp_seqiplot.png", width = 960, height = 1920)
+tiff("output/descriptive/multi_emp_seqiplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqIplot(multi_jobs.seq.a,
          with.legend = F, 
@@ -738,7 +738,7 @@ seqIplot(multi_jobs.seq.b,
 dev.off()
 
 # sequence frequency plot (all common sequences)
-png("output/descriptive/multi_emp_seqfplot.png", width = 960, height = 1920)
+tiff("output/descriptive/multi_emp_seqfplot.tiff", width = 960, height = 1920)
 par(mfrow=c(1,3))
 seqfplot(multi_jobs.seq.a, 
          idxs=1:900, # to add more lines
@@ -754,7 +754,7 @@ seqfplot(multi_jobs.seq.b,
 dev.off()
 
 # state distribution plot
-png("output/descriptive/multi_emp_seqdplot.png", width = 960, height = 960)
+tiff("output/descriptive/multi_emp_seqdplot.tiff", width = 960, height = 960)
 par(mfrow=c(1,3))
 seqdplot(multi_jobs.seq.a, 
          with.legend = F, 
@@ -768,9 +768,14 @@ seqdplot(multi_jobs.seq.b,
 dev.off()
 
 # legend
-png("output/descriptive/multi_emp_legend.png", width = 400, height = 250)
+tiff("output/descriptive/multi_emp_legend.tiff", width = 400, height = 250)
 seqlegend(multi_jobs.seq.a, cex = 1.3)
 dev.off()
+
+####save wide sequence dfs
+
+saveRDS(dfas1a_seq_wide, "./working_data/dfas1a_seq_wide.rds")
+
 
 ################################################################################
 #####                            Manual grouping                          #####
@@ -1013,24 +1018,45 @@ write_rds(multi_jobs_group_df, "./working_data/multi_jobs_group_df.rds")
 ### use poLCA package for LCA
 ### use randomLCA for longitudinal/repeated measures LCA?
 
+## recode missing values to NA
+dfas1a_seq_wide <- dfas1a_seq_wide %>%  mutate(across(where(is.character), ~na_if(., "missing")))
+
 
 ## convert variables to factors so that they have numeric values
-dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
-dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
-dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
-dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6, levels = c("fixed-term", "permanent", "unemployed/not in employment", "missing"))
+dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
+dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
+dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
+dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
 
-# check levels - note no missing in last wave
+# check levels
 levels(dfas1a_seq_wide$wv_3)
 levels(dfas1a_seq_wide$wv_4)
 levels(dfas1a_seq_wide$wv_5)
 levels(dfas1a_seq_wide$wv_6)
 
-### start with basic formulation (no covariates, 2 classes)
+### start with basic formulation (no covariates) --------------------
 
 f <- cbind(wv_3, wv_4,wv_5, wv_6) ~ 1
 
-lca_2 <- poLCA(f, dfas1a_seq_wide, nclass = 2, maxiter = 4000,graphs = TRUE)
+
+### no covariates, 1 class --------------------
+lca_1 <- poLCA(f, dfas1a_seq_wide, nclass = 1, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+
+# entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
+lca1_ent <- poLCA.entropy(lca_1)
+
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_seq_wide, "pred_class1" = lca_1$predclass)
+
+## create totals for class membership
+mem1totals <- dfas1a_pred_class %>% 
+  group_by(pred_class1) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+
+### no covariates, 2 classes --------------------
+lca_2 <- poLCA(f, dfas1a_seq_wide, nclass = 2, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca2_ent <- poLCA.entropy(lca_2)
@@ -1041,10 +1067,12 @@ dfas1a_pred_class <-cbind(dfas1a_seq_wide, "pred_class2" = lca_2$predclass)
 ## create totals for class membership
 mem2totals <- dfas1a_pred_class %>% 
   group_by(pred_class2) %>% 
-  summarise(n=n())
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
 
-### no covariates, 3 classes
-lca_3 <- poLCA(f, dfas1a_seq_wide, nclass = 3, maxiter = 4000, graphs = TRUE)
+
+### no covariates, 3 classes --------------------
+lca_3 <- poLCA(f, dfas1a_seq_wide, nclass = 3, maxiter = 4000, graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca3_ent <- poLCA.entropy(lca_3)
@@ -1055,45 +1083,90 @@ dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class3" = lca_3$predclass)
 ## create totals for class membership
 mem3totals <- dfas1a_pred_class %>% 
   group_by(pred_class3) %>% 
-  summarise(n=n())
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
 
-## note - 3 classes gives additional mixed grouping
-## check the model fit criteria
-
-### no covariates, 4 classes
-lca_4 <- poLCA(f, dfas1a_seq_wide, nclass = 4, maxiter = 8000, graphs = TRUE)
+### no covariates, 4 classes --------------------
+lca_4 <- poLCA(f, dfas1a_seq_wide, nclass = 4, maxiter = 8000, graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca4_ent <- poLCA.entropy(lca_4)
 
-### no covariates, 5 classes
-lca_5 <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, graphs = TRUE)
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class4" = lca_4$predclass)
+
+## create totals for class membership
+mem4totals <- dfas1a_pred_class %>% 
+  group_by(pred_class4) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+
+### no covariates, 5 classes--------------------
+lca_5 <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca5_ent <- poLCA.entropy(lca_5)
 
-### no covariates, 6 classes
-lca_6 <- poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = FALSE)
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class5" = lca_5$predclass)
 
-# save plot
-png("output/descriptive/empcontract_lca6.png", width = 1400, height = 1400)
-poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = TRUE)
-dev.off()
+## create totals for class membership
+mem5totals <- dfas1a_pred_class %>% 
+  group_by(pred_class5) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+
+### no covariates, 6 classes --------------------
+lca_6 <- poLCA(f, dfas1a_seq_wide, nclass = 6, maxiter = 8000, graphs = FALSE, na.rm = FALSE)
+
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca6_ent <- poLCA.entropy(lca_6)
 
-### no covariates, 7 classes
-lca_7 <- poLCA(f, dfas1a_seq_wide, nclass = 7, maxiter = 8000, graphs = FALSE)#, nrep = 10)
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class6" = lca_6$predclass)
+
+## create totals for class membership
+mem6totals <- dfas1a_pred_class %>% 
+  group_by(pred_class6) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+
+### no covariates, 7 classes --------------------
+lca_7 <- poLCA(f, dfas1a_seq_wide, nclass = 7, maxiter = 8000, graphs = FALSE, na.rm = FALSE)#, nrep = 10)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca7_ent <- poLCA.entropy(lca_7)
 
-### no covariates, 8 classes
-lca_8 <- poLCA(f, dfas1a_seq_wide, nclass = 8, maxiter = 8000, graphs = FALSE)#, nrep = 10)
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class7" = lca_7$predclass)
+
+## create totals for class membership
+mem7totals <- dfas1a_pred_class %>% 
+  group_by(pred_class7) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+
+### no covariates, 8 classes --------------------
+lca_8 <- poLCA(f, dfas1a_seq_wide, nclass = 8, maxiter = 8000, graphs = FALSE, na.rm = FALSE)#, nrep = 10)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 lca8_ent <- poLCA.entropy(lca_8)
+
+## bind the predicted class for each case back onto wide df
+dfas1a_pred_class <-cbind(dfas1a_pred_class, "pred_class8" = lca_8$predclass)
+
+## create totals for class membership
+mem8totals <- dfas1a_pred_class %>% 
+  group_by(pred_class8) %>% 
+  summarise(n=n()) %>% 
+  mutate(pc=n/sum(n))
+
+### model fit stats --------------------
 
 nclass_vector <- c(2:8)
 bic_vector <- c(lca_2$bic, lca_3$bic, lca_4$bic, lca_5$bic, lca_6$bic, lca_7$bic, lca_8$bic)
@@ -1110,9 +1183,11 @@ names(fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 fit_stats %>%  filter(bic==min(bic))
 
 # bic elbow plot
+tiff("./output/descriptive/empcontract_lca_elbow.tiff", width = 400, height = 400)
 fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line()
+dev.off()
 
 # model with lowest aic
 fit_stats %>%  filter(aic==min(aic))
@@ -1121,6 +1196,28 @@ fit_stats %>%  filter(aic==min(aic))
 fit_stats %>% dplyr::select(nclass, aic) %>% 
   ggplot(aes(x=nclass,y=aic)) + 
   geom_line()
+
+## save fit_stats
+write.csv(fit_stats, "./output/descriptive/empcontract_fit_stats.csv")
+
+#### Most plausible model
+
+### 5 classes
+
+## reorder the classes so there appear in a set order
+probs.start<-lca_5$probs.start
+new.probs.start <- poLCA.reorder(probs.start, c(5,1,2,4,3))
+
+#save output
+lca_5 <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=new.probs.start, 
+               graphs = FALSE, na.rm = FALSE)
+saveRDS(lca_5, "./output/descriptive/empcontract_lca5.rds")
+
+# save plot
+tiff("./output/descriptive/empcontract_lca5.tiff", width = 400, height = 400)
+poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=new.probs.start, 
+      graphs = TRUE, na.rm = FALSE)
+dev.off()
 
 
 ################################################################################
