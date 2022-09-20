@@ -1310,21 +1310,29 @@ empcontractb_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector_b, aic_
 names(empcontractb_lca_fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 
 # model with lowest bic
-empcontracta_lca_fit_stats %>%  filter(bic==min(bic))
+temp <- empcontracta_lca_fit_stats %>%  filter(bic==min(bic))
+empcontract_min_bic_a <- temp[,1]
+rm(temp)  
 
-empcontractb_lca_fit_stats %>%  filter(bic==min(bic))
+temp <- empcontract_min_bic_b <- empcontractb_lca_fit_stats %>%  filter(bic==min(bic))
+empcontract_min_bic_b <- temp[,1]
+rm(temp)  
 
 # bic elbow plot
 tiff("./output/descriptive/empcontracta_lca_elbow.tiff", width = 400, height = 400)
 empcontracta_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
-  geom_line()
+  geom_line() +
+  geom_vline(xintercept=empcontract_min_bic_a, colour="dark green", linetype = "longdash") +
+  theme_bw()
 dev.off()
 
 tiff("./output/descriptive/empcontractb_lca_elbow.tiff", width = 400, height = 400)
 empcontractb_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
-  geom_line()
+  geom_line() +
+  geom_vline(xintercept=empcontract_min_bic_b, colour="dark green", linetype = "longdash") +
+  theme_bw()
 dev.off()
 
 # model with lowest aic
@@ -1353,12 +1361,36 @@ write.csv(empcontractb_lca_fit_stats, "./output/descriptive/empcontractb_lca_fit
 emp_contracta_lca_final <- dfas1a_pred_class %>% 
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
-  mutate_all(~ ifelse(is.na(.),"missing",.))
+  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
+  mutate(emp_contract_class= ifelse(pred_class5==1, "non-permanent employment",
+                                    ifelse(pred_class5==2, "into employment",
+                                           ifelse(pred_class5==3,"permanent employment",
+                                                  ifelse(pred_class5==4,"unemployed",
+                                                         ifelse(pred_class5==5,"out of employment",
+                                                                "CHECK"))))))
+
 
 emp_contractb_lca_final <- dfas1b_pred_class %>% 
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
-  mutate_all(~ ifelse(is.na(.),"missing",.))
+  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
+  mutate(emp_contract_class= ifelse(pred_class5==1, "non-permanent employment",
+                                    ifelse(pred_class5==2, "permanent employment",
+                                           ifelse(pred_class5==3,"unemployed",
+                                                  ifelse(pred_class5==4,"into employment",
+                                                         ifelse(pred_class5==5,"out of employment",
+                                                                "CHECK"))))))
+
+
+## create spine for allocating classes back onto survey data
+emp_contracta_5class_spine <- emp_contracta_lca_final %>% 
+  dplyr::select(pidp,emp_contract_class)
+
+emp_contractb_5class_spine <- emp_contractb_lca_final %>% 
+  dplyr::select(pidp,emp_contract_class)
+
+write_rds(emp_contracta_5class_spine, "./working_data/emp_contracta_5class_spine.rds")
+write_rds(emp_contractb_5class_spine, "./working_data/emp_contractb_5class_spine.rds")
 
 ## reorder the classes so there appear in a set order
 probs.start<-empcontract_lca5a$probs.start
@@ -1478,8 +1510,74 @@ seqlegend(emp_contract2.seq.b, cex = 1.3)
 #####                           outcome analysis                           #####
 ################################################################################
 
-# create spine for pidp and LCA membership
 
-# join back on to end point df
+### join class spine back on to end point df
 
-# calculate % for outcomes by LCA membership
+dfas1a_end_class <- dfas1a_end %>% left_join(emp_contracta_5class_spine, by="pidp")
+dfas1b_end_class <- dfas1b_end %>% left_join(emp_contractb_5class_spine, by="pidp")
+
+#### calculate % for outcomes by LCA membership
+
+
+### self-rated health
+srh_prev_a <- dfas1a_end_class %>% group_by(emp_contract_class, srh_bin) %>% 
+  summarise(a_srh_bin_n=n()) %>% 
+  ungroup() %>% 
+  group_by(emp_contract_class) %>% 
+  mutate(a_srh_bin_pc=a_srh_bin_n/sum(a_srh_bin_n)*100) %>% 
+  ungroup()
+
+srh_prev_b <- dfas1b_end_class %>% group_by(emp_contract_class, srh_bin) %>% 
+  summarise(b_srh_bin_n=n()) %>% 
+  ungroup() %>% 
+  group_by(emp_contract_class) %>% 
+  mutate(b_srh_bin_pc=b_srh_bin_n/sum(b_srh_bin_n)*100) %>% 
+  ungroup()
+
+srh_combined <- srh_prev_a %>% left_join(srh_prev_b)
+
+## plots
+tiff("./output/descriptive/empcontract_srh_prev_grouped_a.tiff")
+srh_prev_a %>% ggplot(aes(x=emp_contract_class, y=a_srh_bin_pc, fill=srh_bin)) +
+  geom_col() +
+  coord_flip() 
+dev.off()
+
+tiff("./output/descriptive/empcontract_srh_prev_grouped_b.tiff")
+srh_prev_b %>% ggplot(aes(x=emp_contract_class, y=b_srh_bin_pc, fill=srh_bin)) +
+  geom_col() +
+  coord_flip() 
+dev.off()
+
+
+### mental health symptoms
+ghq_prev_a <- dfas1a_end_class %>% group_by(emp_contract_class, ghq_case3) %>% 
+  summarise(a_ghq_case3_n=n()) %>% 
+  ungroup() %>% 
+  group_by(emp_contract_class) %>% 
+  mutate(a_ghq_case3_pc=a_ghq_case3_n/sum(a_ghq_case3_n)*100) %>% 
+  ungroup()
+
+
+ghq_prev_b <- dfas1b_end_class %>% group_by(emp_contract_class, ghq_case3) %>% 
+  summarise(b_ghq_case3_n=n()) %>% 
+  ungroup() %>% 
+  group_by(emp_contract_class) %>% 
+  mutate(b_ghq_case3_pc=b_ghq_case3_n/sum(b_ghq_case3_n)*100) %>% 
+  ungroup()
+
+ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
+
+## plots
+
+tiff("./output/descriptive/empcontract_ghq_prev_grouped_a.tiff")
+ghq_prev_a %>% ggplot(aes(x=emp_contract_class, y=a_ghq_case3_pc, fill=ghq_case3)) +
+  geom_col() +
+  coord_flip() 
+dev.off()
+
+tiff("./output/descriptive/empcontract_ghq_prev_grouped_b.tiff")
+ghq_prev_b %>% ggplot(aes(x=emp_contract_class, y=b_ghq_case3_pc, fill=ghq_case3)) +
+  geom_col() +
+  coord_flip() 
+dev.off()
