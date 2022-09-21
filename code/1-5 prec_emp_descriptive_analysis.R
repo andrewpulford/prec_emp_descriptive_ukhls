@@ -1358,7 +1358,7 @@ write.csv(empcontractb_lca_fit_stats, "./output/descriptive/empcontractb_lca_fit
 
 ### 5 classes for both samples
 
-emp_contracta_lca_final <- dfas1a_pred_class %>% 
+emp_contracta_lca_final <- dfas1a_pred_class %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
@@ -1370,7 +1370,7 @@ emp_contracta_lca_final <- dfas1a_pred_class %>%
                                                                 "CHECK"))))))
 
 
-emp_contractb_lca_final <- dfas1b_pred_class %>% 
+emp_contractb_lca_final <- dfas1b_pred_class %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
@@ -1394,7 +1394,7 @@ write_rds(emp_contractb_5class_spine, "./working_data/emp_contractb_5class_spine
 
 ## reorder the classes so there appear in a set order
 probs.start<-empcontract_lca5a$probs.start
-#new.probs.start <- poLCA.reorder(probs.start, c(5,1,2,4,3))
+#new.probs.start <- poLCA.reorder(probs.start, c(5,1,2,4,3)) ## <<< specify for final run <<< ##
 
 probs.start.b <-empcontract_lca5b$probs.start
 
@@ -1524,29 +1524,53 @@ srh_prev_a <- dfas1a_end_class %>% group_by(emp_contract_class, srh_bin) %>%
   summarise(a_srh_bin_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(a_srh_bin_pc=a_srh_bin_n/sum(a_srh_bin_n)*100) %>% 
-  ungroup()
+  mutate(d=sum(a_srh_bin_n),
+         p=a_srh_bin_n/d,
+         a_srh_bin_pc=p*100,
+         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
+         a_srh_lci = a_srh_bin_pc-margin,
+         a_srh_uci = a_srh_bin_pc+margin) %>% 
+  ungroup() %>% 
+  dplyr::select(-c(d,p,margin))
+
 
 srh_prev_b <- dfas1b_end_class %>% group_by(emp_contract_class, srh_bin) %>% 
   summarise(b_srh_bin_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(b_srh_bin_pc=b_srh_bin_n/sum(b_srh_bin_n)*100) %>% 
-  ungroup()
+  mutate(d=sum(b_srh_bin_n),
+         p=b_srh_bin_n/d,
+         b_srh_bin_pc=p*100,
+         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
+         b_srh_lci = b_srh_bin_pc-margin,
+         b_srh_uci = b_srh_bin_pc+margin) %>% 
+  ungroup() %>% 
+  dplyr::select(-c(d,p,margin))
 
-srh_combined <- srh_prev_a %>% left_join(srh_prev_b)
+srh_combined <- srh_prev_a %>% left_join(srh_prev_b, by=c("emp_contract_class",
+                                                          "srh_bin"))
 
 ## plots
 tiff("./output/descriptive/empcontract_srh_prev_grouped_a.tiff")
-srh_prev_a %>% ggplot(aes(x=emp_contract_class, y=a_srh_bin_pc, fill=srh_bin)) +
+srh_prev_a %>% 
+  filter(srh_bin=="good/fair/poor") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_srh_bin_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=a_srh_bin_pc)) +
   geom_col() +
-  coord_flip() 
+  geom_errorbar(aes(ymin=a_srh_lci, ymax=a_srh_uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw() 
 dev.off()
 
 tiff("./output/descriptive/empcontract_srh_prev_grouped_b.tiff")
-srh_prev_b %>% ggplot(aes(x=emp_contract_class, y=b_srh_bin_pc, fill=srh_bin)) +
+srh_prev_b %>% 
+  filter(srh_bin=="good/fair/poor") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_srh_bin_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=b_srh_bin_pc)) +
   geom_col() +
-  coord_flip() 
+  geom_errorbar(aes(ymin=b_srh_lci, ymax=b_srh_uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw() 
 dev.off()
 
 
@@ -1555,29 +1579,53 @@ ghq_prev_a <- dfas1a_end_class %>% group_by(emp_contract_class, ghq_case3) %>%
   summarise(a_ghq_case3_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(a_ghq_case3_pc=a_ghq_case3_n/sum(a_ghq_case3_n)*100) %>% 
-  ungroup()
+  mutate(d=sum(a_ghq_case3_n),
+         p=a_ghq_case3_n/d,
+         a_ghq_case3_pc=p*100,
+         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
+         a_ghq_lci = a_ghq_case3_pc-margin,
+         a_ghq_uci = a_ghq_case3_pc+margin) %>% 
+  ungroup() %>% 
+  dplyr::select(-c(d,p,margin))
+
 
 
 ghq_prev_b <- dfas1b_end_class %>% group_by(emp_contract_class, ghq_case3) %>% 
   summarise(b_ghq_case3_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(b_ghq_case3_pc=b_ghq_case3_n/sum(b_ghq_case3_n)*100) %>% 
-  ungroup()
+  mutate(d=sum(b_ghq_case3_n),
+         p=b_ghq_case3_n/d,
+         b_ghq_case3_pc=p*100,
+         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
+         b_ghq_lci = b_ghq_case3_pc-margin,
+         b_ghq_uci = b_ghq_case3_pc+margin) %>% 
+  ungroup() %>% 
+  dplyr::select(-c(d,p,margin))
+
 
 ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
 
 ## plots
 
 tiff("./output/descriptive/empcontract_ghq_prev_grouped_a.tiff")
-ghq_prev_a %>% ggplot(aes(x=emp_contract_class, y=a_ghq_case3_pc, fill=ghq_case3)) +
+ghq_prev_a %>% 
+  filter(ghq_case3=="3 or more") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_ghq_case3_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=a_ghq_case3_pc)) +
   geom_col() +
-  coord_flip() 
+  geom_errorbar(aes(ymin=a_ghq_lci, ymax=a_ghq_uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw()
 dev.off()
 
 tiff("./output/descriptive/empcontract_ghq_prev_grouped_b.tiff")
-ghq_prev_b %>% ggplot(aes(x=emp_contract_class, y=b_ghq_case3_pc, fill=ghq_case3)) +
+ghq_prev_b %>% 
+  filter(ghq_case3=="3 or more") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_ghq_case3_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=b_ghq_case3_pc)) +
   geom_col() +
-  coord_flip() 
+  geom_errorbar(aes(ymin=b_ghq_lci, ymax=b_ghq_uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw()
 dev.off()
