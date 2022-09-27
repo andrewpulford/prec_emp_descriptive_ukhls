@@ -727,15 +727,35 @@ kable(multi_jobs_group_df,
 
 ```{r, echo=FALSE}
 
-empcontract_fit_stats <- read.csv("../output/descriptive/empcontract_fit_stats.csv")
-kable(empcontract_fit_stats)
-image_read("../output/descriptive/empcontract_lca_elbow.tiff")
+empcontracta_fit_stats <- read.csv("../output/descriptive/empcontracta_lca_fit_stats.csv")
+kable(empcontracta_fit_stats)
+image_read("../output/descriptive/empcontracta_lca_elbow.tiff")
 ```
 
 #### Sample A - five class model
 ```{r, echo=FALSE}
-readRDS("../output/descriptive/empcontract_lca5.rds")
+readRDS("../output/descriptive/emp_contracta_lca_final_model.rds")
 
-image_read("../output/descriptive/empcontract_lca5.tiff")
+image_read("../output/descriptive/emp_contracta_lca_final.tiff")
+
+image_read("../output/descriptive/emp_contracta_grouped_seqfplot.tiff")
+
 ```
 
+### Emploment contract - Sample B
+
+```{r, echo=FALSE}
+
+empcontractb_fit_stats <- read.csv("../output/descriptive/empcontractb_lca_fit_stats.csv")
+kable(empcontractb_fit_stats)
+image_read("../output/descriptive/empcontractb_lca_elbow.tiff")
+```
+
+#### Sample B - five class model
+```{r, echo=FALSE}
+readRDS("../output/descriptive/emp_contractb_lca_final_model.rds")
+
+image_read("../output/descriptive/emp_contractb_lca_final.tiff")
+
+image_read("../output/descriptive/emp_contractb_grouped_seqfplot.tiff")
+```
