@@ -71,22 +71,22 @@ weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds")
 non_working_age_spine_a <- master_raw1a %>% 
   filter(wv_n==6) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
-  select(pidp,age_dv,non_work_age_flag) %>% 
+  dplyr::select(pidp,age_dv,non_work_age_flag) %>% 
   filter(non_work_age_flag==1) %>% 
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(pidp)
+  dplyr::select(pidp)
 
 non_working_age_spine_b <- master_raw1b %>% 
   filter(wv_n == 10) %>% 
   mutate(non_work_age_flag=ifelse(age_dv <20 | age_dv >64, 1, 0)) %>% 
-  select(pidp,age_dv,non_work_age_flag) %>% 
+  dplyr::select(pidp,age_dv,non_work_age_flag) %>% 
   filter(non_work_age_flag==1) %>% 
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(pidp)
+  dplyr::select(pidp)
 
 # create working age dfs
 working_age_a <- master_raw1a %>% 
@@ -114,7 +114,7 @@ no_weight_spine_a <- working_age_a %>%
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(pidp)
+  dplyr::select(pidp)
 
 no_weight_spine_b <- working_age_b %>% 
   left_join(weight_spine_b) %>% 
@@ -124,7 +124,7 @@ no_weight_spine_b <- working_age_b %>%
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(pidp)
+  dplyr::select(pidp)
 
 # create eligible pop df by including only valid weights
 eligible_pop_a <- working_age_a %>% 
@@ -186,7 +186,7 @@ write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
 #    as_tibble() %>% 
 #  filter(dcsedw_dv != "inapplicable") %>% 
 #  mutate(wave_died = as.numeric(gsub("[^0-9.-]", "", dcsedw_dv))) %>% 
-#  select(pidp, wave_died) %>% 
+#  dplyr::select(pidp, wave_died) %>% 
 #  filter(pidp %in% eligible_pop_a$pidp) # keep only eligible pop
 #
 #  
@@ -201,7 +201,7 @@ write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
 #  as_tibble() %>% 
 #  filter(dcsedw_dv != "inapplicable") %>% 
 #  mutate(wave_died = as.numeric(gsub("[^0-9.-]", "", dcsedw_dv))) %>% 
-#  select(pidp, wave_died) %>% 
+#  dplyr::select(pidp, wave_died) %>% 
 #  filter(pidp %in% eligible_pop_b$pidp)# keep only eligible pop
 
 #write_rds(death_spine_b,("./look_ups/death_spine_b.rds"))
@@ -214,26 +214,26 @@ write_rds(non_working_age_spine_b, "./look_ups/non_working_age_spine_b.rds")
 
 #### waves 3-6
 retired_spine_a <- eligible_pop_a %>% 
-  select(pidp, wv_n, jbstat) %>% 
+  dplyr::select(pidp, wv_n, jbstat) %>% 
   arrange(pidp, wv_n) %>% 
   filter(jbstat=="retired" | jbstat=="Retired") %>% 
   group_by(pidp) %>% 
   slice(1) %>% # keep only first occurrence 
   mutate(retired = 1) %>% 
-  select(pidp, retired) %>% 
+  dplyr::select(pidp, retired) %>% 
   ungroup()
 
 write_rds(retired_spine_a, "./look_ups/retired_spine_a.rds")
 
 #### waves 7-10
 retired_spine_b <- eligible_pop_b %>% 
-  select(pidp, wv_n, jbstat) %>% 
+  dplyr::select(pidp, wv_n, jbstat) %>% 
   arrange(pidp, wv_n) %>% 
   filter(jbstat=="retired" | jbstat=="Retired") %>% 
   group_by(pidp) %>% 
   slice(1) %>% # keep only first occurrence 
   mutate(retired = 1) %>% 
-  select(pidp, retired) %>% 
+  dplyr::select(pidp, retired) %>% 
   ungroup()
 
 write_rds(retired_spine_b, "./look_ups/retired_spine_b.rds")
@@ -258,7 +258,7 @@ incomplete_spine_a <- eligible_pop_a %>%
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
          no_ghq = ifelse(ghq_case3 %in% c("missing", "inapplicable", "proxy","refusal", 
                             "don't know"),1,0)) %>% 
-  select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
+  dplyr::select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
 
 
@@ -277,65 +277,65 @@ incomplete_spine_b <- eligible_pop_b %>%
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
          no_ghq = ifelse(ghq_case3 %in% c("missing", "inapplicable", "proxy","refusal", 
                                           "don't know"),1,0)) %>% 
-  select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
+  dplyr::select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
 
 
 ### calculate totals
 
 ## overall all totals by key variables
-incomplete_spine_a %>% select(-pidp) %>% 
+incomplete_spine_a %>% dplyr::select(-pidp) %>% 
   summarise_all(funs(sum)) %>% 
   pivot_longer(cols=1:8, names_to = "variable", values_to = "n") %>% 
   mutate(pc = (n/nrow(incomplete_spine_a)*100))
 
-incomplete_spine_b %>% select(-pidp) %>% 
+incomplete_spine_b %>% dplyr::select(-pidp) %>% 
   summarise_all(funs(sum)) %>% 
   pivot_longer(cols=1:8, names_to = "variable", values_to = "n") %>% 
   mutate(pc = (n/nrow(incomplete_spine_b)*100))
 
 ## check overlaps
 # demographics
-incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>% 
+incomplete_spine_a %>% dplyr::select(no_age, no_sex, no_hiqual) %>% 
   mutate(n_demogs_incompete = no_age + no_sex + no_hiqual) %>% 
   filter(n_demogs_incompete!=0) %>% 
   group_by(n_demogs_incompete) %>% 
   summarise(n=n())
 
-incomplete_spine_a %>% select(no_age, no_sex, no_hiqual) %>% 
+incomplete_spine_a %>% dplyr::select(no_age, no_sex, no_hiqual) %>% 
   summarise_all(funs(sum))
 
-incomplete_spine_b %>% select(no_age, no_sex, no_hiqual) %>% 
+incomplete_spine_b %>% dplyr::select(no_age, no_sex, no_hiqual) %>% 
   mutate(n_demogs_incompete = no_age + no_sex + no_hiqual) %>% 
   filter(n_demogs_incompete!=0) %>% 
   group_by(n_demogs_incompete) %>% 
   summarise(n=n())
 
-incomplete_spine_b %>% select(no_age, no_sex, no_hiqual) %>% 
+incomplete_spine_b %>% dplyr::select(no_age, no_sex, no_hiqual) %>% 
   summarise_all(funs(sum))
 
 
 ### exposures
-incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+incomplete_spine_a %>% dplyr::select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   mutate(n_exp_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
   filter(n_exp_incompete!=0) %>% 
   group_by(n_exp_incompete) %>% 
   summarise(n=n())
 
-incomplete_spine_a %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+incomplete_spine_a %>% dplyr::select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   summarise_all(funs(sum))
 
-incomplete_spine_b %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+incomplete_spine_b %>% dplyr::select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   mutate(n_exp_incompete = no_emp_contract + no_broken_emp + no_j2has_dv) %>% 
   filter(n_exp_incompete!=0) %>% 
   group_by(n_exp_incompete) %>% 
   summarise(n=n())
 
-incomplete_spine_b %>% select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
+incomplete_spine_b %>% dplyr::select(no_emp_contract, no_broken_emp, no_j2has_dv) %>% 
   summarise_all(funs(sum))
 
 ### outcomes
-incomplete_spine_a %>% select(no_srh, no_ghq) %>% 
+incomplete_spine_a %>% dplyr::select(no_srh, no_ghq) %>% 
   mutate(n_outcomes_incompete = no_srh + no_ghq) %>% 
   filter(n_outcomes_incompete!=0) %>% 
   group_by(n_outcomes_incompete) %>% 
@@ -354,7 +354,7 @@ incomplete_spine_a_long <- incomplete_spine_a %>%
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(-censor_reason) 
+  dplyr::select(-censor_reason) 
 
 incomplete_spine_b_long <- incomplete_spine_b %>% 
   pivot_longer(names_to = "censor_reason", cols = 2:9, 
@@ -363,7 +363,7 @@ incomplete_spine_b_long <- incomplete_spine_b %>%
   group_by(pidp) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  select(-censor_reason) 
+  dplyr::select(-censor_reason) 
 
 ################################################################################
 ###### create a combined spine to indicate the reason for censoring ------------
