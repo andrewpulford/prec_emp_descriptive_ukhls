@@ -132,18 +132,18 @@ spine_code <- c("RESP", "NA")
 ## wide format for sequencing data
 # waves 3-6
 spine_wide_a <- dfas1a %>%
-  select(pidp,wv_n) %>% 
+  dplyr::select(pidp,wv_n) %>% 
   mutate(response=1) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 # waves 7-10
 spine_wide_b <- dfas1b %>%
-  select(pidp,wv_n) %>% 
+  dplyr::select(pidp,wv_n) %>% 
   mutate(response=1) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-wv_n) %>% 
+  dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 
@@ -233,22 +233,22 @@ jbterm1_code <- c("RESP","NA")
 ## wide format for sequencing data
 # waves 3-6
 jbterm1_wide_a <- dfas1a %>%
-  select(pidp,wv_n,jbterm1) %>% 
+  dplyr::select(pidp,wv_n,jbterm1) %>% 
   mutate(response = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                                "Only available for IEMB", "Not available for IEMB",
                                "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, jbterm1)) %>% 
+  dplyr::select(-c(wv_n, jbterm1)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 # waves 7-10
 jbterm1_wide_b <- dfas1b %>%
-  select(pidp,wv_n,jbterm1) %>% 
+  dplyr::select(pidp,wv_n,jbterm1) %>% 
   mutate(response = ifelse(jbterm1 %in% c("missing", "inapplicable", "proxy", "refusal", 
                                           "Only available for IEMB", "Not available for IEMB",
                                           "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, jbterm1)) %>% 
+  dplyr::select(-c(wv_n, jbterm1)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 
@@ -334,26 +334,26 @@ emp_spells_code <- c("RESP","NA")
 ## wide format for sequencing data
 # waves 3-6
 emp_spells_wide_a <- dfas1a %>%
-  select(pidp,wv_n,nmpsp_dv,nnmpsp_dv,nunmpsp_dv) %>% 
+  dplyr::select(pidp,wv_n,nmpsp_dv,nnmpsp_dv,nunmpsp_dv) %>% 
   mutate(response = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
                                              "don't know"), 99,
                              ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 99,
                                     ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),99,1))),
   ) %>% 
 mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, nmpsp_dv,nnmpsp_dv,nunmpsp_dv)) %>% 
+  dplyr::select(-c(wv_n, nmpsp_dv,nnmpsp_dv,nunmpsp_dv)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 # waves 7-10
 emp_spells_wide_b <- dfas1b %>%
-  select(pidp,wv_n,nmpsp_dv,nnmpsp_dv,nunmpsp_dv) %>% 
+  dplyr::select(pidp,wv_n,nmpsp_dv,nnmpsp_dv,nunmpsp_dv) %>% 
   mutate(response = ifelse(nmpsp_dv %in% c("missing", "proxy", "refusal", 
                                            "don't know"), 99,
                            ifelse(nnmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"), 99,
                                   ifelse(nunmpsp_dv %in% c("missing", "proxy", "refusal", "don't know"),99,1))),
   ) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, nmpsp_dv,nnmpsp_dv,nunmpsp_dv)) %>% 
+  dplyr::select(-c(wv_n, nmpsp_dv,nnmpsp_dv,nunmpsp_dv)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 emp_spells.seq.a <- seqdef(emp_spells_wide_a, 2:5, states = emp_spells_code,
@@ -438,22 +438,22 @@ j2has_code <- c("RESP","NA")
 ## wide format for sequencing data
 # waves 3-6
 j2has_wide_a <- dfas1a %>%
-  select(pidp,wv_n,j2has) %>% 
+  dplyr::select(pidp,wv_n,j2has) %>% 
   mutate(response = ifelse(j2has %in% c("missing", "proxy", "refusal", 
                                           "Only available for IEMB", "Not available for IEMB",
                                           "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, j2has)) %>% 
+  dplyr::select(-c(wv_n, j2has)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 # waves 7-10
 j2has_wide_b <- dfas1b %>%
-  select(pidp,wv_n,j2has) %>% 
+  dplyr::select(pidp,wv_n,j2has) %>% 
   mutate(response = ifelse(j2has %in% c("missing", "proxy", "refusal", 
                                           "Only available for IEMB", "Not available for IEMB",
                                           "don't know"),99,1)) %>% 
   mutate(wv=paste0("wv_",wv_n)) %>% 
-  select(-c(wv_n, j2has)) %>% 
+  dplyr::select(-c(wv_n, j2has)) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 
