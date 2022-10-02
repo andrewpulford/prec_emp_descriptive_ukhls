@@ -78,7 +78,7 @@ load_wave <- function(wv_n, wv_l, datafile) {
   # create var names vector for wave
   names_use <- names(temp_df)[(names(temp_df) %in% var_selecter)]
   # select only vars to be used
-  temp_df <- temp_df %>% select(names_use) 
+  temp_df <- temp_df %>% dplyr::select(names_use) 
   
   # remove wave letter prefix from column names
   colnames(temp_df) <-sub ("^[^_]*_","",colnames(temp_df))
