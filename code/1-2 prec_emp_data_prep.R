@@ -239,6 +239,21 @@ master_raw1 <- master_raw1 %>%
                                   "yes",
                                   "no")))
 
+master_raw1 <- master_raw1 %>% 
+  mutate(j2has_dv2 = ifelse(j2has_dv == "yes" & 
+                              emp_contract %in% c("fixed-term","permanent"), 
+                            "multiple jobs",
+                            ifelse(j2has_dv == "yes" & 
+                                     emp_contract %in% c("unemployed/not in employment","missing"),
+                                   "unemployed/not in employment with additional",
+                            ifelse(j2has_dv %in% c("no","missing") & 
+                                     emp_contract %in% c("fixed-term","permanent"), 
+                                   "one job",
+                                   ifelse(j2has_dv %in% c("no","missing") & 
+                                            emp_contract=="unemployed/not in employment",
+                                   "unemployed/not in employment",
+                                   "missing")))))
+
 ################################################################################
 #####                            health outcomes                           #####
 ################################################################################
