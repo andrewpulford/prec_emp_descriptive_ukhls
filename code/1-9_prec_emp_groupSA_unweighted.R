@@ -44,8 +44,15 @@ citation("TraMineR")
 #####                         load and prepare data                        #####
 ################################################################################
 
+### employment contract
 emp_contracta_lca_final <-  readRDS("./working_data/emp_contracta_lca_final.rds")
 emp_contractb_lca_final <-  readRDS("./working_data/emp_contractb_lca_final.rds")
+
+### broken employment spells
+
+### multiple employment
+multi_empa_lca_final <- readRDS("./working_data/multi_empa_lca_final.rds") 
+multi_empb_lca_final <- readRDS("./working_data/multi_empb_lca_final.rds") 
 
 ################################################################################
 #####      sequence analysis for employment contract - 5 class solution    #####
@@ -68,8 +75,8 @@ tiff("./output/descriptive/emp_contracta_grouped_seqiplot100.tiff")#, width = 96
 seqiplot(emp_contract2.seq.a,
          idxs=1:100, # to add more lines
          with.legend = T, 
-         main = "Index plot (100 first sequences)",
-         group = emp_contracta_lca_final$pred_class5,
+         main = NULL,
+         group = emp_contracta_lca_final$emp_contract_class,
          border = NA)
 dev.off()
 
@@ -77,8 +84,8 @@ tiff("./output/descriptive/emp_contractb_grouped_seqiplot100.tiff")#, width = 96
 seqiplot(emp_contract2.seq.b,
          idxs=1:100, # to add more lines
          with.legend = T, 
-         main = "Index plot (100 first sequences)",
-         group = emp_contractb_lca_final$pred_class5,
+         main = NULL,
+         group = emp_contractb_lca_final$emp_contract_class,
          border = NA)
 dev.off()
 
@@ -86,16 +93,16 @@ dev.off()
 tiff("output/descriptive/emp_contracta_grouped_seqiplot.tiff")#, width = 960, height = 1920)
 seqIplot(emp_contract2.seq.a,
          with.legend = T, 
-         main = "Index plot (all sequences)",
-         group = emp_contracta_lca_final$pred_class5,
+         main = NULL,
+         group = emp_contracta_lca_final$emp_contract_class,
          border = NA)
 dev.off()
 
 tiff("output/descriptive/emp_contractb_grouped_seqiplot.tiff")#, width = 960, height = 1920)
 seqIplot(emp_contract2.seq.b,
          with.legend = T, 
-         main = "Index plot (all sequences)",
-         group = emp_contractb_lca_final$pred_class5,
+         main = NULL,
+         group = emp_contractb_lca_final$emp_contract_class,
          border = NA)
 dev.off()
 
@@ -104,9 +111,9 @@ tiff("./output/descriptive/emp_contracta_grouped_seqfplot.tiff")#, width = 960, 
 seqfplot(emp_contract2.seq.a, 
          idxs=1:900, # to add more lines
          with.legend = T, 
-         group = emp_contracta_lca_final$pred_class5,
+         group = emp_contracta_lca_final$emp_contract_class,
          border = NA, 
-         main = "Sequence frequency plot")
+         main = NULL)
 dev.off()
 
 tiff("output/descriptive/emp_contractb_grouped_seqfplot.tiff")#, width = 960, height = 1920)
@@ -114,8 +121,8 @@ seqfplot(emp_contract2.seq.b,
          idxs=1:900, # to add more lines
          with.legend = T, 
          border = NA, 
-         group = emp_contractb_lca_final$pred_class5,
-         main = "Sequence frequency plot")
+         group = emp_contractb_lca_final$emp_contract_class,
+         main = NULL)
 dev.off()
 
 # state distribution plot
@@ -123,16 +130,16 @@ tiff("output/descriptive/emp_contracta_grouped_seqdplot.tiff")#, width = 960, he
 seqdplot(emp_contract2.seq.a, 
          with.legend = T, 
          border = NA, 
-         group = emp_contracta_lca_final$pred_class5,
-         main = "State distribution plot")
+         group = emp_contracta_lca_final$emp_contract_class,
+         main = NULL)
 dev.off()
 
 tiff("output/descriptive/emp_contractb_grouped_seqdplot.tiff")#, width = 960, height = 960)
 seqdplot(emp_contract2.seq.b, 
          with.legend = T, 
          border = NA, 
-         group = emp_contractb_lca_final$pred_class5,
-         main = "State distribution plot")
+         group = emp_contractb_lca_final$emp_contract_class,
+         main = NULL)
 dev.off()
 
 # legend
@@ -141,3 +148,104 @@ seqlegend(emp_contract2.seq.a, cex = 1.3)
 seqlegend(emp_contract2.seq.b, cex = 1.3)
 #dev.off()
 
+
+################################################################################
+#####       sequence analysis for broken employment - x class solution     #####
+################################################################################
+
+# ----------- add --------------------------------------------------------------
+
+################################################################################
+#####      sequence analysis for multiple employment - 5 class solution    #####
+################################################################################
+
+### define labels and codes for sequence analysis
+multi_jobs_labs <- c("missing", "multiple employment", "single employment", 
+                     "unemployed/not in employment", "unemployed/not in employment with additional")
+multi_jobs_code <- c("NA","ME", "OE", "UE", "UA")
+
+### create sequence data
+multi_emp2.seq.a <- seqdef(multi_empa_lca_final, 2:5, states = multi_jobs_code,
+                              labels = multi_jobs_labs)
+
+
+multi_emp2.seq.b <- seqdef(multi_empb_lca_final, 2:5, states = multi_jobs_code,
+                              labels = multi_jobs_labs)
+
+## first 100 sequences
+tiff("./output/descriptive/multi_empa_grouped_seqiplot100.tiff")#, width = 960, height = 960)
+seqiplot(multi_emp2.seq.a,
+         idxs=1:100, # to add more lines
+         with.legend = T, 
+         main = NULL,
+         group = multi_empa_lca_final$multi_emp_class,
+         border = NA)
+dev.off()
+
+tiff("./output/descriptive/multi_empb_grouped_seqiplot100.tiff")#, width = 960, height = 960)
+seqiplot(multi_emp2.seq.b,
+         idxs=1:100, # to add more lines
+         with.legend = T, 
+         main = NULL,
+         group = multi_empb_lca_final$multi_emp_class,
+         border = NA)
+dev.off()
+
+## all sequences
+tiff("output/descriptive/multi_empa_grouped_seqiplot.tiff")#, width = 960, height = 1920)
+seqIplot(multi_emp2.seq.a,
+         with.legend = T, 
+         main = NULL,
+         group = multi_empa_lca_final$multi_emp_class,
+         border = NA)
+dev.off()
+
+tiff("output/descriptive/multi_empb_grouped_seqiplot.tiff")#, width = 960, height = 1920)
+seqIplot(multi_emp2.seq.b,
+         with.legend = T, 
+         main = NULL,
+         group = multi_empb_lca_final$multi_emp_class,
+         border = NA)
+dev.off()
+
+# sequence frequency plot (all common sequences)
+tiff("./output/descriptive/multi_empa_grouped_seqfplot.tiff")#, width = 960, height = 1920)
+seqfplot(multi_emp2.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         group = multi_empa_lca_final$multi_emp_class,
+         border = NA, 
+         main = NULL)
+dev.off()
+
+tiff("output/descriptive/multi_empb_grouped_seqfplot.tiff")#, width = 960, height = 1920)
+seqfplot(multi_emp2.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = multi_empb_lca_final$multi_emp_class,
+         main = NULL)
+dev.off()
+
+# state distribution plot
+tiff("output/descriptive/multi_empa_grouped_seqdplot.tiff")#, width = 960, height = 960)
+seqdplot(multi_emp2.seq.a, 
+         with.legend = T, 
+         border = NA, 
+         group = multi_empa_lca_final$multi_emp_class,
+         main = NULL)
+dev.off()
+
+tiff("output/descriptive/multi_empb_grouped_seqdplot.tiff")#, width = 960, height = 960)
+seqdplot(multi_emp2.seq.b, 
+         with.legend = T, 
+         border = NA, 
+         group = multi_empb_lca_final$multi_emp_class,
+         main = NULL)
+dev.off()
+
+# legend
+#tiff("output/descriptive/multi_emp_legend.tiff", width = 400, height = 250)
+seqlegend(multi_emp2.seq.a, cex = 1.3)
+seqlegend(multi_emp2.seq.b, cex = 1.3)
+#dev.off()
