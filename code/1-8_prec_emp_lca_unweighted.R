@@ -1056,10 +1056,10 @@ entropy_vector2_b <- c(multi_emp_lca2b_ent,multi_emp_lca3b_ent,
                        multi_emp_lca8b_ent)
 
 ## create df for model fit stats
-multi_empa_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector, aic_vector,Gsq_vector, Chisq_vector, entropy_vector))
+multi_empa_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector2, aic_vector2,Gsq_vector2, Chisq_vector2, entropy_vector2))
 names(multi_empa_lca_fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 
-multi_empb_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector_b, aic_vector_b,Gsq_vector_b, Chisq_vector_b, entropy_vector_b))
+multi_empb_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector2_b, aic_vector2_b,Gsq_vector2_b, Chisq_vector2_b, entropy_vector2_b))
 names(multi_empb_lca_fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 
 # model with lowest bic
@@ -1265,26 +1265,26 @@ multi_empa_lca_final <- dfas1a_pred_class3 %>% ## <<< specify for final run <<< 
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(multi_emp_class= ifelse(pred_class5==1, "into employment",
-                                    ifelse(pred_class5==2, "multiple employment",
-                                           ifelse(pred_class5==3,"out of employment",
-                                                  ifelse(pred_class5==4,"single employment",
+  mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
+                                    ifelse(pred_class5==2, "single employment",
+                                           ifelse(pred_class5==3,"multiple employment",
+                                                  ifelse(pred_class5==4,"into employment",
                                                          ifelse(pred_class5==5,"unemployed",
                                                                 "CHECK"))))))
 
 write_rds(multi_empa_lca_final, "./working_data/multi_empa_lca_final.rds")
 
 
-multi_empb_lca_final <- dfas1b_pred_class %>% ## <<< specify for final run <<< ##
+multi_empb_lca_final <- dfas1b_pred_class3 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
   mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
-                                    ifelse(pred_class5==2, "single employment",
-                                           ifelse(pred_class5==3,"multiple employment",
-                                                  ifelse(pred_class5==4,"unemployed",
-                                                         ifelse(pred_class5==5,"into employment",
-                                                                "CHECK"))))))
+                                 ifelse(pred_class5==2, "single employment",
+                                        ifelse(pred_class5==3,"into employment",
+                                               ifelse(pred_class5==4,"multiple employment",
+                                                      ifelse(pred_class5==5,"unemployed",
+                                                             "CHECK"))))))
 
 write_rds(multi_empb_lca_final, "./working_data/multi_empb_lca_final.rds")
 
@@ -1299,12 +1299,12 @@ multi_empb_5class_spine <- multi_empb_lca_final %>%
 write_rds(multi_empa_5class_spine, "./working_data/multi_empa_5class_spine.rds")
 write_rds(multi_empb_5class_spine, "./working_data/multi_empb_5class_spine.rds")
 
-## reorder the classes so there appear in a set order (FE,PE,UE,IE,OE)
+## reorder the classes so there appear in a set order (ME,SE,UE,IE,OE)
 probs.start.a <-multi_emp_lca5a$probs.start
-new.probs.start.a <- poLCA.reorder(probs.start, c(2,4,5,1,3)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(probs.start.a, c(3,2,5,4,1)) ## <<< specify for final run <<< ##
 
 probs.start.b <-multi_emp_lca5b$probs.start
-new.probs.start.b <- poLCA.reorder(probs.start, c(3,2,4,5,1)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(probs.start.b, c(4,2,3,5,1)) ## <<< specify for final run <<< ##
 
 #save output
 multi_empa_lca_final_model <- poLCA(f, dfas1a_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
@@ -1317,11 +1317,11 @@ saveRDS(multi_empb_lca_final_model, "./output/descriptive/multi_empb_lca_final_m
 
 # save plot
 tiff("./output/descriptive/multi_empa_lca_final.tiff", width = 400, height = 400)
-poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start, 
+poLCA(f, dfas1a_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
 tiff("./output/descriptive/multi_empb_lca_final.tiff", width = 400, height = 400)
-poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
+poLCA(f2, dfas1b_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.b, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
