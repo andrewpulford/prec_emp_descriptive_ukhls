@@ -290,7 +290,6 @@ write_rds(dfas1b_seq_wide3, "./working_data/dfas1b_seq_wide3.rds")
 
 
 ### define labels and codes for sequence analysis
-## retaining missing values for now but plan to impute
 multi_jobs_labs <- c("missing", "multiple jobs", "one job", 
                      "unemployed/not in employment", "unemployed/not in employment with additional")
 multi_jobs_code <- c("NA","ME", "OE", "UE", "UA")
