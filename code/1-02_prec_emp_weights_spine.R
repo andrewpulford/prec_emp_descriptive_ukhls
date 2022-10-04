@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 1-2 - Create weight spine for descriptive analysis
+# 1-02 - Create weight spine for descriptive analysis
 # Andrew Pulford
 
 # Data source:
