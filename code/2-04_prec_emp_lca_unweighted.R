@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 1-8 - latent class analysis - unweighted
+# 2-04 - latent class analysis - unweighted
 # Andrew Pulford
 
 # Data source:
