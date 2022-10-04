@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 1-7 - manual grouping - unweighted
+# 2-03 - manual grouping - unweighted
 # Andrew Pulford
 
 # Data source:
