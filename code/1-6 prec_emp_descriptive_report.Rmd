@@ -732,6 +732,11 @@ kable(empcontracta_fit_stats)
 image_read("../output/descriptive/empcontracta_lca_elbow.tiff")
 ```
 
+```{r, echo=FALSE}
+
+
+```
+
 #### Sample A - five class model
 ```{r, echo=FALSE}
 readRDS("../output/descriptive/emp_contracta_lca_final_model.rds")
@@ -758,4 +763,20 @@ readRDS("../output/descriptive/emp_contractb_lca_final_model.rds")
 image_read("../output/descriptive/emp_contractb_lca_final.tiff")
 
 image_read("../output/descriptive/emp_contractb_grouped_seqfplot.tiff")
+```
+
+### Prevalence of outcomes of interest
+
+#### Common mental health disorders
+
+**Figure x: Prevalence of common mental health disorder (Sample A) 
+```{r, echo=FALSE}
+image_read("../output/descriptive/empcontract_ghq_prev_grouped_a.tiff")
+
+```
+
+**Figure x: Prevalence of common mental health disorder (Sample B) 
+```{r, echo=FALSE}
+image_read("../output/descriptive/empcontract_ghq_prev_grouped_b.tiff")
+
 ```
