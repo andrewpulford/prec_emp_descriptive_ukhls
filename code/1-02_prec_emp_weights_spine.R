@@ -45,7 +45,7 @@ temp_df <- read.spss(paste0(data_path,"ukhls_w6/f_indresp.sav"),
   as_tibble()
 
 weight_spine_a  <- temp_df %>% 
-  dplyr::select(pidp, f_indinub_xw) %>% 
+  dplyr::select(pidp, f_indinub_xw, f_strata, f_psu) %>% 
   mutate(weight_flag = ifelse(f_indinub_xw!=0,1,0))
 
 rm(temp_df)
@@ -62,7 +62,7 @@ temp_df <- read.spss(paste0(data_path,"ukhls_w10/j_indresp.sav"),
   as_tibble()
 
 weight_spine_b  <- temp_df %>% 
-  dplyr::select(pidp, j_indinui_xw) %>% 
+  dplyr::select(pidp, j_indinui_xw, j_strata, j_psu) %>% 
   mutate(weight_flag = ifelse(j_indinui_xw!=0,1,0))
 
 rm(temp_df)
