@@ -53,16 +53,23 @@ master_raw1 <- readRDS("./working_data/master_raw1_clean.rds")
 master_raw1$age_dv <- as.numeric(master_raw1$age_dv)
 
 ## split into master a (waves 3-6) and master b (waves 7-10)
-master_raw1a <- master_raw1 %>% filter(wv_n %in% c(3:6))
-master_raw1b <- master_raw1 %>% filter(wv_n %in% c(7:10))
+master_raw1a <- master_raw1 %>% filter(wv_n %in% c(3:6)) %>% 
+  dplyr::select(-indinui_xw) # drop sample B weights
+
+master_raw1b <- master_raw1 %>% filter(wv_n %in% c(7:10)) %>% 
+  dplyr::select(-indinub_xw) # drop sample A weights
 
 # check number of indivs in raw data -- relates to node A in flowchart --
 master_indivs_a <- length(unique(master_raw1a$pidp))
 master_indivs_b <- length(unique(master_raw1b$pidp))
 
 ## load weight spines
-weight_spine_a <- readRDS("./look_ups/weights_spine_a.rds")
-weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds")
+weight_spine_a <- readRDS("./look_ups/weights_spine_a.rds") %>% 
+  dplyr::select(pidp, weight_flag)
+
+
+weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds") %>% 
+  dplyr::select(pidp, weight_flag)
 
 ##### create eligible pop dataframe for descriptive analysis -------------------
 
@@ -128,7 +135,7 @@ no_weight_spine_b <- working_age_b %>%
 
 # create eligible pop df by including only valid weights
 eligible_pop_a <- working_age_a %>% 
-  left_join(weight_spine_a) %>% 
+  right_join(weight_spine_a) %>% 
   filter(weight_flag==1)
 
 
