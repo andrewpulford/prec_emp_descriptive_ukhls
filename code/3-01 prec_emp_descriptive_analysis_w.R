@@ -37,6 +37,8 @@ library(TraMineR) # for sequence analysis
 library(poLCA) # for latent class analysis
 #library(randomLCA) # for repeated measures latent class analysis
 library(survey) # for applying survey weights to analysis
+options(survey.lonely.psu="adjust") # single-PSU strata are centred at the sample mean
+
 #library(srvyr) # for applying survey weights to analysis
 
 #citation("TraMineR")
@@ -53,7 +55,10 @@ dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds") %>%
 
 ## endpoint only <<<<<< change to read
 dfas1a_end <- dfas1a %>% filter(wv_n==6)
-write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
+#write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
+
+dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
+
 
 ### analytic sample 1b - waves 7-10
 dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>% 
@@ -61,14 +66,16 @@ dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>%
 
 ## endpoint only <<<<<< change to read
 dfas1b_end <- dfas1b %>% filter(wv_n==10) 
-write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
+#write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
 
 
 #### load weight spines ---------------------------------
 
-weight_spine_a <- readRDS("./look_ups/weights_spine_a.rds")
+weight_spine_a <- readRDS("./look_ups/weights_spine_a.rds") %>% 
+  dplyr::select(pidp, strata, psu)
 
-weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds")
+weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds") %>% 
+  dplyr::select(pidp, strata, psu)
 
 #### join dfs and weight spines -------------------------
 
@@ -79,24 +86,30 @@ dfas1b_end <- dfas1b_end %>%
   left_join(weight_spine_b)
 
 #### combined study endpoint df <<< prob can't do as different weights/samples <<<
-dfas1_end <- dfas1a_end %>% bind_rows(dfas1b_end)
+#dfas1_end <- dfas1a_end %>% bind_rows(dfas1b_end)
 
 
 #### create complex sample design dfs -------------------
 
-#svy_xxx_a <- svydesign(id=~f_psu, strata=~f_strata,
-#                         weights=~f_indinub_xw, data=xxxx)
+svy_dfas1a_end <- svydesign(id=~psu, strata=~strata,
+                         weights=~indinub_xw, data=dfas1a_end)
 
+svy_dfas1b_end <- svydesign(id=~psu, strata=~strata,
+                            weights=~indinui_xw, data=dfas1b_end)
 
 ### check missing values are set to NA
 
-missval <- c(-9, -8, -7, -2, -1)
-
+#missval <- c(-9, -8, -7, -2, -1)
+#
 #for (i in 1:5) {
-#  svy_xxx_a <- svy_xxx_a %>% mutate_all(., list(~na_if(.,
+#  dfas1a_end <- dfas1a_end %>% mutate_all(., list(~na_if(.,
 #                                                       missval[i])))
 #}
+
 # seems like this could be done easier with mutate() and ifelse()
+
+#dfas1a_end %>% mutate(across(ifelse(. %in% c(-9, -8, -7, -2, -1), 1,0)))
+# doesn't work either
 
 ################################################################################
 #####                sample characteristics at study endpoint              #####
@@ -108,7 +121,29 @@ missval <- c(-9, -8, -7, -2, -1)
 #####----------------------------------------------------------------------#####
 
 #### sex -----------------------------------------------------------------------
-#dfas1_end$sex_dv <- droplevels(dfas1_end$sex_dv)
+
+## calculate proportions
+sex <- data.frame(svymean(~sex_dv, svy_dfas1a_end))
+sex <- cbind(rownames(sex),sex, row.names=NULL)
+sex$`rownames(sex)` <- str_replace(sex$`rownames(sex)`, "sex_dv","")
+sex <- sex %>% rename(measure = `rownames(sex)`)
+names(sex) <- tolower(names(sex)) # change all col names to lower case
+
+## calculate totals
+sex2 <- data.frame(svytotal(~sex_dv, svy_dfas1a_end))
+sex2 <- sex2 %>% dplyr::select(-SE)
+sex2 <- cbind(rownames(sex2),sex2, row.names=NULL)
+sex2$`rownames(sex2)` <- str_replace(sex2$`rownames(sex2)`, "sex_dv","")
+sex2 <- sex2 %>% rename(measure = `rownames(sex2)`)
+
+## join together and format
+sex <- sex %>%
+  left_join(sex2) %>% 
+  mutate(est = mean*100,
+         var="Sex",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
 
 #sex <- dfas1_end %>% group_by(wv_n,sex_dv) %>% summarise(n=n()) %>% 
 #  mutate(est = n/sum(n)*100) %>% 
@@ -122,16 +157,12 @@ missval <- c(-9, -8, -7, -2, -1)
 
 #### age -----------------------------------------------------------------------
 
-#age_mean <- svyby(~age_dv, ~wv_n,svy_xxx_a, svymean, na.rm=TRUE)
-# will need grouped by wave <<<<<
-# method in training notes looks like a faff
-# srvyr might be solution as adopts tidyverse
-# or svyby in survey package
+age_mean <- svyby(~age_dv, ~wv_n,svy_dfas1a_end, svymean, na.rm=TRUE)
 
-#  dfas1_end %>% group_by(wv_n) %>% 
-#  summarise(est = mean(as.numeric(as.numeric(age_dv)), na.rm = TRUE)) %>% 
-#  mutate(var="Age", measure="Mean", n=NA) %>% 
-#  dplyr::select(wv_n, var, measure, n, est)
+age_mean %>% 
+  rename(est = age_dv) %>% 
+  mutate(var="Age", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean)
 
