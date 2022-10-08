@@ -58,6 +58,7 @@ dfas1a_end <- dfas1a %>% filter(wv_n==6)
 #write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
 
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
+dfas1a_end$hiqual_dv <- droplevels(dfas1a_end$hiqual_dv)
 
 
 ### analytic sample 1b - waves 7-10
@@ -68,6 +69,8 @@ dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>%
 dfas1b_end <- dfas1b %>% filter(wv_n==10) 
 #write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
 
+dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
+dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
 
 #### load weight spines ---------------------------------
 
@@ -122,89 +125,237 @@ svy_dfas1b_end <- svydesign(id=~psu, strata=~strata,
 
 #### sex -----------------------------------------------------------------------
 
+### sample A ------------
+
 ## calculate proportions
-sex <- data.frame(svymean(~sex_dv, svy_dfas1a_end))
-sex <- cbind(rownames(sex),sex, row.names=NULL)
-sex$`rownames(sex)` <- str_replace(sex$`rownames(sex)`, "sex_dv","")
-sex <- sex %>% rename(measure = `rownames(sex)`)
-names(sex) <- tolower(names(sex)) # change all col names to lower case
+sex_a <- data.frame(svymean(~sex_dv, svy_dfas1a_end))
+sex_a <- cbind(rownames(sex_a),sex_a, row.names=NULL)
+sex_a$`rownames(sex_a)` <- str_replace(sex_a$`rownames(sex_a)`, "sex_dv","")
+sex_a <- sex_a %>% rename(measure = `rownames(sex_a)`)
+names(sex_a) <- tolower(names(sex_a)) # change all col names to lower case
 
 ## calculate totals
-sex2 <- data.frame(svytotal(~sex_dv, svy_dfas1a_end))
-sex2 <- sex2 %>% dplyr::select(-SE)
-sex2 <- cbind(rownames(sex2),sex2, row.names=NULL)
-sex2$`rownames(sex2)` <- str_replace(sex2$`rownames(sex2)`, "sex_dv","")
-sex2 <- sex2 %>% rename(measure = `rownames(sex2)`)
+sex2_a <- data.frame(svytotal(~sex_dv, svy_dfas1a_end))
+sex2_a <- sex2_a %>% dplyr::select(-SE)
+sex2_a <- cbind(rownames(sex2_a),sex2_a, row.names=NULL)
+sex2_a$`rownames(sex2_a)` <- str_replace(sex2_a$`rownames(sex2_a)`, "sex_dv","")
+sex2_a <- sex2_a %>% rename(measure = `rownames(sex2_a)`)
+sex2_a$total <- as.integer(sex2_a$total)
 
 ## join together and format
-sex <- sex %>%
-  left_join(sex2) %>% 
+sex_a <- sex_a %>%
+  left_join(sex2_a) %>% 
   mutate(est = mean*100,
          var="Sex",
          wv_n=6) %>% 
   rename(n=total) %>% 
-  dplyr::select(wv_n, var, measure, n, est, se)
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Female","Male")))
 
-#sex <- dfas1_end %>% group_by(wv_n,sex_dv) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% 
-#  mutate(var="Sex") %>% 
-#  rename("measure"= "sex_dv") %>% 
-#  dplyr::select(wv_n, var, measure, n, est) %>% 
-#  arrange(wv_n, factor(measure, levels = c("Female","Male")))
+sample_chars_endpoint <- sex_a
 
-#sample_chars_endpoint <- sex
+### sample B ------------
 
+## calculate proportions
+sex_b <- data.frame(svymean(~sex_dv, svy_dfas1b_end))
+sex_b <- cbind(rownames(sex_b),sex_b, row.names=NULL)
+sex_b$`rownames(sex_b)` <- str_replace(sex_b$`rownames(sex_b)`, "sex_dv","")
+sex_b <- sex_b %>% rename(measure = `rownames(sex_b)`)
+names(sex_b) <- tolower(names(sex_b)) # change all col names to lower case
+
+## calculate totals
+sex2_b <- data.frame(svytotal(~sex_dv, svy_dfas1b_end))
+sex2_b <- sex2_b %>% dplyr::select(-SE)
+sex2_b <- cbind(rownames(sex2_b),sex2_b, row.names=NULL)
+sex2_b$`rownames(sex2_b)` <- str_replace(sex2_b$`rownames(sex2_b)`, "sex_dv","")
+sex2_b <- sex2_b %>% rename(measure = `rownames(sex2_b)`)
+sex2_b$total <- as.integer(sex2_b$total)
+
+## join together and format
+sex_b <- sex_b %>%
+  left_join(sex2_b) %>% 
+  mutate(est = mean*100,
+         var="Sex",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Female","Male")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sex_b)
 
 #### age -----------------------------------------------------------------------
 
-age_mean <- svyby(~age_dv, ~wv_n,svy_dfas1a_end, svymean, na.rm=TRUE)
+### sample A ------------
 
-age_mean %>% 
+age_mean_a <- svyby(~age_dv, ~wv_n,svy_dfas1a_end, svymean, na.rm=TRUE)
+
+age_mean_a <- age_mean_a %>% 
   rename(est = age_dv) %>% 
   mutate(var="Age", measure="Mean", n=NA) %>% 
   dplyr::select(wv_n, var, measure, n, est, se)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean)
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean_a)
 
+### sample B ------------
+
+age_mean_b <- svyby(~age_dv, ~wv_n,svy_dfas1b_end, svymean, na.rm=TRUE)
+
+age_mean_b <- age_mean_b %>% 
+  rename(est = age_dv) %>% 
+  mutate(var="Age", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(age_mean_b)
 
 #### ethnicity -----------------------------------------------------------------
-## full ethnicity coding
-ethnicity <- dfas1_end %>% group_by(wv_n,ethn_dv) %>% 
-  summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Ethnicity") %>% 
-  rename("measure"= "ethn_dv") %>% 
-  dplyr::select(wv_n, var, measure, n, est)
-
 ## white/non-white
-white_non <- dfas1_end %>% group_by(wv_n,non_white) %>% 
-  summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Ethnicity") %>% 
-  rename("measure"= "non_white") %>% 
-  dplyr::select(wv_n, var, measure, n, est) %>% 
+
+### sample A ------------
+
+## calculate proportions
+white_non_a <- data.frame(svymean(~non_white, svy_dfas1a_end))
+white_non_a <- cbind(rownames(white_non_a),white_non_a, row.names=NULL)
+white_non_a$`rownames(white_non_a)` <- str_replace(white_non_a$`rownames(white_non_a)`, "non_white","")
+white_non_a <- white_non_a %>% rename(measure = `rownames(white_non_a)`)
+names(white_non_a) <- tolower(names(white_non_a)) # change all col names to lower case
+
+## calculate totals
+white_non2_a <- data.frame(svytotal(~non_white, svy_dfas1a_end))
+white_non2_a <- white_non2_a %>% dplyr::select(-SE)
+white_non2_a <- cbind(rownames(white_non2_a),white_non2_a, row.names=NULL)
+white_non2_a$`rownames(white_non2_a)` <- str_replace(white_non2_a$`rownames(white_non2_a)`, "non_white","")
+white_non2_a <- white_non2_a %>% rename(measure = `rownames(white_non2_a)`)
+white_non2_a$total <- as.integer(white_non2_a$total)
+
+## join together and format
+white_non_a <- white_non_a %>%
+  left_join(white_non2_a) %>% 
+  mutate(est = mean*100,
+         var="Ethnicity",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("White","Non-white","Missing")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(white_non_a)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(white_non)
+### sample B ------------
+
+## calculate proportions
+white_non_b <- data.frame(svymean(~non_white, svy_dfas1b_end))
+white_non_b <- cbind(rownames(white_non_b),white_non_b, row.names=NULL)
+white_non_b$`rownames(white_non_b)` <- str_replace(white_non_b$`rownames(white_non_b)`, "non_white","")
+white_non_b <- white_non_b %>% rename(measure = `rownames(white_non_b)`)
+names(white_non_b) <- tolower(names(white_non_b)) # change all col names to lower case
+
+## calculate totals
+white_non2_b <- data.frame(svytotal(~non_white, svy_dfas1b_end))
+white_non2_b <- white_non2_b %>% dplyr::select(-SE)
+white_non2_b <- cbind(rownames(white_non2_b),white_non2_b, row.names=NULL)
+white_non2_b$`rownames(white_non2_b)` <- str_replace(white_non2_b$`rownames(white_non2_b)`, "non_white","")
+white_non2_b <- white_non2_b %>% rename(measure = `rownames(white_non2_b)`)
+white_non2_b$total <- as.integer(white_non2_b$total)
+
+## join together and format
+white_non_b <- white_non_b %>%
+  left_join(white_non2_b) %>% 
+  mutate(est = mean*100,
+         var="Ethnicity",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("White","Non-white","Missing")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(white_non_b)
+
 
 #### Marital status -------------------------------------------------------------
-marital <- dfas1_end %>% group_by(wv_n,marital_status) %>% summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Marital status") %>% 
-  rename("measure"= "marital_status") %>% 
-  dplyr::select(wv_n, var, measure, n, est) %>% 
+### sample A ------------
+
+## calculate proportions
+marital_a <- data.frame(svymean(~marital_status, svy_dfas1a_end))
+marital_a <- cbind(rownames(marital_a),marital_a, row.names=NULL)
+marital_a$`rownames(marital_a)` <- str_replace(marital_a$`rownames(marital_a)`, "marital_status","")
+marital_a <- marital_a %>% rename(measure = `rownames(marital_a)`)
+names(marital_a) <- tolower(names(marital_a)) # change all col names to lower case
+
+## calculate totals
+marital2_a <- data.frame(svytotal(~marital_status, svy_dfas1a_end))
+marital2_a <- marital2_a %>% dplyr::select(-SE)
+marital2_a <- cbind(rownames(marital2_a),marital2_a, row.names=NULL)
+marital2_a$`rownames(marital2_a)` <- str_replace(marital2_a$`rownames(marital2_a)`, "marital_status","")
+marital2_a <- marital2_a %>% rename(measure = `rownames(marital2_a)`)
+marital2_a$total <- as.integer(marital2_a$total)
+
+## join together and format
+marital_a <- marital_a %>%
+  left_join(marital2_a) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("married/civil partnership","divorced/separated/widowed","single","missing")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(marital_a)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(marital)
+### sample B ------------
+
+## calculate proportions
+marital_b <- data.frame(svymean(~marital_status, svy_dfas1b_end))
+marital_b <- cbind(rownames(marital_b),marital_b, row.names=NULL)
+marital_b$`rownames(marital_b)` <- str_replace(marital_b$`rownames(marital_b)`, "marital_status","")
+marital_b <- marital_b %>% rename(measure = `rownames(marital_b)`)
+names(marital_b) <- tolower(names(marital_b)) # change all col names to lower case
+
+## calculate totals
+marital2_b <- data.frame(svytotal(~marital_status, svy_dfas1b_end))
+marital2_b <- marital2_b %>% dplyr::select(-SE)
+marital2_b <- cbind(rownames(marital2_b),marital2_b, row.names=NULL)
+marital2_b$`rownames(marital2_b)` <- str_replace(marital2_b$`rownames(marital2_b)`, "marital_status","")
+marital2_b <- marital2_b %>% rename(measure = `rownames(marital2_b)`)
+marital2_b$total <- as.integer(marital2_b$total)
+
+## join together and format
+marital_b <- marital_b %>%
+  left_join(marital2_b) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("married/civil partnership","divorced/separated/widowed","single","missing")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(marital_b)
+
 
 #### Educational attainment ----------------------------------------------------
-ed_attain <- dfas1_end %>% group_by(wv_n,hiqual_dv) %>% summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Educational attainment") %>% 
-  rename("measure"= "hiqual_dv") %>% 
-  dplyr::select(wv_n, var, measure, n, est) %>% 
+
+### sample A ------------
+
+## calculate proportions
+ed_attain_a <- data.frame(svymean(~hiqual_dv, svy_dfas1a_end))
+ed_attain_a <- cbind(rownames(ed_attain_a),ed_attain_a, row.names=NULL)
+ed_attain_a$`rownames(ed_attain_a)` <- str_replace(ed_attain_a$`rownames(ed_attain_a)`, "hiqual_dv","")
+ed_attain_a <- ed_attain_a %>% rename(measure = `rownames(ed_attain_a)`)
+names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
+
+## calculate totals
+ed_attain2_a <- data.frame(svytotal(~hiqual_dv, svy_dfas1a_end))
+ed_attain2_a <- ed_attain2_a %>% dplyr::select(-SE)
+ed_attain2_a <- cbind(rownames(ed_attain2_a),ed_attain2_a, row.names=NULL)
+ed_attain2_a$`rownames(ed_attain2_a)` <- str_replace(ed_attain2_a$`rownames(ed_attain2_a)`, "hiqual_dv","")
+ed_attain2_a <- ed_attain2_a %>% rename(measure = `rownames(ed_attain2_a)`)
+ed_attain2_a$total <- as.integer(ed_attain2_a$total)
+
+## join together and format
+ed_attain_a <- ed_attain_a %>%
+  left_join(ed_attain2_a) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("degree",
                                            "other higher degree",
                                            "a-level etc",
@@ -212,8 +363,46 @@ ed_attain <- dfas1_end %>% group_by(wv_n,hiqual_dv) %>% summarise(n=n()) %>%
                                            "other qualification",
                                            "no qualification")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain_a)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain)
+### sample B ------------
+
+## calculate proportions
+ed_attain_b <- data.frame(svymean(~hiqual_dv, svy_dfas1b_end))
+ed_attain_b <- cbind(rownames(ed_attain_b),ed_attain_b, row.names=NULL)
+ed_attain_b$`rownames(ed_attain_b)` <- str_replace(ed_attain_b$`rownames(ed_attain_b)`, "hiqual_dv","")
+ed_attain_b <- ed_attain_b %>% rename(measure = `rownames(ed_attain_b)`)
+names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
+
+## calculate totals
+ed_attain2_b <- data.frame(svytotal(~hiqual_dv, svy_dfas1b_end))
+ed_attain2_b <- ed_attain2_b %>% dplyr::select(-SE)
+ed_attain2_b <- cbind(rownames(ed_attain2_b),ed_attain2_b, row.names=NULL)
+ed_attain2_b$`rownames(ed_attain2_b)` <- str_replace(ed_attain2_b$`rownames(ed_attain2_b)`, "hiqual_dv","")
+ed_attain2_b <- ed_attain2_b %>% rename(measure = `rownames(ed_attain2_b)`)
+ed_attain2_b$total <- as.integer(ed_attain2_b$total)
+
+## join together and format
+ed_attain_b <- ed_attain_b %>%
+  left_join(ed_attain2_b) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("degree",
+                                           "other higher degree",
+                                           "a-level etc",
+                                           "gcse etc",
+                                           "other qualification",
+                                           "no qualification")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain_b)
+
+
+
+
+### done to here <<<<<<<<<<<<<<<
 
 #### Region --------------------------------------------------------------------
 region <- dfas1_end %>% group_by(wv_n,gor_dv) %>% summarise(n=n()) %>% 
