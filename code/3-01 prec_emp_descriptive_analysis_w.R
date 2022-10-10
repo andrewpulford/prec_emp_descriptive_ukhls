@@ -57,9 +57,11 @@ dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds") %>%
 dfas1a_end <- dfas1a %>% filter(wv_n==6)
 #write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
 
+# drop unused levels
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
 dfas1a_end$hiqual_dv <- droplevels(dfas1a_end$hiqual_dv)
-
+dfas1a_end$sex_dv <- droplevels(dfas1a_end$gor_dv)
+dfas1a_end$fimnnet_dv <- as.numeric(dfas1a_end$fimnnet_dv)
 
 ### analytic sample 1b - waves 7-10
 dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>% 
@@ -69,8 +71,10 @@ dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>%
 dfas1b_end <- dfas1b %>% filter(wv_n==10) 
 #write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
 
+# drop unused levels
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
 dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
+dfas1b_end$sex_dv <- droplevels(dfas1b_end$gor_dv)
 
 #### load weight spines ---------------------------------
 
@@ -400,181 +404,327 @@ ed_attain_b <- ed_attain_b %>%
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ed_attain_b)
 
 
-
-
-### done to here <<<<<<<<<<<<<<<
-
 #### Region --------------------------------------------------------------------
-region <- dfas1_end %>% group_by(wv_n,gor_dv) %>% summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Region") %>% 
-  rename("measure"= "gor_dv") %>% 
-  dplyr::select(wv_n, var, measure, n, est)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(region)
+### sample A ------------
+
+## calculate proportions
+region_a <- data.frame(svymean(~gor_dv, svy_dfas1a_end))
+region_a <- cbind(rownames(region_a),region_a, row.names=NULL)
+region_a$`rownames(region_a)` <- str_replace(region_a$`rownames(region_a)`, "gor_dv","")
+region_a <- region_a %>% rename(measure = `rownames(region_a)`)
+names(region_a) <- tolower(names(region_a)) # change all col names to lower case
+
+## calculate totals
+region2_a <- data.frame(svytotal(~gor_dv, svy_dfas1a_end))
+region2_a <- region2_a %>% dplyr::select(-SE)
+region2_a <- cbind(rownames(region2_a),region2_a, row.names=NULL)
+region2_a$`rownames(region2_a)` <- str_replace(region2_a$`rownames(region2_a)`, "gor_dv","")
+region2_a <- region2_a %>% rename(measure = `rownames(region2_a)`)
+region2_a$total <- as.integer(region2_a$total)
+
+## join together and format
+region_a <- region_a %>%
+  left_join(region2_a) %>% 
+  mutate(est = mean*100,
+         var="Region",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) #%>% 
+#  arrange(wv_n, factor(measure, levels = c("degree",
+#                                           "other higher degree",
+#                                           "a-level etc",
+#                                           "gcse etc",
+#                                           "other qualification",
+#                                           "no qualification")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(region_a)
+
+### sample B ------------
+
+## calculate proportions
+region_b <- data.frame(svymean(~gor_dv, svy_dfas1b_end))
+region_b <- cbind(rownames(region_b),region_b, row.names=NULL)
+region_b$`rownames(region_b)` <- str_replace(region_b$`rownames(region_b)`, "gor_dv","")
+region_b <- region_b %>% rename(measure = `rownames(region_b)`)
+names(region_b) <- tolower(names(region_b)) # change all col names to lower case
+
+## calculate totals
+region2_b <- data.frame(svytotal(~gor_dv, svy_dfas1b_end))
+region2_b <- region2_b %>% dplyr::select(-SE)
+region2_b <- cbind(rownames(region2_b),region2_b, row.names=NULL)
+region2_b$`rownames(region2_b)` <- str_replace(region2_b$`rownames(region2_b)`, "gor_dv","")
+region2_b <- region2_b %>% rename(measure = `rownames(region2_b)`)
+region2_b$total <- as.integer(region2_b$total)
+
+## join together and format
+region_b <- region_b %>%
+  left_join(region2_b) %>% 
+  mutate(est = mean*100,
+         var="Region",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  #%>% 
+#  arrange(wv_n, factor(measure, levels = c("degree",
+#                                           "other higher degree",
+#                                           "a-level etc",
+#                                           "gcse etc",
+#                                           "other qualification",
+#                                           "no qualification")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(region_b)
+
 
 #####----------------------------------------------------------------------#####
 #####               Employment and income characteristics                  #####
 #####----------------------------------------------------------------------#####
 
-#### Current employment status -------------------------------------------------
-#emp <-  dfas1_end %>% 
-#  group_by(wv_n,employ) %>% summarise(n=n()) %>%  
-#  mutate(pc = n/sum(n)*100)
-#
-##### current labour force status -----------------------------------------------
-#lab_status <- dfas1_end %>% group_by(wv_n,jbstat) %>% summarise(n=n()) %>%  
-#  mutate(est = n/sum(n)*100) %>% 
-#  mutate(var="Labour status") %>% 
-#  rename("measure"= "jbstat") %>% 
-#  select(wv_n,var, measure, n, est)
-#
-#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(lab_status)
-
-
-#### Current job: Three Class NS-SEC -------------------------------------------
-#nssec3 <- dfas1_end %>% group_by(wv_n,jbnssec3_dv) %>% summarise(n=n()) %>% 
-#  mutate(est = n/sum(n)*100) %>% 
-#  mutate(var="NS-SEC3") %>% 
-#  rename("measure"= "jbnssec3_dv") %>% 
-#  select(wv_n,var, measure, n, est)
-## recode inapplicable based on emp status? <<<<<<<<<
-#
-#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(nssec3)
-
-#### RG Social Class: present job ----------------------------------------------
-#rg_class <- dfas1_end %>% group_by(wv_n,jbrgsc_dv) %>% summarise(n=n()) %>% 
-#  mutate(pc = n/sum(n)*100)
-
-# don't add for now
-
 #### permanent or temporary ----------------------------------------------------
-perm_emp <- dfas1_end %>% group_by(wv_n,emp_contract) %>% summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Employment contract") %>% 
-  rename("measure"= "emp_contract") %>% 
-  dplyr::select(wv_n,var, measure, n, est) %>% 
+
+### sample A ------------
+
+## calculate proportions
+perm_emp_a <- data.frame(svymean(~emp_contract, svy_dfas1a_end))
+perm_emp_a <- cbind(rownames(perm_emp_a),perm_emp_a, row.names=NULL)
+perm_emp_a$`rownames(perm_emp_a)` <- str_replace(perm_emp_a$`rownames(perm_emp_a)`, "emp_contract","")
+perm_emp_a <- perm_emp_a %>% rename(measure = `rownames(perm_emp_a)`)
+names(perm_emp_a) <- tolower(names(perm_emp_a)) # change all col names to lower case
+
+## calculate totals
+perm_emp2_a <- data.frame(svytotal(~emp_contract, svy_dfas1a_end))
+perm_emp2_a <- perm_emp2_a %>% dplyr::select(-SE)
+perm_emp2_a <- cbind(rownames(perm_emp2_a),perm_emp2_a, row.names=NULL)
+perm_emp2_a$`rownames(perm_emp2_a)` <- str_replace(perm_emp2_a$`rownames(perm_emp2_a)`, "emp_contract","")
+perm_emp2_a <- perm_emp2_a %>% rename(measure = `rownames(perm_emp2_a)`)
+perm_emp2_a$total <- as.integer(perm_emp2_a$total)
+
+## join together and format
+perm_emp_a <- perm_emp_a %>%
+  left_join(perm_emp2_a) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("fixed-term",
                                            "permanent",
                                            "unemployed/not in employment")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp_a)
 
+### sample B ------------
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp)
+## calculate proportions
+perm_emp_b <- data.frame(svymean(~emp_contract, svy_dfas1b_end))
+perm_emp_b <- cbind(rownames(perm_emp_b),perm_emp_b, row.names=NULL)
+perm_emp_b$`rownames(perm_emp_b)` <- str_replace(perm_emp_b$`rownames(perm_emp_b)`, "emp_contract","")
+perm_emp_b <- perm_emp_b %>% rename(measure = `rownames(perm_emp_b)`)
+names(perm_emp_b) <- tolower(names(perm_emp_b)) # change all col names to lower case
+
+## calculate totals
+perm_emp2_b <- data.frame(svytotal(~emp_contract, svy_dfas1b_end))
+perm_emp2_b <- perm_emp2_b %>% dplyr::select(-SE)
+perm_emp2_b <- cbind(rownames(perm_emp2_b),perm_emp2_b, row.names=NULL)
+perm_emp2_b$`rownames(perm_emp2_b)` <- str_replace(perm_emp2_b$`rownames(perm_emp2_b)`, "emp_contract","")
+perm_emp2_b <- perm_emp2_b %>% rename(measure = `rownames(perm_emp2_b)`)
+perm_emp2_b$total <- as.integer(perm_emp2_b$total)
+
+## join together and format
+perm_emp_b <- perm_emp_b %>%
+  left_join(perm_emp2_b) %>% 
+  mutate(est = mean*100,
+         var="Marital status",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("fixed-term",
+                                           "permanent",
+                                           "unemployed/not in employment")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(perm_emp_b)
 
 
 #### Employment spells since last interview ------------------------------------
 
-### employment spells -----
-# create numeric version
-#dfas1_end <- dfas1_end %>% 
-#  mutate(nmpsp_dv=ifelse(nmpsp_dv=="none","0",nmpsp_dv)) %>% 
-#  mutate(nmpsp_dvn=as.numeric(nmpsp_dv))
-#
-## create binary version (one spell or more)
-#dfas1_end <- dfas1_end %>% mutate(emp_spells_bin=ifelse(nmpsp_dvn<1,"no",
-#                                                ifelse(nmpsp_dvn>=1,"yes", NA)))
-#
-#### non-employment spells -----
-## create numeric version
-#dfas1_end <- dfas1_end %>% 
-#  mutate(nnmpsp_dv=ifelse(nnmpsp_dv=="none","0",nnmpsp_dv)) %>% 
-#  mutate(nnmpsp_dvn=as.numeric(nnmpsp_dv))
-#
-## create binary version (one or more spell)
-#dfas1_end <- dfas1_end %>% mutate(nonemp_spells_bin=ifelse(nnmpsp_dvn<1,"no",
-#                                                   ifelse(nnmpsp_dvn>=1,"yes", 
-#                                                          NA)))
-#
-#### unemployment spells -----
-## create numeric version
-#dfas1_end <- dfas1_end %>% 
-#  mutate(nunmpsp_dv=ifelse(nunmpsp_dv=="none","0",nunmpsp_dv)) %>% 
-#  mutate(nunmpsp_dvn=as.numeric(nunmpsp_dv))
-#
-#
-## create binary version (one or more spell)
-#dfas1_end <- dfas1_end %>% mutate(unemp_spells_bin=ifelse(nunmpsp_dvn<1,"no",
-#                                                  ifelse(nunmpsp_dvn>=1,"yes", 
-#                                                         NA)))
-#
-#### create broken employment variable ------
-#dfas1_end <- dfas1_end %>% 
-#  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
-#                             ifelse(emp_spells_bin=="yes" & 
-#                                      nonemp_spells_bin=="no" & 
-#                                      unemp_spells_bin=="no",
-#                                    "Unbroken employment",
-#                                    ifelse(emp_spells_bin=="yes" & 
-#                                             (nonemp_spells_bin=="yes" |
-#                                                unemp_spells_bin=="yes"),
-#                                           "Broken employment","check"))))
+### sample A ------------
 
+## calculate proportions
+emp_broken_a <- data.frame(svymean(~broken_emp, svy_dfas1a_end))
+emp_broken_a <- cbind(rownames(emp_broken_a),emp_broken_a, row.names=NULL)
+emp_broken_a$`rownames(emp_broken_a)` <- str_replace(emp_broken_a$`rownames(emp_broken_a)`, "broken_emp","")
+emp_broken_a <- emp_broken_a %>% rename(measure = `rownames(emp_broken_a)`)
+names(emp_broken_a) <- tolower(names(emp_broken_a)) # change all col names to lower case
 
-emp_broken <- dfas1_end %>% group_by(wv_n,broken_emp) %>% 
-  summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Broken employment") %>% 
-  rename("measure"= "broken_emp") %>% 
-  dplyr::select(wv_n,var, measure, n, est)  %>% 
+## calculate totals
+emp_broken2_a <- data.frame(svytotal(~broken_emp, svy_dfas1a_end))
+emp_broken2_a <- emp_broken2_a %>% dplyr::select(-SE)
+emp_broken2_a <- cbind(rownames(emp_broken2_a),emp_broken2_a, row.names=NULL)
+emp_broken2_a$`rownames(emp_broken2_a)` <- str_replace(emp_broken2_a$`rownames(emp_broken2_a)`, "broken_emp","")
+emp_broken2_a <- emp_broken2_a %>% rename(measure = `rownames(emp_broken2_a)`)
+emp_broken2_a$total <- as.integer(emp_broken2_a$total)
+
+## join together and format
+emp_broken_a <- emp_broken_a %>%
+  left_join(emp_broken2_a) %>% 
+  mutate(est = mean*100,
+         var="Broken employment",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("unbroken employment",
                                            "broken employment",
                                            "no employment spells")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken_a)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken)
+### sample B ------------
+
+## calculate proportions
+emp_broken_b <- data.frame(svymean(~broken_emp, svy_dfas1b_end))
+emp_broken_b <- cbind(rownames(emp_broken_b),emp_broken_b, row.names=NULL)
+emp_broken_b$`rownames(emp_broken_b)` <- str_replace(emp_broken_b$`rownames(emp_broken_b)`, "broken_emp","")
+emp_broken_b <- emp_broken_b %>% rename(measure = `rownames(emp_broken_b)`)
+names(emp_broken_b) <- tolower(names(emp_broken_b)) # change all col names to lower case
+
+## calculate totals
+emp_broken2_b <- data.frame(svytotal(~broken_emp, svy_dfas1b_end))
+emp_broken2_b <- emp_broken2_b %>% dplyr::select(-SE)
+emp_broken2_b <- cbind(rownames(emp_broken2_b),emp_broken2_b, row.names=NULL)
+emp_broken2_b$`rownames(emp_broken2_b)` <- str_replace(emp_broken2_b$`rownames(emp_broken2_b)`, "broken_emp","")
+emp_broken2_b <- emp_broken2_b %>% rename(measure = `rownames(emp_broken2_b)`)
+emp_broken2_b$total <- as.integer(emp_broken2_b$total)
+
+## join together and format
+emp_broken_b <- emp_broken_b %>%
+  left_join(emp_broken2_b) %>% 
+  mutate(est = mean*100,
+         var="Broken employment",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("unbroken employment",
+                                           "broken employment",
+                                           "no employment spells")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_broken_b)
+
 
 #### perceived job security in the next 12 months ------------------------------
 # even # waves only
 
 # reorder jbsec_dv variable
-dfas1_end$jbsec_dv <- factor(dfas1_end$jbsec_dv, 
-                             levels = c("very likely",
-                                        "likely",      
-                                        "unlikely",
-                                        "very unlikely", 
-                                        "missing"))
+#dfas1_end$jbsec_dv <- factor(dfas1_end$jbsec_dv, 
+#                             levels = c("very likely",
+#                                        "likely",      
+#                                        "unlikely",
+#                                        "very unlikely", 
+#                                        "missing"))
 
 # summary df
-job_sec <- dfas1_end %>% group_by(wv_n, jbsec_dv) %>% summarise(n=n()) %>% 
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Perceived job security") %>% 
-  rename("measure"= "jbsec_dv") %>% 
-  dplyr::select(wv_n,var, measure, n, est)
+#job_sec <- dfas1_end %>% group_by(wv_n, jbsec_dv) %>% summarise(n=n()) %>% 
+#  mutate(est = n/sum(n)*100) %>% 
+#  mutate(var="Perceived job security") %>% 
+#  rename("measure"= "jbsec_dv") %>% 
+#  dplyr::select(wv_n,var, measure, n, est)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(job_sec)
+#sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(job_sec)
 
 #### Multiple jobs -------------------------------------------------------------
 ### has a 2nd job ----
-emp_2nd <- dfas1_end %>% group_by(wv_n, j2has) %>% summarise(n=n()) %>%
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Multiple jobs") %>% 
-  rename("measure"= "j2has") %>% 
-  dplyr::select(wv_n,var, measure, n, est)  %>% 
-  arrange(wv_n, factor(measure, levels = c("no",
-                                           "yes")))
+### sample A ------------
 
+## calculate proportions
+emp_2nd_a <- data.frame(svymean(~j2has_dv2, svy_dfas1a_end))
+emp_2nd_a <- cbind(rownames(emp_2nd_a),emp_2nd_a, row.names=NULL)
+emp_2nd_a$`rownames(emp_2nd_a)` <- str_replace(emp_2nd_a$`rownames(emp_2nd_a)`, "j2has_dv2","")
+emp_2nd_a <- emp_2nd_a %>% rename(measure = `rownames(emp_2nd_a)`)
+names(emp_2nd_a) <- tolower(names(emp_2nd_a)) # change all col names to lower case
 
+## calculate totals
+emp_2nd2_a <- data.frame(svytotal(~j2has_dv2, svy_dfas1a_end))
+emp_2nd2_a <- emp_2nd2_a %>% dplyr::select(-SE)
+emp_2nd2_a <- cbind(rownames(emp_2nd2_a),emp_2nd2_a, row.names=NULL)
+emp_2nd2_a$`rownames(emp_2nd2_a)` <- str_replace(emp_2nd2_a$`rownames(emp_2nd2_a)`, "j2has_dv2","")
+emp_2nd2_a <- emp_2nd2_a %>% rename(measure = `rownames(emp_2nd2_a)`)
+emp_2nd2_a$total <- as.integer(emp_2nd2_a$total)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd)
+## join together and format
+emp_2nd_a <- emp_2nd_a %>%
+  left_join(emp_2nd2_a) %>% 
+  mutate(est = mean*100,
+         var="Multiple jobs",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("multiple jobs",
+                                           "one job",
+                                           "unemployed/not in employment",
+                                           "unemployed/not in employment with additional")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd_a)
+
+### sample B ------------
+
+## calculate proportions
+emp_2nd_b <- data.frame(svymean(~j2has_dv2, svy_dfas1b_end))
+emp_2nd_b <- cbind(rownames(emp_2nd_b),emp_2nd_b, row.names=NULL)
+emp_2nd_b$`rownames(emp_2nd_b)` <- str_replace(emp_2nd_b$`rownames(emp_2nd_b)`, "j2has_dv2","")
+emp_2nd_b <- emp_2nd_b %>% rename(measure = `rownames(emp_2nd_b)`)
+names(emp_2nd_b) <- tolower(names(emp_2nd_b)) # change all col names to lower case
+
+## calculate totals
+emp_2nd2_b <- data.frame(svytotal(~j2has_dv2, svy_dfas1b_end))
+emp_2nd2_b <- emp_2nd2_b %>% dplyr::select(-SE)
+emp_2nd2_b <- cbind(rownames(emp_2nd2_b),emp_2nd2_b, row.names=NULL)
+emp_2nd2_b$`rownames(emp_2nd2_b)` <- str_replace(emp_2nd2_b$`rownames(emp_2nd2_b)`, "j2has_dv2","")
+emp_2nd2_b <- emp_2nd2_b %>% rename(measure = `rownames(emp_2nd2_b)`)
+emp_2nd2_b$total <- as.integer(emp_2nd2_b$total)
+
+## join together and format
+emp_2nd_b <- emp_2nd_b %>%
+  left_join(emp_2nd2_b) %>% 
+  mutate(est = mean*100,
+         var="Multiple jobs",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)  %>% 
+  arrange(wv_n, factor(measure, levels = c("multiple jobs",
+                                           "one job",
+                                           "unemployed/not in employment",
+                                           "unemployed/not in employment with additional")))
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd_b)
+
 
 #### income --------------------------------------------------------------------
 ## total net personal income (check what used in COVID modelling)
 # check monthly?
-dfas1_end$fimnnet_dv <- as.numeric(as.character(dfas1_end$fimnnet_dv))
 
 
-inc_quantile <- dfas1_end %>% group_by(wv_n) %>% 
-  summarise(enframe(quantile(fimnnet_dv, c(0.25, 0.5, 0.75)), "measure", "est")) %>%
-#  mutate(measure=factor(measure)) %>% 
-  mutate(measure = ifelse(measure=="25%","25% quantile", 
-                        ifelse(measure=="50%","Median","75% quantile"))) %>% 
-  mutate(var="Monthly net income (£)",
-         n=NA) %>% 
-  dplyr::select(wv_n,var, measure, n, est)
+inc_quantile_a <- data.frame(svyquantile(~fimnnet_dv,svy_dfas1a_end, 
+                                         quantile=c(0.25,0.5,0.75), ci=FALSE))
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile)
+inc_quantile_a <- cbind(rownames(inc_quantile_a),inc_quantile_a, row.names=NULL)
+inc_quantile_a <- inc_quantile_a %>% 
+  rename(var = `rownames(inc_quantile_a)`) %>% 
+  pivot_longer(cols=2:4, names_to = "measure") %>% 
+  rename(est = value) %>% 
+  mutate(wv_n = 6,
+         n=NA,
+         se=NA,
+         var="Monthly net income (£)",
+         measure = ifelse(measure == "X0.25","25% quantile",
+                          ifelse(measure == "X0.5","Median",
+                                 ifelse(measure == "X0.75", "75% quantile",
+                                        "CHECK")))) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
 
+
+
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile_a)
+
+### done to here add sample B script
 
 #####----------------------------------------------------------------------#####
 #####                        Health characteristics                        #####
