@@ -57,11 +57,15 @@ dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds") %>%
 dfas1a_end <- dfas1a %>% filter(wv_n==6)
 #write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
 
-# drop unused levels
+# drop unused levels, reorder etc
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
 dfas1a_end$hiqual_dv <- droplevels(dfas1a_end$hiqual_dv)
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$gor_dv)
 dfas1a_end$fimnnet_dv <- as.numeric(dfas1a_end$fimnnet_dv)
+
+dfas1a_end$srh_dv <- factor(dfas1a_end$srh_dv, 
+                           levels = c("excellent", "very good", "good",
+                                      "fair", "poor"))
 
 ### analytic sample 1b - waves 7-10
 dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>% 
@@ -71,10 +75,14 @@ dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>%
 dfas1b_end <- dfas1b %>% filter(wv_n==10) 
 #write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
 
-# drop unused levels
+# drop unused levels, reorder factors etc
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
 dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$gor_dv)
+
+dfas1b_end$srh_dv <- factor(dfas1b_end$srh_dv, 
+                            levels = c("excellent", "very good", "good",
+                                       "fair", "poor"))
 
 #### load weight spines ---------------------------------
 
@@ -700,6 +708,7 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd_b)
 ## total net personal income (check what used in COVID modelling)
 # check monthly?
 
+### sample A ------------
 
 inc_quantile_a <- data.frame(svyquantile(~fimnnet_dv,svy_dfas1a_end, 
                                          quantile=c(0.25,0.5,0.75), ci=FALSE))
@@ -724,47 +733,160 @@ inc_quantile_a <- inc_quantile_a %>%
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile_a)
 
-### done to here add sample B script
+### sample B ------------
+
+inc_quantile_b <- data.frame(svyquantile(~fimnnet_dv,svy_dfas1b_end, 
+                                         quantile=c(0.25,0.5,0.75), ci=FALSE))
+
+inc_quantile_b <- cbind(rownames(inc_quantile_b),inc_quantile_b, row.names=NULL)
+inc_quantile_b <- inc_quantile_b %>% 
+  rename(var = `rownames(inc_quantile_b)`) %>% 
+  pivot_longer(cols=2:4, names_to = "measure") %>% 
+  rename(est = value) %>% 
+  mutate(wv_n = 6,
+         n=NA,
+         se=NA,
+         var="Monthly net income (£)",
+         measure = ifelse(measure == "X0.25","25% quantile",
+                          ifelse(measure == "X0.5","Median",
+                                 ifelse(measure == "X0.75", "75% quantile",
+                                        "CHECK")))) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+
+
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(inc_quantile_b)
 
 #####----------------------------------------------------------------------#####
 #####                        Health characteristics                        #####
 #####----------------------------------------------------------------------#####
 
-#### long-standing illness or impairment ---------------------------------------
-# risk of reverse causation - need to be incident from previous wave?
-#ltc <- dfas1_end %>% group_by(wv_n, health) %>% summarise(n=n()) %>%  
-#  mutate(pc = n/sum(n)*100)
-#
-# don't add for now
 
 #### self-rated health ---------------------------------------------------------
 
-dfas1_end$srh_dv <- factor(dfas1_end$srh_dv, 
-                           levels = c("excellent", "very good", "good",
-                                      "fair", "poor"))
+### sample A ------------
 
-srh <- dfas1_end %>% 
-  group_by(wv_n, srh_dv) %>% summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="Self-rated health") %>% 
-  rename("measure"= "srh_dv") %>% 
-  dplyr::select(wv_n,var, measure, n, est)
+## calculate proportions
+srh_a <- data.frame(svymean(~srh_dv, svy_dfas1a_end))
+srh_a <- cbind(rownames(srh_a),srh_a, row.names=NULL)
+srh_a$`rownames(srh_a)` <- str_replace(srh_a$`rownames(srh_a)`, "srh_dv","")
+srh_a <- srh_a %>% rename(measure = `rownames(srh_a)`)
+names(srh_a) <- tolower(names(srh_a)) # change all col names to lower case
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh)
+## calculate totals
+srh2_a <- data.frame(svytotal(~srh_dv, svy_dfas1a_end))
+srh2_a <- srh2_a %>% dplyr::select(-SE)
+srh2_a <- cbind(rownames(srh2_a),srh2_a, row.names=NULL)
+srh2_a$`rownames(srh2_a)` <- str_replace(srh2_a$`rownames(srh2_a)`, "srh_dv","")
+srh2_a <- srh2_a %>% rename(measure = `rownames(srh2_a)`)
+srh2_a$total <- as.integer(srh2_a$total)
+
+## join together and format
+srh_a <- srh_a %>%
+  left_join(srh2_a) %>% 
+  mutate(est = mean*100,
+         var="Self-rated health",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_a)
+
+### sample B ------------
+
+## calculate proportions
+srh_b <- data.frame(svymean(~srh_dv, svy_dfas1b_end))
+srh_b <- cbind(rownames(srh_b),srh_b, row.names=NULL)
+srh_b$`rownames(srh_b)` <- str_replace(srh_b$`rownames(srh_b)`, "srh_dv","")
+srh_b <- srh_b %>% rename(measure = `rownames(srh_b)`)
+names(srh_b) <- tolower(names(srh_b)) # change all col names to lower case
+
+## calculate totals
+srh2_b <- data.frame(svytotal(~srh_dv, svy_dfas1b_end))
+srh2_b <- srh2_b %>% dplyr::select(-SE)
+srh2_b <- cbind(rownames(srh2_b),srh2_b, row.names=NULL)
+srh2_b$`rownames(srh2_b)` <- str_replace(srh2_b$`rownames(srh2_b)`, "srh_dv","")
+srh2_b <- srh2_b %>% rename(measure = `rownames(srh2_b)`)
+srh2_b$total <- as.integer(srh2_b$total)
+
+## join together and format
+srh_b <- srh_b %>%
+  left_join(srh2_b) %>% 
+  mutate(est = mean*100,
+         var="Self-rated health",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
 
 
 #### GHQ-12 --------------------------------------------------------------------
 
-ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%  
-  mutate(est = n/sum(n)*100) %>% 
-  mutate(var="GHQ12 score") %>% 
-  rename("measure"= "ghq_case3") %>% 
-  dplyr::select(wv_n,var, measure, n, est) %>% 
+### sample A ------------
+
+## calculate proportions
+ghq3_a <- data.frame(svymean(~ghq_case3, svy_dfas1a_end))
+ghq3_a <- cbind(rownames(ghq3_a),ghq3_a, row.names=NULL)
+ghq3_a$`rownames(ghq3_a)` <- str_replace(ghq3_a$`rownames(ghq3_a)`, "ghq_case3","")
+ghq3_a <- ghq3_a %>% rename(measure = `rownames(ghq3_a)`)
+names(ghq3_a) <- tolower(names(ghq3_a)) # change all col names to lower case
+
+## calculate totals
+ghq32_a <- data.frame(svytotal(~ghq_case3, svy_dfas1a_end))
+ghq32_a <- ghq32_a %>% dplyr::select(-SE)
+ghq32_a <- cbind(rownames(ghq32_a),ghq32_a, row.names=NULL)
+ghq32_a$`rownames(ghq32_a)` <- str_replace(ghq32_a$`rownames(ghq32_a)`, "ghq_case3","")
+ghq32_a <- ghq32_a %>% rename(measure = `rownames(ghq32_a)`)
+ghq32_a$total <- as.integer(ghq32_a$total)
+
+## join together and format
+ghq3_a <- ghq3_a %>%
+  left_join(ghq32_a) %>% 
+  mutate(est = mean*100,
+         var="GHQ12 score",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more")))
 
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3_a)
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
+### sample B ------------
+
+## calculate proportions
+srh_b <- data.frame(svymean(~ghq_case3, svy_dfas1b_end))
+srh_b <- cbind(rownames(srh_b),srh_b, row.names=NULL)
+srh_b$`rownames(srh_b)` <- str_replace(srh_b$`rownames(srh_b)`, "ghq_case3","")
+srh_b <- srh_b %>% rename(measure = `rownames(srh_b)`)
+names(srh_b) <- tolower(names(srh_b)) # change all col names to lower case
+
+## calculate totals
+srh2_b <- data.frame(svytotal(~ghq_case3, svy_dfas1b_end))
+srh2_b <- srh2_b %>% dplyr::select(-SE)
+srh2_b <- cbind(rownames(srh2_b),srh2_b, row.names=NULL)
+srh2_b$`rownames(srh2_b)` <- str_replace(srh2_b$`rownames(srh2_b)`, "ghq_case3","")
+srh2_b <- srh2_b %>% rename(measure = `rownames(srh2_b)`)
+srh2_b$total <- as.integer(srh2_b$total)
+
+## join together and format
+srh_b <- srh_b %>%
+  left_join(srh2_b) %>% 
+  mutate(est = mean*100,
+         var="GHQ12 score",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more"))) 
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
+
+
+
+
 
 #### SF-12 mental component summary -------------------------------------------- 
 ## leave for now
@@ -782,113 +904,11 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
 
 
 #### Job-related Wellbeing scale -------------
-# Higher values on the scale represent lower levels of anxiety
-
-## Anxiety subscale
-# originally devised by Warr (1990): Anxiety subscale 
-# (from Warr’s “Anxiety-Contentment” scale). 
-
-# covert to numeric
-#dfas1_end <- dfas1_end %>% 
-#  mutate(jwbs1_dv = ifelse(jwbs1_dv=="least anxious",15,
-#                           ifelse(jwbs1_dv%in%c("missing","don't know",
-#                                                "inapplicable","refusal", 
-#                                                "proxy"),"NA",jwbs1_dv))) %>% 
-#  mutate(jwbs1_dv = as.numeric(jwbs1_dv))
-#
-## distribution measures
-#mean(dfas1_end$jwbs1_dv, na.rm = TRUE)
-#median(dfas1_end$jwbs1_dv, na.rm = TRUE)
-#min(dfas1_end$jwbs1_dv, na.rm = TRUE)
-#max(dfas1_end$jwbs1_dv, na.rm = TRUE)
-#jb_anx <- quantile(dfas1_end$jwbs1_dv, na.rm = TRUE)
-#
-
-
-## Depression subscale
-# originally devised by Warr (1990): Depression subscale 
-# (from Warr’s "Depression-Enthusiasm" scale)
-
-# covert to numeric
-#dfas1_end <- dfas1_end %>% 
-#  mutate(jwbs2_dv = ifelse(jwbs2_dv=="least depressed",15,
-#                           ifelse(jwbs2_dv%in%c("missing","don't know",
-#                                                "inapplicable","refusal", 
-#                                                "proxy"),"NA",jwbs2_dv))) %>% 
-#  mutate(jwbs2_dv = as.numeric(jwbs2_dv))
-#
-#
-## distribution measures
-#mean(dfas1_end$jwbs2_dv, na.rm = TRUE)
-#median(dfas1_end$jwbs2_dv, na.rm = TRUE)
-#min(dfas1_end$jwbs2_dv, na.rm = TRUE)
-#max(dfas1_end$jwbs2_dv, na.rm = TRUE)
-#jb_dep <- quantile(dfas1_end$jwbs2_dv, na.rm = TRUE)
-
 
 #####----------------------------------------------------------------------#####
 #####                     Save sample endpoint chars data                  #####
 #####----------------------------------------------------------------------#####
 
 ## as dataframe
-write_rds(sample_chars_endpoint, "./working_data/sample_chars_endpoint.rds")
-
-################################################################################
-#####           Descriptive analysis for exposure variables                #####
-################################################################################
-
-### cross tab for employment contract and broken employment spells
-## create df for cross tab
-expos_df1 <- dfas1_end %>% 
-  dplyr::select(emp_contract, broken_emp) %>% 
-  group_by(emp_contract, broken_emp) %>% 
-  summarise(total=n()) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = broken_emp, values_from = total, values_fill = 0) 
-
-## chi square test
-expos_df1 %>% 
-  dplyr::select(-emp_contract) %>% 
-  chisq.test() %>% 
-  glance() #%>% 
-#  pull(p.value) # add this is you want to extract p value only
-
-### cross tab for employment contract and multiple jobs
-expos_df2 <- dfas1_end %>% 
-  dplyr::select(emp_contract, j2has_dv) %>% 
-  group_by(emp_contract, j2has_dv) %>% 
-  summarise(total=n()) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = j2has_dv, values_from = total, values_fill = 0) 
-
-## chi square test
-expos_df2 %>% 
-  dplyr::select(-emp_contract) %>% 
-  chisq.test() %>% 
-  glance()  #%>% 
-#  pull(p.value) # add this is you want to extract p value only
-
-### cross tab for broken employment spells and multiple jobs
-expos_df3 <- dfas1_end %>% 
-  dplyr::select(broken_emp, j2has_dv) %>% 
-  group_by(broken_emp, j2has_dv) %>% 
-  summarise(total=n()) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = j2has_dv, values_from = total, values_fill = 0) 
-
-## chi square test
-expos_df3 %>% 
-  dplyr::select(-broken_emp) %>% 
-  chisq.test() %>% 
-  glance()  #%>% 
-#  pull(p.value) # add this is you want to extract p value only
-
-
-#test <- dfas1_end %>% 
-#  filter(emp_contract!="unemployed/not in employment" & 
-#           broken_emp == "No employment spells") %>% 
-#  select(pidp,wv_n,emp_contract,broken_emp, emp_spells_bin, nmpsp_dv, 
-#         unemp_spells_bin, nunmpsp_dv, nonemp_spells_bin, nnmpsp_dv, jbterm1,
-#         employ,jbstat)
-
+write_rds(sample_chars_endpoint, "./working_data/weighted/sample_chars_endpoint.rds")
 
