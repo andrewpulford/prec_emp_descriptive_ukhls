@@ -903,8 +903,6 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
 #sf12_quantile <- quantile(dfas1_end$sf12mcs_dv, na.rm = TRUE)
 
 
-#### Job-related Wellbeing scale -------------
-
 #####----------------------------------------------------------------------#####
 #####                     Save sample endpoint chars data                  #####
 #####----------------------------------------------------------------------#####
