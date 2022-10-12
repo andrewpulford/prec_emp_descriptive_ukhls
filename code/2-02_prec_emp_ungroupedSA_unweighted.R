@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 1-6 - ungrouped sequence analysis - unweighted
+# 2-02 - ungrouped sequence analysis - unweighted
 # Andrew Pulford
 
 # Data source:
