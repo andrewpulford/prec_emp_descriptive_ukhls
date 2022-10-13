@@ -60,7 +60,7 @@ dfas1a_end <- dfas1a %>% filter(wv_n==6)
 # drop unused levels, reorder etc
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
 dfas1a_end$hiqual_dv <- droplevels(dfas1a_end$hiqual_dv)
-dfas1a_end$sex_dv <- droplevels(dfas1a_end$gor_dv)
+dfas1a_end$gor_dv <- droplevels(dfas1a_end$gor_dv)
 dfas1a_end$fimnnet_dv <- as.numeric(dfas1a_end$fimnnet_dv)
 
 dfas1a_end$srh_dv <- factor(dfas1a_end$srh_dv, 
@@ -78,7 +78,7 @@ dfas1b_end <- dfas1b %>% filter(wv_n==10)
 # drop unused levels, reorder factors etc
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
 dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
-dfas1b_end$sex_dv <- droplevels(dfas1b_end$gor_dv)
+dfas1b_end$gor_dv <- droplevels(dfas1b_end$gor_dv)
 
 dfas1b_end$srh_dv <- factor(dfas1b_end$srh_dv, 
                             levels = c("excellent", "very good", "good",
