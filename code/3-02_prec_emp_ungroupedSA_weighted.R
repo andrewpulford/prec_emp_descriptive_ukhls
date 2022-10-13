@@ -200,7 +200,6 @@ dfas1a_seq_wide2  <-  dfas1a_seq2 %>%
   filter(wv_6!="missing") %>% 
   dplyr::select(-wv_NA)
 
-write_rds(dfas1a_seq_wide2, "./working_data/weighted/dfas1a_seq_wide2.rds")
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
   dplyr::select(pidp,wv_n,broken_emp) %>% 
@@ -209,7 +208,6 @@ dfas1b_seq_wide2  <-  dfas1b_seq2 %>%
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing")
 
-write_rds(dfas1b_seq_wide2, "./working_data/weighted/dfas1b_seq_wide2.rds")
 
 ### add on weights
 dfas1a_seq_wide2 <- dfas1a_seq_wide2 %>% 
@@ -311,8 +309,6 @@ dfas1a_seq_wide3  <-  dfas1a_seq3 %>%
   filter(wv_6!="missing") %>% 
   dplyr::select(-wv_NA)
 
-write_rds(dfas1a_seq_wide3, "./working_data/weighted/dfas1a_seq_wide3.rds")
-
 
 dfas1b_seq_wide3  <-  dfas1b_seq3 %>% 
   dplyr::select(pidp,wv_n,j2has_dv2) %>% 
@@ -320,7 +316,6 @@ dfas1b_seq_wide3  <-  dfas1b_seq3 %>%
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv2, values_fill = "missing")
 
-write_rds(dfas1b_seq_wide3, "./working_data/weighted/dfas1b_seq_wide3.rds")
 
 ### add on weights
 dfas1a_seq_wide3 <- dfas1a_seq_wide3 %>% 
@@ -410,6 +405,12 @@ dev.off()
 
 saveRDS(dfas1a_seq_wide, "./working_data/weighted/dfas1a_seq_wide.rds")
 saveRDS(dfas1b_seq_wide, "./working_data/weighted/dfas1b_seq_wide.rds")
+
+write_rds(dfas1a_seq_wide2, "./working_data/weighted/dfas1a_seq_wide2.rds")
+write_rds(dfas1b_seq_wide2, "./working_data/weighted/dfas1b_seq_wide2.rds")
+
+write_rds(dfas1a_seq_wide3, "./working_data/weighted/dfas1a_seq_wide3.rds")
+write_rds(dfas1b_seq_wide3, "./working_data/weighted/dfas1b_seq_wide3.rds")
 
 saveRDS(emp_contract.seq.a, "./working_data/weighted/emp_contract.seq.a.rds")
 saveRDS(emp_contract.seq.b, "./working_data/weighted/emp_contract.seq.b.rds")
