@@ -910,3 +910,5 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
 ## as dataframe
 write_rds(sample_chars_endpoint, "./working_data/weighted/sample_chars_endpoint.rds")
 
+## as output
+write_csv(sample_chars_endpoint, "./output/weighted/sample_chars_endpoint.rds")
