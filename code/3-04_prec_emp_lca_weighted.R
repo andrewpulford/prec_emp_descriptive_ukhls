@@ -135,7 +135,7 @@ emp_contract2_a$total <- as.integer(emp_contract2_a$total)
 emp_contract_a <- emp_contract_a %>%
   left_join(emp_contract2_a) %>% 
   mutate(est = mean*100,
-         var="Employment conrtact class",
+         var="Employment contract class",
          wv_n=6) %>% 
   rename(n=total) %>% 
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
@@ -252,13 +252,60 @@ multi_emp_b <- multi_emp_b %>%
 
 class_mem <- class_mem %>% bind_rows(multi_emp_b)
 
-#### save 
+#### add confidence intervals -----------------
+class_mem <- class_mem %>% 
+  group_by(wv_n, var) %>% 
+  mutate(d=sum(n),
+         p=n/d,
+         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
+         lci = est-margin,
+         uci = est+margin) %>% 
+  ungroup() %>% 
+  dplyr::select(c(wv_n,var,measure,n,est,lci,uci,se))
+
+
+#### save data and outputs ------------
 
 ### as dataframe
-
+write_rds(class_mem, "./working_data/weighted/class_mem.rds")
 
 ### as output
+write.csv(class_mem, "./output/weighted/class_mem.csv")
 
+#### plots ------------
+
+# add 
+class_mem <- class_mem %>% mutate(sample_grp = ifelse(wv_n==6, "A","B"))
+
+### employment contract
+class_mem %>% 
+  filter(var=="Employment contract class") %>% 
+  ggplot(aes(x=measure, y=est)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw() +
+  facet_wrap(~sample_grp)
+
+### broken employment spells
+# to be added 
+
+### multiple employment
+
+class_mem$measure <- factor(class_mem$measure, levels = c("out of employment",
+                                                          "into employment",
+                                                          "unemployed",
+                                                          "single employment",
+                                                          "multiple employment"))
+
+class_mem %>% 
+  filter(var=="Multiple employment class") %>% 
+  ggplot(aes(x=measure, y=est)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw() +
+  facet_wrap(~sample_grp)
 
 #------------------------------------------------------------------------------#
 ############## ---VVVVV--- Keep for now just in case ---VVVVV--- ###############
