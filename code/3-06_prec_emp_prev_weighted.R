@@ -125,149 +125,204 @@ svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
 ## calculate proportions
 srh1_a <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_a, svymean, na.rm=TRUE))
 
-srh1_a %>% pivot_longer(2:5,names_to = "measure",values_to = "est")
-
-### done to here - need separate col for se and get rid of junk text in measure strings
-
-#srh1_a <- cbind(rownames(srh1_a),srh1_a, row.names=NULL) <<< repurpose
-#srh1_a$`rownames(srh1_a)` <- str_replace(srh1_a$`rownames(srh1_a)`, "emp_contract_class","")
-#srh1_a <- srh1_a %>% rename(measure = `rownames(srh1_a)`)
-#names(srh1_a) <- tolower(names(srh1_a)) # change all col names to lower case
+srh1_a_long <- srh1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.srh_binexcellent.very.good") %>% 
+  dplyr::select(-se.srh_bingood.fair.poor)
 
 ## calculate totals
-emp_contract2_a <- data.frame(svytotal(~emp_contract_class, svy_emp_contract_a))
-emp_contract2_a <- emp_contract2_a %>% dplyr::select(-SE)
-emp_contract2_a <- cbind(rownames(emp_contract2_a),emp_contract2_a, row.names=NULL)
-emp_contract2_a$`rownames(emp_contract2_a)` <- str_replace(emp_contract2_a$`rownames(emp_contract2_a)`, "emp_contract_class","")
-emp_contract2_a <- emp_contract2_a %>% rename(measure = `rownames(emp_contract2_a)`)
-emp_contract2_a$total <- as.integer(emp_contract2_a$total)
+srh12_a <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_a, svytotal, na.rm=TRUE))
+
+srh12_a_long <- srh12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+
+#join
+srh1_a_long <- srh1_a_long %>% left_join(srh12_a_long)
+
+### get rid of junk text in measure strings
+srh1_a_long$emp_contract_class <- str_to_title(srh1_a_long$emp_contract_class)
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin","")
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"excellent.very.good","Excellent/very good")
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"good.fair.poor","Good/fair/poor")
 
 ## join together and format
-emp_contract_a <- emp_contract_a %>%
-  left_join(emp_contract2_a) %>% 
-  mutate(est = mean*100,
-         var="Employment contract class",
+srh_prev_a <- srh1_a_long %>%
+  mutate(est = est*100,
+         var="Self-reported health",
          wv_n=6) %>% 
   rename(n=total) %>% 
-  dplyr::select(wv_n, var, measure, n, est, se) %>% 
-  arrange(wv_n, factor(measure, levels = c("non-permanent employment",
-                                           "permanent employment",
-                                           "unemployed",
-                                           "into employment",
-                                           "out of employment")))
+  dplyr::select(wv_n, var, emp_contract_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Excellent/very good",
+                                           "Good/fair/poor"))) %>% 
+  arrange(emp_contract_class)
 
-class_mem <- emp_contract_a
+emp_contract_prev <- srh_prev_a
+
+### sample B ------------
+
+## calculate proportions
+srh1_b <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_b, svymean, na.rm=TRUE))
+
+srh1_b_long <- srh1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.srh_binexcellent.very.good") %>% 
+  dplyr::select(-se.srh_bingood.fair.poor)
+
+## calculate totals
+srh12_b <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_b, svytotal, na.rm=TRUE))
+
+srh12_b_long <- srh12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+
+#join
+srh1_b_long <- srh1_b_long %>% left_join(srh12_b_long)
+
+### get rid of junk text in measure strings
+srh1_b_long$emp_contract_class <- str_to_title(srh1_b_long$emp_contract_class)
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin","")
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"excellent.very.good","Excellent/very good")
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"good.fair.poor","Good/fair/poor")
 
 
-srh_prev_a <- dfas1a_end_class1 %>% group_by(emp_contract_class, srh_bin) %>% 
-  summarise(a_srh_bin_n=n()) %>% 
-  ungroup() %>% 
-  group_by(emp_contract_class) %>% 
-  mutate(d=sum(a_srh_bin_n),
-         p=a_srh_bin_n/d,
-         a_srh_bin_pc=p*100,
+
+
+## join together and format
+srh_prev_b <- srh1_b_long %>%
+  mutate(est = est*100,
+         var="Self-reported health",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, emp_contract_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Excellent/very good",
+                                           "Good/fair/poor"))) %>% 
+  arrange(emp_contract_class)
+
+emp_contract_prev <- emp_contract_prev %>% bind_rows(srh_prev_b)
+
+
+#### GHQ-12 --------------------------------------------------------------------
+
+### sample A ------------
+
+## calculate proportions
+ghq1_a <- data.frame(svyby(~ghq_case3, ~emp_contract_class,svy_emp_contract_a, svymean, na.rm=TRUE))
+
+ghq1_a_long <- ghq1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.ghq_case30.2") %>% 
+  dplyr::select(-se.ghq_case33.or.more)
+
+## calculate totals
+ghq12_a <- data.frame(svyby(~ghq_case3, ~emp_contract_class,svy_emp_contract_a, svytotal, na.rm=TRUE))
+
+ghq12_a_long <- ghq12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.ghq_case30.2, se.ghq_case33.or.more))
+
+#join
+ghq1_a_long <- ghq1_a_long %>% left_join(ghq12_a_long)
+
+### get rid of junk text in measure strings
+ghq1_a_long$emp_contract_class <- str_to_title(ghq1_a_long$emp_contract_class)
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"ghq_case3","")
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"0.2","0-2")
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"3.or.more","3 or more")
+
+## join together and format
+ghq_prev_a <- ghq1_a_long %>%
+  mutate(est = est*100,
+         var="GHQ-12 caseness",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, emp_contract_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more"))) %>% 
+  arrange(emp_contract_class)
+
+emp_contract_prev <- emp_contract_prev %>% bind_rows(ghq_prev_a)
+
+### sample B ------------
+
+## calculate proportions
+ghq1_b <- data.frame(svyby(~ghq_case3, ~emp_contract_class,svy_emp_contract_b, svymean, na.rm=TRUE))
+
+ghq1_b_long <- ghq1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.ghq_case30.2") %>% 
+  dplyr::select(-se.ghq_case33.or.more)
+
+## calculate totals
+ghq12_b <- data.frame(svyby(~ghq_case3, ~emp_contract_class,svy_emp_contract_b, svytotal, na.rm=TRUE))
+
+ghq12_b_long <- ghq12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.ghq_case30.2, se.ghq_case33.or.more))
+
+#join
+ghq1_b_long <- ghq1_b_long %>% left_join(ghq12_b_long)
+
+### get rid of junk text in measure strings
+ghq1_b_long$emp_contract_class <- str_to_title(ghq1_b_long$emp_contract_class)
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"ghq_case3","")
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"0.2","0-2")
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"3.or.more","3 or more")
+
+## join together and format
+ghq_prev_b <- ghq1_b_long %>%
+  mutate(est = est*100,
+         var="GHQ-12 caseness",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, emp_contract_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more"))) %>% 
+  arrange(emp_contract_class)
+
+emp_contract_prev <- emp_contract_prev %>% bind_rows(ghq_prev_b)
+
+#### add confidence intervals --------------------------------------------------
+emp_contract_prev <- emp_contract_prev %>%
+  group_by(var, emp_contract_class) %>% 
+  mutate(d=sum(n),
+         p=n/d,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_srh_lci = a_srh_bin_pc-margin,
-         a_srh_uci = a_srh_bin_pc+margin) %>% 
+         lci = est-margin,
+         uci = est+margin) %>% 
   ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
+  dplyr::select(-c(d,p,margin)) %>% 
+  mutate(sample_grp = ifelse(wv_n==6, "A","B")) %>% 
+  mutate(exp_flag = factor(ifelse(emp_contract_class=="Non-Permanent Employment",
+                                  1,0)))
 
+#### plots ---------------------------------------------------------------------
 
-srh_prev_b <- dfas1b_end_class1 %>% group_by(emp_contract_class, srh_bin) %>% 
-  summarise(b_srh_bin_n=n()) %>% 
-  ungroup() %>% 
-  group_by(emp_contract_class) %>% 
-  mutate(d=sum(b_srh_bin_n),
-         p=b_srh_bin_n/d,
-         b_srh_bin_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_srh_lci = b_srh_bin_pc-margin,
-         b_srh_uci = b_srh_bin_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
-
-srh_combined <- srh_prev_a %>% left_join(srh_prev_b, by=c("emp_contract_class",
-                                                          "srh_bin"))
-
-## plots
-tiff("./output/weighted/empcontract_srh_prev_grouped_a.tiff")
-srh_prev_a %>% 
-  filter(srh_bin=="good/fair/poor") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_srh_bin_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=a_srh_bin_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=a_srh_lci, ymax=a_srh_uci), colour="black", width=.1)+
+### binary self-reported health ----------------------------
+tiff("./output/weighted/emp_contract_srh_prev_grouped.tiff")
+emp_contract_prev %>% 
+  filter(var=="Self-reported health" & measure=="Good/fair/poor") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,est)) %>% 
+  ggplot(aes(x=emp_contract_class, y=est,
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
   coord_flip() +
-  theme_bw() 
+  theme_bw() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","red")) +
+  facet_wrap(~sample_grp, ncol = 1)
 dev.off()
 
-tiff("./output/weighted/empcontract_srh_prev_grouped_b.tiff")
-srh_prev_b %>% 
-  filter(srh_bin=="good/fair/poor") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_srh_bin_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=b_srh_bin_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=b_srh_lci, ymax=b_srh_uci), colour="black", width=.1)+
+### GHQ-12 caseness ------------------------------------------------------------
+
+tiff("./output/weighted/emp_contract_ghq_prev_grouped.tiff")
+emp_contract_prev %>% 
+  filter(var=="GHQ-12 caseness" & measure=="3 or more") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,est)) %>% 
+  ggplot(aes(x=emp_contract_class, y=est,
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
   coord_flip() +
-  theme_bw() 
+  theme_bw() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","red")) +
+  facet_wrap(~sample_grp, ncol = 1)
 dev.off()
 
 
-### mental health symptoms
-ghq_prev_a <- dfas1a_end_class1 %>% group_by(emp_contract_class, ghq_case3) %>% 
-  summarise(a_ghq_case3_n=n()) %>% 
-  ungroup() %>% 
-  group_by(emp_contract_class) %>% 
-  mutate(d=sum(a_ghq_case3_n),
-         p=a_ghq_case3_n/d,
-         a_ghq_case3_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_ghq_lci = a_ghq_case3_pc-margin,
-         a_ghq_uci = a_ghq_case3_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
 
-
-
-ghq_prev_b <- dfas1b_end_class1 %>% group_by(emp_contract_class, ghq_case3) %>% 
-  summarise(b_ghq_case3_n=n()) %>% 
-  ungroup() %>% 
-  group_by(emp_contract_class) %>% 
-  mutate(d=sum(b_ghq_case3_n),
-         p=b_ghq_case3_n/d,
-         b_ghq_case3_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_ghq_lci = b_ghq_case3_pc-margin,
-         b_ghq_uci = b_ghq_case3_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
-
-
-ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
-
-## plots
-
-tiff("./output/weighted/empcontract_ghq_prev_grouped_a.tiff")
-ghq_prev_a %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_ghq_case3_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=a_ghq_case3_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=a_ghq_lci, ymax=a_ghq_uci), colour="black", width=.1)+
-  coord_flip() +
-  theme_bw()
-dev.off()
-
-tiff("./output/weighted/empcontract_ghq_prev_grouped_b.tiff")
-ghq_prev_b %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_ghq_case3_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=b_ghq_case3_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=b_ghq_lci, ymax=b_ghq_uci), colour="black", width=.1)+
-  coord_flip() +
-  theme_bw()
-dev.off()
 
 ################################################################################
 #####                           employment spells                          #####
@@ -279,118 +334,206 @@ dev.off()
 #####                          multiple employment                         #####
 ################################################################################
 
+#### self-rated health ---------------------------------------------------------
 
-#### calculate % for outcomes by LCA membership
+### sample A ------------
+
+## calculate proportions
+srh1_a <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_a, svymean, na.rm=TRUE))
+
+srh1_a_long <- srh1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.srh_binexcellent.very.good") %>% 
+  dplyr::select(-se.srh_bingood.fair.poor)
+
+## calculate totals
+srh12_a <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_a, svytotal, na.rm=TRUE))
+
+srh12_a_long <- srh12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+
+#join
+srh1_a_long <- srh1_a_long %>% left_join(srh12_a_long)
+
+### get rid of junk text in measure strings
+srh1_a_long$multi_emp_class <- str_to_title(srh1_a_long$multi_emp_class)
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin","")
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"excellent.very.good","Excellent/very good")
+srh1_a_long$measure <- str_replace(srh1_a_long$measure,"good.fair.poor","Good/fair/poor")
+
+## join together and format
+srh_prev_a <- srh1_a_long %>%
+  mutate(est = est*100,
+         var="Self-reported health",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, multi_emp_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Excellent/very good",
+                                           "Good/fair/poor"))) %>% 
+  arrange(multi_emp_class)
+
+multi_emp_prev <- srh_prev_a
+
+### sample B ------------
+
+## calculate proportions
+srh1_b <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_b, svymean, na.rm=TRUE))
+
+srh1_b_long <- srh1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.srh_binexcellent.very.good") %>% 
+  dplyr::select(-se.srh_bingood.fair.poor)
+
+## calculate totals
+srh12_b <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_b, svytotal, na.rm=TRUE))
+
+srh12_b_long <- srh12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+
+#join
+srh1_b_long <- srh1_b_long %>% left_join(srh12_b_long)
+
+### get rid of junk text in measure strings
+srh1_b_long$multi_emp_class <- str_to_title(srh1_b_long$multi_emp_class)
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin","")
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"excellent.very.good","Excellent/very good")
+srh1_b_long$measure <- str_replace(srh1_b_long$measure,"good.fair.poor","Good/fair/poor")
 
 
-### self-rated health
-srh_prev_a <- dfas1a_end_class3 %>% group_by(multi_emp_class, srh_bin) %>% 
-  summarise(a_srh_bin_n=n()) %>% 
-  ungroup() %>% 
-  group_by(multi_emp_class) %>% 
-  mutate(d=sum(a_srh_bin_n),
-         p=a_srh_bin_n/d,
-         a_srh_bin_pc=p*100,
+
+
+## join together and format
+srh_prev_b <- srh1_b_long %>%
+  mutate(est = est*100,
+         var="Self-reported health",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, multi_emp_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("Excellent/very good",
+                                           "Good/fair/poor"))) %>% 
+  arrange(multi_emp_class)
+
+multi_emp_prev <- multi_emp_prev %>% bind_rows(srh_prev_b)
+
+
+#### GHQ-12 --------------------------------------------------------------------
+
+### sample A ------------
+
+## calculate proportions
+ghq1_a <- data.frame(svyby(~ghq_case3, ~multi_emp_class,svy_multi_emp_a, svymean, na.rm=TRUE))
+
+ghq1_a_long <- ghq1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.ghq_case30.2") %>% 
+  dplyr::select(-se.ghq_case33.or.more)
+
+## calculate totals
+ghq12_a <- data.frame(svyby(~ghq_case3, ~multi_emp_class,svy_multi_emp_a, svytotal, na.rm=TRUE))
+
+ghq12_a_long <- ghq12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.ghq_case30.2, se.ghq_case33.or.more))
+
+#join
+ghq1_a_long <- ghq1_a_long %>% left_join(ghq12_a_long)
+
+### get rid of junk text in measure strings
+ghq1_a_long$multi_emp_class <- str_to_title(ghq1_a_long$multi_emp_class)
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"ghq_case3","")
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"0.2","0-2")
+ghq1_a_long$measure <- str_replace(ghq1_a_long$measure,"3.or.more","3 or more")
+
+## join together and format
+ghq_prev_a <- ghq1_a_long %>%
+  mutate(est = est*100,
+         var="GHQ-12 caseness",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, multi_emp_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more"))) %>% 
+  arrange(multi_emp_class)
+
+multi_emp_prev <- multi_emp_prev %>% bind_rows(ghq_prev_a)
+
+### sample B ------------
+
+## calculate proportions
+ghq1_b <- data.frame(svyby(~ghq_case3, ~multi_emp_class,svy_multi_emp_b, svymean, na.rm=TRUE))
+
+ghq1_b_long <- ghq1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
+  rename("se" = "se.ghq_case30.2") %>% 
+  dplyr::select(-se.ghq_case33.or.more)
+
+## calculate totals
+ghq12_b <- data.frame(svyby(~ghq_case3, ~multi_emp_class,svy_multi_emp_b, svytotal, na.rm=TRUE))
+
+ghq12_b_long <- ghq12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
+  dplyr::select(-c(se.ghq_case30.2, se.ghq_case33.or.more))
+
+#join
+ghq1_b_long <- ghq1_b_long %>% left_join(ghq12_b_long)
+
+### get rid of junk text in measure strings
+ghq1_b_long$multi_emp_class <- str_to_title(ghq1_b_long$multi_emp_class)
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"ghq_case3","")
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"0.2","0-2")
+ghq1_b_long$measure <- str_replace(ghq1_b_long$measure,"3.or.more","3 or more")
+
+## join together and format
+ghq_prev_b <- ghq1_b_long %>%
+  mutate(est = est*100,
+         var="GHQ-12 caseness",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, multi_emp_class,measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("0-2",
+                                           "3 or more"))) %>% 
+  arrange(multi_emp_class)
+
+multi_emp_prev <- multi_emp_prev %>% bind_rows(ghq_prev_b)
+
+#### add confidence intervals --------------------------------------------------
+multi_emp_prev <- multi_emp_prev %>%
+  group_by(var, multi_emp_class) %>% 
+  mutate(d=sum(n),
+         p=n/d,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_srh_lci = a_srh_bin_pc-margin,
-         a_srh_uci = a_srh_bin_pc+margin) %>% 
+         lci = est-margin,
+         uci = est+margin) %>% 
   ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
+  dplyr::select(-c(d,p,margin)) %>% 
+  mutate(sample_grp = ifelse(wv_n==6, "A","B")) %>% 
+  mutate(exp_flag = factor(ifelse(multi_emp_class=="Multiple Employment",
+                                  1,0)))
 
+#### plots ---------------------------------------------------------------------
 
-srh_prev_b <- dfas1b_end_class3 %>% group_by(multi_emp_class, srh_bin) %>% 
-  summarise(b_srh_bin_n=n()) %>% 
-  ungroup() %>% 
-  group_by(multi_emp_class) %>% 
-  mutate(d=sum(b_srh_bin_n),
-         p=b_srh_bin_n/d,
-         b_srh_bin_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_srh_lci = b_srh_bin_pc-margin,
-         b_srh_uci = b_srh_bin_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
-
-srh_combined <- srh_prev_a %>% left_join(srh_prev_b, by=c("multi_emp_class",
-                                                          "srh_bin"))
-
-## plots
-tiff("./output/weighted/multi_emp_srh_prev_grouped_a.tiff")
-srh_prev_a %>% 
-  filter(srh_bin=="good/fair/poor") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,a_srh_bin_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=a_srh_bin_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=a_srh_lci, ymax=a_srh_uci), colour="black", width=.1)+
+### binary self-reported health ----------------------------
+tiff("./output/weighted/multi_emp_srh_prev_grouped.tiff")
+multi_emp_prev %>% 
+  filter(var=="Self-reported health" & measure=="Good/fair/poor") %>% 
+  mutate(multi_emp_class=fct_reorder(multi_emp_class,est)) %>% 
+  ggplot(aes(x=multi_emp_class, y=est,
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
   coord_flip() +
-  theme_bw() 
+  theme_bw() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","red")) +
+  facet_wrap(~sample_grp, ncol = 1)
 dev.off()
 
-tiff("./output/weighted/multi_emp_srh_prev_grouped_b.tiff")
-srh_prev_b %>% 
-  filter(srh_bin=="good/fair/poor") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,b_srh_bin_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=b_srh_bin_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=b_srh_lci, ymax=b_srh_uci), colour="black", width=.1)+
+### GHQ-12 caseness ------------------------------------------------------------
+
+tiff("./output/weighted/multi_emp_ghq_prev_grouped.tiff")
+multi_emp_prev %>% 
+  filter(var=="GHQ-12 caseness" & measure=="3 or more") %>% 
+  mutate(multi_emp_class=fct_reorder(multi_emp_class,est)) %>% 
+  ggplot(aes(x=multi_emp_class, y=est,
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
   coord_flip() +
-  theme_bw() 
-dev.off()
-
-
-### mental health symptoms
-ghq_prev_a <- dfas1a_end_class3 %>% group_by(multi_emp_class, ghq_case3) %>% 
-  summarise(a_ghq_case3_n=n()) %>% 
-  ungroup() %>% 
-  group_by(multi_emp_class) %>% 
-  mutate(d=sum(a_ghq_case3_n),
-         p=a_ghq_case3_n/d,
-         a_ghq_case3_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_ghq_lci = a_ghq_case3_pc-margin,
-         a_ghq_uci = a_ghq_case3_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
-
-
-
-ghq_prev_b <- dfas1b_end_class3 %>% group_by(multi_emp_class, ghq_case3) %>% 
-  summarise(b_ghq_case3_n=n()) %>% 
-  ungroup() %>% 
-  group_by(multi_emp_class) %>% 
-  mutate(d=sum(b_ghq_case3_n),
-         p=b_ghq_case3_n/d,
-         b_ghq_case3_pc=p*100,
-         margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_ghq_lci = b_ghq_case3_pc-margin,
-         b_ghq_uci = b_ghq_case3_pc+margin) %>% 
-  ungroup() %>% 
-  dplyr::select(-c(d,p,margin))
-
-
-ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
-
-## plots
-
-tiff("./output/weighted/multi_emp_ghq_prev_grouped_a.tiff")
-ghq_prev_a %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,a_ghq_case3_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=a_ghq_case3_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=a_ghq_lci, ymax=a_ghq_uci), colour="black", width=.1)+
-  coord_flip() +
-  theme_bw()
-dev.off()
-
-tiff("./output/weighted/multi_emp_ghq_prev_grouped_b.tiff")
-ghq_prev_b %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,b_ghq_case3_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=b_ghq_case3_pc)) +
-  geom_col() +
-  geom_errorbar(aes(ymin=b_ghq_lci, ymax=b_ghq_uci), colour="black", width=.1)+
-  coord_flip() +
-  theme_bw()
+  theme_bw() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","red")) +
+  facet_wrap(~sample_grp, ncol = 1)
 dev.off()
 
