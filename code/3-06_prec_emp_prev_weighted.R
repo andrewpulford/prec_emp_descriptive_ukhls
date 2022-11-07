@@ -207,9 +207,7 @@ ghq_df <- dfas1a_end_class1 %>%
 
 
 ## create a list for each exposure class
-ghq_splits <- split(ghq_df, ghq_df$emp_contract_class)
-
-
+ghq_splits <- split(ghq_df, paste0(ghq_df$emp_contract_class,"$",ghq_df$sex_dv))
 
 #### create denominator variable (number of individuals in age-sex group) ------
 
@@ -217,12 +215,12 @@ ghq_splits <- split(ghq_df, ghq_df$emp_contract_class)
 test <- svydesign(id=~psu, strata=~strata,
           weights=~indinub_xw, data=ghq_splits[[1]])
 
-test2 <- data.frame(svyby(~sex_dv, ~age_dv_grp,test, svytotal, na.rm=TRUE))
+test2 <- data.frame(svytotal(~age_dv_grp,test, na.rm=TRUE))
 
-names(test2) <- str_remove(names(test2), "sex_dv")
+#names(test2) <- str_remove(names(test2), "sex_dv")
   
 
-### define function
+### define function to create weighted df
 svydesign_function <- function(x){
   svydesign(id=~psu, strata=~strata,
             weights=~indinub_xw, data=x)
@@ -231,9 +229,9 @@ svydesign_function <- function(x){
 ### call function to create weighted dataframes for each exposure class
 svy_ghq_splits <- lapply(ghq_splits, svydesign_function)
 
-### define function
+### define function to calculate denominators
 svytotal_function <- function(x){
-  data.frame(svyby(~sex_dv, ~age_dv_grp, x, svytotal, na.rm=TRUE))
+  data.frame(svytotal(~age_dv_grp,x, na.rm=TRUE))
 
 }
 
@@ -241,16 +239,46 @@ svytotal_function <- function(x){
 svy_ghq_splits_d <- lapply(svy_ghq_splits, svytotal_function) 
 
 # drop SE columns
-svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% dplyr::select(-c(4:5))))
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% dplyr::select(-SE)))
+
+# add in age band column
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (cbind(rownames(.x), .x, row.names=NULL)))
 
 #  fix row names
-col_vec <- c("age_dv_grp","male","female")
+col_vec <- c("age_dv_grp","d")
 svy_ghq_splits_d <- lapply(svy_ghq_splits_d, setNames, col_vec)
+
+# sort out age band column
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% mutate(age_dv_grp = str_remove(age_dv_grp, "age_dv_grp"))))
+
+# add in cols for class and sex
+svy_ghq_splits_d <- lapply(names(svy_ghq_splits_d), function(current_name) 
+  transform(svy_ghq_splits_d[[current_name]],
+            new_column = current_name))
+
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% mutate(class_mem = str_extract(new_column, "[^$]+"))))
+
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% mutate(sex_dv = str_extract(new_column, "\\b\\w+$"))))
+
+svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% dplyr::select(-new_column)))
+
 
 #### create numerator variable (number of cases in age-sex group) ------
 
-data.frame(svyby(~sex_dv, ~age_dv_grp, ~ghq_case3, svy_ghq_splits, svytotal, na.rm=TRUE))
+# test
+data.frame(svyby(~age_dv_grp, ~ghq_case3, svy_ghq_splits[[1]], svytotal, na.rm=TRUE))
 
+### error here VVVVV
+
+svy_numerator <- function(x){
+data.frame(svyby(~age_dv_grp, ~ghq_case3, x, svytotal, na.rm=TRUE))
+}
+
+svy_ghq_splits_n <- lapply(svy_ghq_splits, svy_numerator)
+
+# keep cols 1:10
+
+# pivot long
 
 ################################################################################
 #####                           weighted samples                           #####
