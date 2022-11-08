@@ -442,9 +442,9 @@ f <- cbind(wv_3, wv_4,wv_5, wv_6) ~ 1
 f2 <- cbind(wv_7, wv_8,wv_9, wv_10) ~ 1
 
 ### no covariates, 1 class --------------------
-empspells_lca1a <- poLCA(f, dfas1a_seq_wide2, nclass = 1, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca1a <- poLCA(f, dfas1a_seq_wide2, nclass = 1, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
-empspells_lca1b <- poLCA(f2, dfas1b_seq_wide2, nclass = 1, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca1b <- poLCA(f2, dfas1b_seq_wide2, nclass = 1, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca1a_ent <- poLCA.entropy(empspells_lca1a)
@@ -469,9 +469,9 @@ empspells_lca1b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 2 class --------------------
-empspells_lca2a <- poLCA(f, dfas1a_seq_wide2, nclass = 2, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca2a <- poLCA(f, dfas1a_seq_wide2, nclass = 2, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
-empspells_lca2b <- poLCA(f2, dfas1b_seq_wide2, nclass = 2, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca2b <- poLCA(f2, dfas1b_seq_wide2, nclass = 2, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca2a_ent <- poLCA.entropy(empspells_lca2a)
@@ -496,9 +496,9 @@ empspells_lca2b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 3 class --------------------
-empspells_lca3a <- poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca3a <- poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
-empspells_lca3b <- poLCA(f2, dfas1b_seq_wide2, nclass = 3, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca3b <- poLCA(f2, dfas1b_seq_wide2, nclass = 3, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca3a_ent <- poLCA.entropy(empspells_lca3a)
@@ -523,9 +523,9 @@ empspells_lca3b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 4 class --------------------
-empspells_lca4a <- poLCA(f, dfas1a_seq_wide2, nclass = 4, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca4a <- poLCA(f, dfas1a_seq_wide2, nclass = 4, maxiter = 20000,graphs = TRUE, na.rm = FALSE)
 
-empspells_lca4b <- poLCA(f2, dfas1b_seq_wide2, nclass = 4, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca4b <- poLCA(f2, dfas1b_seq_wide2, nclass = 4, maxiter = 22000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca4a_ent <- poLCA.entropy(empspells_lca4a)
@@ -550,9 +550,9 @@ empspells_lca4b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 5 class --------------------
-empspells_lca5a <- poLCA(f, dfas1a_seq_wide2, nclass = 5, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca5a <- poLCA(f, dfas1a_seq_wide2, nclass = 5, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
-empspells_lca5b <- poLCA(f2, dfas1b_seq_wide2, nclass = 5, maxiter = 4000,graphs = TRUE, na.rm = FALSE)
+empspells_lca5b <- poLCA(f2, dfas1b_seq_wide2, nclass = 5, maxiter = 9000,graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca5a_ent <- poLCA.entropy(empspells_lca5a)
@@ -577,9 +577,9 @@ empspells_lca5b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 6 class --------------------
-empspells_lca6a <- poLCA(f, dfas1a_seq_wide2, nclass = 6, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca6a <- poLCA(f, dfas1a_seq_wide2, nclass = 6, maxiter = 22000,graphs = FALSE, na.rm = FALSE)
 
-empspells_lca6b <- poLCA(f2, dfas1b_seq_wide2, nclass = 6, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca6b <- poLCA(f2, dfas1b_seq_wide2, nclass = 6, maxiter = 45000,graphs = FALSE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca6a_ent <- poLCA.entropy(empspells_lca6a)
@@ -604,9 +604,9 @@ empspells_lca6b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 7 class --------------------
-empspells_lca7a <- poLCA(f, dfas1a_seq_wide2, nclass = 7, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca7a <- poLCA(f, dfas1a_seq_wide2, nclass = 7, maxiter = 30000,graphs = FALSE, na.rm = FALSE)
 
-empspells_lca7b <- poLCA(f2, dfas1b_seq_wide2, nclass = 7, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca7b <- poLCA(f2, dfas1b_seq_wide2, nclass = 7, maxiter = 30000,graphs = FALSE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca7a_ent <- poLCA.entropy(empspells_lca7a)
@@ -631,9 +631,9 @@ empspells_lca7b_memtotals <- dfas1b_pred_class2 %>%
   mutate(pc=n/sum(n))
 
 ### no covariates, 8 class --------------------
-empspells_lca8a <- poLCA(f, dfas1a_seq_wide2, nclass = 8, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca8a <- poLCA(f, dfas1a_seq_wide2, nclass = 8, maxiter = 50000,graphs = FALSE, na.rm = FALSE)
 
-empspells_lca8b <- poLCA(f2, dfas1b_seq_wide2, nclass = 8, maxiter = 4000,graphs = FALSE, na.rm = FALSE)
+empspells_lca8b <- poLCA(f2, dfas1b_seq_wide2, nclass = 8, maxiter = 50000,graphs = FALSE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empspells_lca8a_ent <- poLCA.entropy(empspells_lca8a)
@@ -697,10 +697,14 @@ entropy_vector2_b <- c(empspells_lca2b_ent,empspells_lca3b_ent,
                       empspells_lca8b_ent)
 
 ## create df for model fit stats
-empspellsa_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector, aic_vector,Gsq_vector, Chisq_vector, entropy_vector))
+empspellsa_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector2, 
+                                             aic_vector2,Gsq_vector2, 
+                                             Chisq_vector2, entropy_vector2))
 names(empspellsa_lca_fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 
-empspellsb_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector_b, aic_vector_b,Gsq_vector_b, Chisq_vector_b, entropy_vector_b))
+empspellsb_lca_fit_stats <- data.frame(cbind(nclass_vector, bic_vector2_b, 
+                                             aic_vector2_b,Gsq_vector2_b, 
+                                             Chisq_vector2_b, entropy_vector2_b))
 names(empspellsb_lca_fit_stats) <- c("nclass", "bic", "aic", "Gsq", "Chisq", "entropy")
 
 # model with lowest bic
@@ -1182,76 +1186,72 @@ poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.b
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
-
 #### ---------------------------------------------------------------------------
 #### Broken employment spells
 #### ---------------------------------------------------------------------------
 #### Most plausible model ------------------------------------------------------
-### 5 classes for both samples
+### 3 classes for both samples
 
-#emp_spellsa_lca_final <- dfas1a_pred_class2 %>% ## <<< specify for final run <<< ##
-#  mutate(across(where(is.factor), as.character)) %>% 
-#  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
-#  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-#  mutate(emp_spells_class= ifelse(pred_class5==1, "non-permanent employment",
-#                                    ifelse(pred_class5==2, "into employment",
-#                                           ifelse(pred_class5==3,"permanent employment",
-#                                                  ifelse(pred_class5==4,"unemployed",
-#                                                         ifelse(pred_class5==5,"out of employment",
-#                                                                "CHECK"))))))
-#
-#write_rds(emp_spellsa_lca_final, "./working_data/emp_spellsa_lca_final.rds")
-#
-#
-#emp_spellsb_lca_final <- dfas1b_pred_class2 %>% ## <<< specify for final run <<< ##
-#  mutate(across(where(is.factor), as.character)) %>% 
-#  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
-#  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-#  mutate(emp_spells_class= ifelse(pred_class5==1, "non-permanent employment",
-#                                    ifelse(pred_class5==2, "permanent employment",
-#                                           ifelse(pred_class5==3,"unemployed",
-#                                                  ifelse(pred_class5==4,"into employment",
-#                                                         ifelse(pred_class5==5,"out of employment",
-#                                                                "CHECK"))))))
-#
-#write_rds(emp_spellsb_lca_final, "./working_data/emp_spellsb_lca_final.rds")
-#
-#
+emp_spellsa_lca_final <- dfas1a_pred_class2 %>% ## <<< specify for final run <<< ##
+  mutate(across(where(is.factor), as.character)) %>% 
+  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
+  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
+  mutate(emp_spells_class= ifelse(pred_class3==1, "broken employment",
+                                    ifelse(pred_class3==2, "unbroken employment",
+                                           ifelse(pred_class3==3,"unemployed",
+                                                                "CHECK"))))
+
+write_rds(emp_spellsa_lca_final, "./working_data/emp_spellsa_lca_final.rds")
+
+
+emp_spellsb_lca_final <- dfas1b_pred_class2 %>% ## <<< specify for final run <<< ##
+  mutate(across(where(is.factor), as.character)) %>% 
+  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
+  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
+  mutate(emp_spells_class= ifelse(pred_class3==1, "unemployed",
+                                  ifelse(pred_class3==2, "broken employment",
+                                         ifelse(pred_class3==3,"unbroken employment",
+                                                "CHECK"))))
+
+write_rds(emp_spellsb_lca_final, "./working_data/emp_spellsb_lca_final.rds")
+
+
 ### create spine for allocating classes back onto survey data
-#emp_spellsa_5class_spine <- emp_spellsa_lca_final %>% 
-#  dplyr::select(pidp,emp_spells_class)
-#
-#emp_spellsb_5class_spine <- emp_spellsb_lca_final %>% 
-#  dplyr::select(pidp,emp_spells_class)
-#
-#write_rds(emp_spellsa_5class_spine, "./working_data/emp_spellsa_5class_spine.rds")
-#write_rds(emp_spellsb_5class_spine, "./working_data/emp_spellsb_5class_spine.rds")
-#
+emp_spellsa_3class_spine <- emp_spellsa_lca_final %>% 
+  dplyr::select(pidp,emp_spells_class)
+
+emp_spellsb_3class_spine <- emp_spellsb_lca_final %>% 
+  dplyr::select(pidp,emp_spells_class)
+
+write_rds(emp_spellsa_3class_spine, "./working_data/emp_spellsa_3class_spine.rds")
+write_rds(emp_spellsb_3class_spine, "./working_data/emp_spellsb_3class_spine.rds")
+
 ### reorder the classes so there appear in a set order
-#probs.start<-emp_spells_lca5a$probs.start
-##new.probs.start <- poLCA.reorder(probs.start, c(5,1,2,4,3)) ## <<< specify for final run <<< ##
-#
-#probs.start.b <-emp_spells_lca5b$probs.start
-#
+probs.start.a<-empspells_lca3a$probs.start
+new.probs.start.a <- poLCA.reorder(probs.start, c(1,2,3)) ## <<< specify for final run <<< ##
+
+probs.start.b <-empspells_lca3b$probs.start
+new.probs.start.b <- poLCA.reorder(probs.start.b, c(2,3,1)) ## <<< specify for final run <<< ##
+
 ##save output
-#emp_spellsa_lca_final_model <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start, 
-#                                       graphs = FALSE, na.rm = FALSE)
-#saveRDS(emp_spellsa_lca_final_model, "./output/descriptive/emp_spellsa_lca_final_model.rds")
-#
-#emp_spellsb_lca_final_model <- poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
-#                                       graphs = FALSE, na.rm = FALSE)
-#saveRDS(emp_spellsb_lca_final_model, "./output/descriptive/emp_spellsb_lca_final_model.rds")
-#
+emp_spellsa_lca_final_model <- poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 9000, probs.start=new.probs.start.a, 
+                                       graphs = FALSE, na.rm = FALSE)
+saveRDS(emp_spellsa_lca_final_model, "./output/descriptive/emp_spellsa_lca_final_model.rds")
+
+emp_spellsb_lca_final_model <- poLCA(f2, dfas1b_seq_wide2, nclass = 3, maxiter = 9000, probs.start=new.probs.start.b, 
+                                       graphs = FALSE, na.rm = FALSE)
+saveRDS(emp_spellsb_lca_final_model, "./output/descriptive/emp_spellsb_lca_final_model.rds")
+
 ## save plot
-#tiff("./output/descriptive/emp_spellsa_lca_final.tiff", width = 400, height = 400)
-#poLCA(f, dfas1a_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start, 
-#      graphs = TRUE, na.rm = FALSE)
-#dev.off()
-#
-#tiff("./output/descriptive/emp_spellsb_lca_final.tiff", width = 400, height = 400)
-#poLCA(f2, dfas1b_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
-#      graphs = TRUE, na.rm = FALSE)
-#dev.off()
+tiff("./output/descriptive/emp_spellsa_lca_final.tiff", width = 400, height = 400)
+poLCA(f, dfas1a_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start, 
+      graphs = TRUE, na.rm = FALSE)
+dev.off()
+
+tiff("./output/descriptive/emp_spellsb_lca_final.tiff", width = 400, height = 400)
+poLCA(f2, dfas1b_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
+      graphs = TRUE, na.rm = FALSE)
+dev.off()
 
 
 #### ---------------------------------------------------------------------------
