@@ -79,10 +79,51 @@ dfas1b_end <- dfas1b %>% filter(wv_n==10)
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
 dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
 dfas1b_end$gor_dv <- droplevels(dfas1b_end$gor_dv)
+dfas1b_end$fimnnet_dv <- as.numeric(dfas1b_end$fimnnet_dv)
 
 dfas1b_end$srh_dv <- factor(dfas1b_end$srh_dv, 
                             levels = c("excellent", "very good", "good",
                                        "fair", "poor"))
+
+
+#trim any white space
+dfas1a_end$sf12pcs_dv <- trimws(dfas1a_end$sf12pcs_dv)
+dfas1a_end$sf12mcs_dv <- trimws(dfas1a_end$sf12mcs_dv)
+
+##sort out SF12 variables 
+dfas1a_end <- dfas1a_end %>% 
+  mutate(sf12pcs_dv = ifelse(sf12pcs_dv %in% c("missing", "inapplicable", 
+                                               "proxy", "refusal", "don't know"),
+                             NA,sf12pcs_dv),
+         sf12mcs_dv = ifelse(sf12mcs_dv %in% c("missing", "inapplicable", 
+                                               "proxy", "refusal", "don't know"),
+                             NA,sf12mcs_dv)) 
+
+
+# change to numeric
+dfas1a_end$sf12pcs_dv <- as.numeric(dfas1a_end$sf12pcs_dv,  na.rm = TRUE)
+dfas1a_end$sf12mcs_dv <- as.numeric(dfas1a_end$sf12mcs_dv,  na.rm = TRUE)
+
+### sample B ---------
+dfas1b_end <- readRDS("./working_data/dfas1b_end.rds")
+
+#trim any white space
+dfas1b_end$sf12pcs_dv <- trimws(dfas1b_end$sf12pcs_dv)
+dfas1b_end$sf12mcs_dv <- trimws(dfas1b_end$sf12mcs_dv)
+
+##sort out SF12 variables 
+dfas1b_end <- dfas1b_end %>% 
+  mutate(sf12pcs_dv = ifelse(sf12pcs_dv %in% c("missing", "inapplicable", 
+                                               "proxy", "refusal", "don't know"),
+                             NA,sf12pcs_dv),
+         sf12mcs_dv = ifelse(sf12mcs_dv %in% c("missing", "inapplicable", 
+                                               "proxy", "refusal", "don't know"),
+                             NA,sf12pcs_dv)) 
+
+# change to char then numeric
+dfas1b_end$sf12pcs_dv <- as.numeric(dfas1b_end$sf12pcs_dv,  na.rm = TRUE)
+dfas1b_end$sf12mcs_dv <- as.numeric(dfas1b_end$sf12mcs_dv,  na.rm = TRUE)
+
 
 #### load weight spines ---------------------------------
 
@@ -364,7 +405,7 @@ ed_attain2_a$total <- as.integer(ed_attain2_a$total)
 ed_attain_a <- ed_attain_a %>%
   left_join(ed_attain2_a) %>% 
   mutate(est = mean*100,
-         var="Marital status",
+         var="Educational attainment",
          wv_n=6) %>% 
   rename(n=total) %>% 
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
@@ -398,7 +439,7 @@ ed_attain2_b$total <- as.integer(ed_attain2_b$total)
 ed_attain_b <- ed_attain_b %>%
   left_join(ed_attain2_b) %>% 
   mutate(est = mean*100,
-         var="Marital status",
+         var="Educational attainment",
          wv_n=10) %>% 
   rename(n=total) %>% 
   dplyr::select(wv_n, var, measure, n, est, se)  %>% 
@@ -743,7 +784,7 @@ inc_quantile_b <- inc_quantile_b %>%
   rename(var = `rownames(inc_quantile_b)`) %>% 
   pivot_longer(cols=2:4, names_to = "measure") %>% 
   rename(est = value) %>% 
-  mutate(wv_n = 6,
+  mutate(wv_n = 10,
          n=NA,
          se=NA,
          var="Monthly net income (£)",
@@ -821,6 +862,29 @@ srh_b <- srh_b %>%
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
 
+#### SF-12 physical component summary -------------------------------------------- 
+### sample A ------------
+
+sf12pcs_a <- svyby(~sf12pcs_dv, ~wv_n,svy_dfas1a_end, svymean, na.rm=TRUE)
+
+sf12pcs_a <- sf12pcs_a %>% 
+  rename(est = sf12pcs_dv) %>% 
+  mutate(var="SF-12 physical component score", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sf12pcs_a)
+
+
+### sample B ------------
+
+sf12pcs_b <- svyby(~sf12pcs_dv, ~wv_n,svy_dfas1b_end, svymean, na.rm=TRUE)
+
+sf12pcs_b <- sf12pcs_b %>% 
+  rename(est = sf12pcs_dv) %>% 
+  mutate(var="SF-12 physical component score", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sf12pcs_b)
 
 #### GHQ-12 --------------------------------------------------------------------
 
@@ -857,23 +921,23 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3_a)
 ### sample B ------------
 
 ## calculate proportions
-srh_b <- data.frame(svymean(~ghq_case3, svy_dfas1b_end))
-srh_b <- cbind(rownames(srh_b),srh_b, row.names=NULL)
-srh_b$`rownames(srh_b)` <- str_replace(srh_b$`rownames(srh_b)`, "ghq_case3","")
-srh_b <- srh_b %>% rename(measure = `rownames(srh_b)`)
-names(srh_b) <- tolower(names(srh_b)) # change all col names to lower case
+ghq3_b <- data.frame(svymean(~ghq_case3, svy_dfas1b_end))
+ghq3_b <- cbind(rownames(ghq3_b),ghq3_b, row.names=NULL)
+ghq3_b$`rownames(ghq3_b)` <- str_replace(ghq3_b$`rownames(ghq3_b)`, "ghq_case3","")
+ghq3_b <- ghq3_b %>% rename(measure = `rownames(ghq3_b)`)
+names(ghq3_b) <- tolower(names(ghq3_b)) # change all col names to lower case
 
 ## calculate totals
-srh2_b <- data.frame(svytotal(~ghq_case3, svy_dfas1b_end))
-srh2_b <- srh2_b %>% dplyr::select(-SE)
-srh2_b <- cbind(rownames(srh2_b),srh2_b, row.names=NULL)
-srh2_b$`rownames(srh2_b)` <- str_replace(srh2_b$`rownames(srh2_b)`, "ghq_case3","")
-srh2_b <- srh2_b %>% rename(measure = `rownames(srh2_b)`)
-srh2_b$total <- as.integer(srh2_b$total)
+ghq32_b <- data.frame(svytotal(~ghq_case3, svy_dfas1b_end))
+ghq32_b <- ghq32_b %>% dplyr::select(-SE)
+ghq32_b <- cbind(rownames(ghq32_b),ghq32_b, row.names=NULL)
+ghq32_b$`rownames(ghq32_b)` <- str_replace(ghq32_b$`rownames(ghq32_b)`, "ghq_case3","")
+ghq32_b <- ghq32_b %>% rename(measure = `rownames(ghq32_b)`)
+ghq32_b$total <- as.integer(ghq32_b$total)
 
 ## join together and format
-srh_b <- srh_b %>%
-  left_join(srh2_b) %>% 
+ghq3_b <- ghq3_b %>%
+  left_join(ghq32_b) %>% 
   mutate(est = mean*100,
          var="GHQ12 score",
          wv_n=10) %>% 
@@ -882,26 +946,40 @@ srh_b <- srh_b %>%
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more"))) 
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh_b)
-
-
-
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3_b)
 
 
 #### SF-12 mental component summary -------------------------------------------- 
-## leave for now
+### sample A ------------
 
-# convert to numeric (to character stirng first to actual value is retained)
-#dfas1_end$sf12mcs_dv <- as.character(dfas1_end$sf12mcs_dv)
-#dfas1_end$sf12mcs_dv <- as.numeric(dfas1_end$sf12mcs_dv)
-#
-## distribution measures
-#mean(dfas1_end$sf12mcs_dv, na.rm = TRUE)
-#median(dfas1_end$sf12mcs_dv, na.rm = TRUE)
-#min(dfas1_end$sf12mcs_dv, na.rm = TRUE)
-#max(dfas1_end$sf12mcs_dv, na.rm = TRUE)
-#sf12_quantile <- quantile(dfas1_end$sf12mcs_dv, na.rm = TRUE)
+sf12mcs_a <- svyby(~sf12mcs_dv, ~wv_n,svy_dfas1a_end, svymean, na.rm=TRUE)
 
+sf12mcs_a <- sf12mcs_a %>% 
+  rename(est = sf12mcs_dv) %>% 
+  mutate(var="SF-12 mental component score", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sf12mcs_a)
+
+
+### sample B ------------
+
+sf12mcs_b <- svyby(~sf12mcs_dv, ~wv_n,svy_dfas1b_end, svymean, na.rm=TRUE)
+
+sf12mcs_b <- sf12mcs_b %>% 
+  rename(est = sf12mcs_dv) %>% 
+  mutate(var="SF-12 mental component score", measure="Mean", n=NA) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se)
+
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sf12mcs_b)
+
+##### remove missing rows
+'%ni%' <- Negate("%in%")
+
+sample_chars_endpoint <- sample_chars_endpoint %>%
+  filter(measure %ni% c("missing", "inapplicable", 
+                               "proxy", "refusal", "don't know",
+                        "inconsistent"))
 
 #####----------------------------------------------------------------------#####
 #####                     Save sample endpoint chars data                  #####
