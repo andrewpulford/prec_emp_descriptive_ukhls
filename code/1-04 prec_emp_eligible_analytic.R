@@ -135,7 +135,7 @@ no_weight_spine_b <- working_age_b %>%
 
 # create eligible pop df by including only valid weights
 eligible_pop_a <- working_age_a %>% 
-  right_join(weight_spine_a) %>% 
+  left_join(weight_spine_a) %>% 
   filter(weight_flag==1)
 
 
