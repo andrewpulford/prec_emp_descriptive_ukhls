@@ -33,12 +33,12 @@ rm(list=ls())
 
 library(tidyverse) # all kinds of stuff 
 library(broom) # for working with statistical outputs
-library(TraMineR) # for sequence analysis
-library(poLCA) # for latent class analysis
+#library(TraMineR) # for sequence analysis
+#library(poLCA) # for latent class analysis
 #library(randomLCA) # for repeated measures latent class analysis
 library(survey) # for applying survey weights to analysis
 options(survey.lonely.psu="adjust") # single-PSU strata are centred at the sample mean
-
+library(epitools)
 #citation("TraMineR")
 
 ################################################################################
@@ -148,12 +148,6 @@ dfas1b_end$age_dv_grp <- create_age_groups(dfas1b_end$age_dv,
 
 # correct label for 60-64 level
 levels(dfas1b_end$age_dv_grp)[levels(dfas1b_end$age_dv_grp)=='60+'] <- '60-64'
-
-
-##### VVVVVVV DO THIS LATER VVVVVVV
-# add on the European standard population for each age group
-#dfas1b_end <- dfas1b_end %>% 
-#  left_join(esp, by = c("age_dv_grp", "sex_dv"))
 
 #### load weight spines ---------------------------------
 
@@ -268,8 +262,7 @@ svy_ghq_splits_d <- map(svy_ghq_splits_d, ~ (.x %>% dplyr::select(-new_column)))
 # test
 data.frame(svyby(~age_dv_grp, ~ghq_case3, svy_ghq_splits[[1]], svytotal, na.rm=TRUE))
 
-### error here VVVVV
-
+## function to calculate numerators
 svy_numerator <- function(x){
 data.frame(svyby(~age_dv_grp, ~ghq_case3, x, svytotal, na.rm=TRUE))
 }
@@ -277,8 +270,77 @@ data.frame(svyby(~age_dv_grp, ~ghq_case3, x, svytotal, na.rm=TRUE))
 svy_ghq_splits_n <- lapply(svy_ghq_splits, svy_numerator)
 
 # keep cols 1:10
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% dplyr::select(1:10)))
 
 # pivot long
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% pivot_longer(cols = 2:10, names_to = "age_dv_grp",
+                                             values_to = "n")))
+
+# sort out age band column
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% mutate(age_dv_grp = str_remove(age_dv_grp, "age_dv_grp"))))
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% mutate(age_dv_grp = str_replace(age_dv_grp, "\\.","-"))))
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% filter(ghq_case3=="3 or more")))
+
+# add in cols for class and sex
+svy_ghq_splits_n <- lapply(names(svy_ghq_splits_n), function(current_name) 
+  transform(svy_ghq_splits_n[[current_name]],
+            new_column = current_name))
+
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% mutate(class_mem = str_extract(new_column, "[^$]+"))))
+
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% mutate(sex_dv = str_extract(new_column, "\\b\\w+$"))))
+
+svy_ghq_splits_n <- map(svy_ghq_splits_n, ~ (.x %>% dplyr::select(-new_column)))
+
+#### join denominator,  numrator dfs and standard pop ------------
+
+# note - this converts back into a single dataframe
+svy_ghq_df <- map2_df(svy_ghq_splits_d, svy_ghq_splits_n, left_join, by = c("age_dv_grp",
+                                                              "sex_dv",
+                                                              "class_mem"))
+
+svy_ghq_df <- svy_ghq_df %>% 
+  mutate(sex_dv = ifelse(sex_dv=="Male","male",
+                  ifelse(sex_dv=="Female", "female",
+                                 "CHECK"))) %>% 
+  left_join(esp, by = c("age_dv_grp", "sex_dv")) %>% 
+  dplyr::select(ghq_case3, class_mem, sex_dv, age_dv_grp, n, d, euro_std_pop)
+
+## convert numerator and denominator to integers
+svy_ghq_df$n <- as.integer(svy_ghq_df$n)
+svy_ghq_df$d <- as.integer(svy_ghq_df$d)
+
+## convert zero denominators to 1 so that division possible
+svy_ghq_df <- svy_ghq_df %>% 
+  mutate(d = ifelse(d==0,1,d))
+
+## back to list
+svy_ghq_splits2 <- split(svy_ghq_df, paste0(svy_ghq_df$class_mem,"$",svy_ghq_df$sex_dv))
+
+#### calculate standardised rates -----------------------
+
+### female rates
+
+ageadjust.direct(count = svy_ghq_splits2[[1]]$n, 
+                 pop = svy_ghq_splits2[[1]]$d, 
+                 rate = NULL, 
+                 stdpop = svy_ghq_splits2[[1]]$euro_std_pop, 
+                 conf.level = 0.95)
+
+
+svy_ghq_df %>%
+  group_by(class_mem) %>%
+  PHEindicatormethods::phe_dsr(
+    x = n,                 # column with observed number of events
+    n = d,                 # column with non-standard pops for each stratum
+    stdpop = euro_std_pop, # standard populations for each stratum
+    stdpoptype = "field")  # either "vector" for a standalone vector or "field" meaning std populations are in the data  
+
+### male rates
+
+
+### calculate age-sex standardised rates by averaging male and female rates
+
 
 ################################################################################
 #####                           weighted samples                           #####
