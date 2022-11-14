@@ -1199,6 +1199,84 @@ svy_dsr_df3 <- svy_dsr_df %>% bind_rows(temp_df) %>%
 
 rm(temp_list, temp_df)
 
+### remove objects except for the three dsr df's
+rm(list = ls()[!(ls() %in% c('svy_dsr_df1','svy_dsr_df2','svy_dsr_df3'))])
+
+################################################################################
+#####                               plots                                  #####
+################################################################################
+
+svy_dsr_df1 <- svy_dsr_df1 %>% 
+  mutate(exp_flag = factor(ifelse(class_mem=="non-permanent employment",1,
+                                  ifelse(class_mem=="permanent employment",2,
+                                         0))))
+
+svy_dsr_df2 <- svy_dsr_df2 %>% 
+  mutate(exp_flag = factor(ifelse(class_mem=="broken employment",1,
+                                  ifelse(class_mem=="unbroken employment",2,
+                                         0))))
+
+svy_dsr_df3 <- svy_dsr_df3 %>% 
+  mutate(exp_flag = factor(ifelse(class_mem=="multiple employment",1,
+                                  ifelse(class_mem=="single employment",2,
+                                         0))))
+
+plotter <-  function(data, outcome, x=class_mem, y=value){ 
+  temp <- data %>% 
+  filter(outcome_lab == outcome &
+           sex_dv == "both") %>%
+    mutate(class_mem=tidytext::reorder_within(class_mem,value,sample_grp))
+  
+  ggplot(temp,aes({{x}}, {{y}},
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(ymin=lowercl, ymax=uppercl), colour="black", width=.1) +
+  coord_flip() +
+  theme_bw() +
+  tidytext::scale_x_reordered() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","red","green")) +
+  facet_wrap(~sample_grp, ncol = 1, scales = "free_y")
+}
+
+#### employment contract -------------------------------------------------------
+
+### poor self-rated health
+plotter(data = svy_dsr_df1,
+        outcome = "poor self-rated health")
+
+### poor mental health
+plotter(data = svy_dsr_df1,
+        outcome = "poor mental health")
+
+
+#### broken employment ---------------------------------------------------------
+
+### poor self-rated health
+plotter(data = svy_dsr_df2,
+        outcome = "poor self-rated health")
+
+### poor mental health
+plotter(data = svy_dsr_df2,
+        outcome = "poor mental health")
+
+#### multiple employment -------------------------------------------------------
+
+### poor self-rated health
+plotter(data = svy_dsr_df3,
+        outcome = "poor self-rated health")
+
+### poor mental health
+plotter(data = svy_dsr_df3,
+        outcome = "poor mental health")
+
+
+
+################################################################################
+#####                         logistic regression                         #####
+################################################################################
+
+## here
+## work out best svy code to use, poss what's below but functionalised
 
 #################################################################################
 ######                           weighted samples                           #####
