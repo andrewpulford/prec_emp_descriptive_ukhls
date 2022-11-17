@@ -27,6 +27,10 @@
 rm(list=ls()) 
 
 
+## disable scientific notation
+options(scipen=999)
+
+
 ################################################################################
 #####                            install packages                          #####
 ################################################################################
@@ -1199,8 +1203,13 @@ svy_dsr_df3 <- svy_dsr_df %>% bind_rows(temp_df) %>%
 
 rm(temp_list, temp_df)
 
-### remove objects except for the three dsr df's
-rm(list = ls()[!(ls() %in% c('svy_dsr_df1','svy_dsr_df2','svy_dsr_df3'))])
+### remove objects except for the three dsr df's and class df's
+rm(list = ls()[!(ls() %in% c('svy_dsr_df1','svy_dsr_df2','svy_dsr_df3',
+                             "dfas1a_end_class1","dfas1b_end_class1",
+                             "dfas1a_end_class2", "dfas1b_end_class2",
+                             "dfas1a_end_class3", "dfas1b_end_class3"))])
+
+
 
 ################################################################################
 #####                               plots                                  #####
@@ -1275,47 +1284,256 @@ plotter(data = svy_dsr_df3,
 #####                         logistic regression                         #####
 ################################################################################
 
-## here
-## work out best svy code to use, poss what's below but functionalised
+#### prepare data --------------------------------------------------------------
 
-#################################################################################
-######                           weighted samples                           #####
-#################################################################################
-#
-##### create weighted samples -----------------
-#
-#### employment contract
-#svy_emp_contract_a <- svydesign(id=~psu, strata=~strata,
-#                                weights=~indinub_xw, data=dfas1a_end_class1)
-#
-#svy_emp_contract_b <- svydesign(id=~psu, strata=~strata,
-#                                weights=~indinui_xw, data=dfas1b_end_class1)
-#
-#### broken employment spells
-#svy_broken_emp_a <- svydesign(id=~psu, strata=~strata,
-#                                weights=~indinub_xw, data=dfas1a_end_class2)
-#
-#svy_broken_emp_b <- svydesign(id=~psu, strata=~strata,
-#                                weights=~indinui_xw, data=dfas1b_end_class2)
-#
-#### multiple employment
-#svy_multi_emp_a <- svydesign(id=~psu, strata=~strata,
-#                             weights=~indinub_xw, data=dfas1a_end_class3)
-#
-#svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
-#                             weights=~indinui_xw, data=dfas1b_end_class3)
-#
-#
-#
-#################################################################################
-######                          employment contract                         #####
-#################################################################################
-#
-#
-#
-##### self-rated health ---------------------------------------------------------
-#
-#### sample A ------------
+### employment contract
+dfas1a_end_class1 <- dfas1a_end_class1 %>% 
+    mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+           ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+           emp_contract_class = factor(emp_contract_class))
+
+
+dfas1b_end_class1 <- dfas1b_end_class1 %>% 
+  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+         ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+         emp_contract_class = factor(emp_contract_class))
+
+
+### employment contract
+dfas1a_end_class2 <- dfas1a_end_class2 %>% 
+  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+         ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+         emp_spells_class = factor(emp_spells_class))
+
+
+dfas1b_end_class2 <- dfas1b_end_class2 %>% 
+  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+         ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+         emp_spells_class = factor(emp_spells_class))
+
+### multiple employment
+dfas1a_end_class3 <- dfas1a_end_class3 %>% 
+  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+         ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+         multi_emp_class = factor(multi_emp_class))
+
+
+dfas1b_end_class3 <- dfas1b_end_class3 %>% 
+  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+         ghq_case3 = ifelse(ghq_case3 == "3 or more",1,0),
+         multi_emp_class = factor(multi_emp_class))
+
+#### create weighted samples -----------------
+
+### employment contract
+svy_emp_contract_a <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinub_xw, data=dfas1a_end_class1)
+
+svy_emp_contract_b <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinui_xw, data=dfas1b_end_class1)
+
+### broken employment spells
+svy_broken_emp_a <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinub_xw, data=dfas1a_end_class2)
+
+svy_broken_emp_b <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinui_xw, data=dfas1b_end_class2)
+
+### multiple employment
+svy_multi_emp_a <- svydesign(id=~psu, strata=~strata,
+                             weights=~indinub_xw, data=dfas1a_end_class3)
+
+svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
+                             weights=~indinui_xw, data=dfas1b_end_class3)
+
+#### logistic regression -------------------------------------------------------
+
+### employment contract --------------
+### sample A
+## logistic regression
+svy_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+               family=quasibinomial, design=svy_emp_contract_a, 
+               na.action = na.omit)
+
+## model summary
+svy_emp_contract_glm_a_summary <- summary(svy_emp_contract_glm_a)
+
+## coefficients dataframe
+svy_emp_contract_glm_a_df <- data.frame(svy_emp_contract_glm_a$coefficients)
+
+# exponentiate to get ORs
+svy_emp_contract_glm_a_df <- svy_emp_contract_glm_a_df %>% 
+  mutate(est = exp(svy_emp_contract_glm_a.coefficients)) %>% 
+  dplyr::select(est) 
+
+# add in row names 
+svy_emp_contract_glm_a_df <- cbind(rownames(svy_emp_contract_glm_a_df),svy_emp_contract_glm_a_df, row.names=NULL)
+
+svy_emp_contract_glm_a_df <- svy_emp_contract_glm_a_df %>% 
+  rename(measure = `rownames(svy_emp_contract_glm_a_df)`)
+
+## confidence intervals
+svy_emp_contract_glm_a_ci <- data.frame(confint(svy_emp_contract_glm_a)) %>% 
+  rename(lci = X2.5..,
+         uci = X97.5..) %>% 
+  mutate(lci = exp(lci),
+         uci = exp(uci))
+
+# add in row names
+svy_emp_contract_glm_a_ci <- cbind(rownames(svy_emp_contract_glm_a_ci),svy_emp_contract_glm_a_ci, row.names=NULL)
+
+svy_emp_contract_glm_a_ci <- svy_emp_contract_glm_a_ci %>% 
+  rename(measure = `rownames(svy_emp_contract_glm_a_ci)`)
+
+## join dfs together
+svy_emp_contract_glm_a_df <- svy_emp_contract_glm_a_df %>% 
+  left_join(svy_emp_contract_glm_a_ci)
+
+### employment contract --------------
+### sample B
+## logistic regression
+svy_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+                                 family=quasibinomial, design=svy_emp_contract_b, 
+                                 na.action = na.omit)
+
+## model summary
+svy_emp_contract_glm_b_summary <- summary(svy_emp_contract_glm_b)
+
+## coefficients dataframe
+svy_emp_contract_glm_b_df <- data.frame(svy_emp_contract_glm_b$coefficients)
+
+# exponentiate to get ORs
+svy_emp_contract_glm_b_df <- svy_emp_contract_glm_b_df %>% 
+  mutate(est = exp(svy_emp_contract_glm_b.coefficients)) %>% 
+  dplyr::select(est) 
+
+# add in row names 
+svy_emp_contract_glm_b_df <- cbind(rownames(svy_emp_contract_glm_b_df),svy_emp_contract_glm_b_df, row.names=NULL)
+
+svy_emp_contract_glm_b_df <- svy_emp_contract_glm_b_df %>% 
+  rename(measure = `rownames(svy_emp_contract_glm_b_df)`)
+
+## confidence intervals
+svy_emp_contract_glm_b_ci <- data.frame(confint(svy_emp_contract_glm_b)) %>% 
+  rename(lci = X2.5..,
+         uci = X97.5..) %>% 
+  mutate(lci = exp(lci),
+         uci = exp(uci))
+
+# add in row names
+svy_emp_contract_glm_b_ci <- cbind(rownames(svy_emp_contract_glm_b_ci),svy_emp_contract_glm_b_ci, row.names=NULL)
+
+svy_emp_contract_glm_b_ci <- svy_emp_contract_glm_b_ci %>% 
+  rename(measure = `rownames(svy_emp_contract_glm_b_ci)`)
+
+## join dfs together
+svy_emp_contract_glm_b_df <- svy_emp_contract_glm_b_df %>% 
+  left_join(svy_emp_contract_glm_b_ci)
+
+### employment spells --------------
+### sample A
+## logistic regression
+svy_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+                                 family=quasibinomial, design=svy_broken_emp_a, 
+                                 na.action = na.omit)
+
+## model summary
+svy_emp_spells_glm_a_summary <- summary(svy_emp_spells_glm_a)
+
+## coefficients dataframe
+svy_emp_spells_glm_a_df <- data.frame(svy_emp_spells_glm_a$coefficients)
+
+# exponentiate to get ORs
+svy_emp_spells_glm_a_df <- svy_emp_spells_glm_a_df %>% 
+  mutate(est = exp(svy_emp_spells_glm_a.coefficients)) %>% 
+  dplyr::select(est) 
+
+# add in row names 
+svy_emp_spells_glm_a_df <- cbind(rownames(svy_emp_spells_glm_a_df),svy_emp_spells_glm_a_df, row.names=NULL)
+
+svy_emp_spells_glm_a_df <- svy_emp_spells_glm_a_df %>% 
+  rename(measure = `rownames(svy_emp_spells_glm_a_df)`)
+
+## confidence intervals
+svy_emp_spells_glm_a_ci <- data.frame(confint(svy_emp_spells_glm_a)) %>% 
+  rename(lci = X2.5..,
+         uci = X97.5..) %>% 
+  mutate(lci = exp(lci),
+         uci = exp(uci))
+
+# add in row names
+svy_emp_spells_glm_a_ci <- cbind(rownames(svy_emp_spells_glm_a_ci),svy_emp_spells_glm_a_ci, row.names=NULL)
+
+svy_emp_spells_glm_a_ci <- svy_emp_spells_glm_a_ci %>% 
+  rename(measure = `rownames(svy_emp_spells_glm_a_ci)`)
+
+## join dfs together
+svy_emp_spells_glm_a_df <- svy_emp_spells_glm_a_df %>% 
+  left_join(svy_emp_spells_glm_a_ci)
+
+### employment contract --------------
+### sample B
+## logistic regression
+svy_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+                                 family=quasibinomial, design=svy_broken_emp_b, 
+                                 na.action = na.omit)
+
+## model summary
+svy_emp_spells_glm_b_summary <- summary(svy_emp_spells_glm_b)
+
+## coefficients dataframe
+svy_emp_spells_glm_b_df <- data.frame(svy_emp_spells_glm_b$coefficients)
+
+# exponentiate to get ORs
+svy_emp_spells_glm_b_df <- svy_emp_spells_glm_b_df %>% 
+  mutate(est = exp(svy_emp_spells_glm_b.coefficients)) %>% 
+  dplyr::select(est) 
+
+# add in row names 
+svy_emp_spells_glm_b_df <- cbind(rownames(svy_emp_spells_glm_b_df),svy_emp_spells_glm_b_df, row.names=NULL)
+
+svy_emp_spells_glm_b_df <- svy_emp_spells_glm_b_df %>% 
+  rename(measure = `rownames(svy_emp_spells_glm_b_df)`)
+
+## confidence intervals
+svy_emp_spells_glm_b_ci <- data.frame(confint(svy_emp_spells_glm_b)) %>% 
+  rename(lci = X2.5..,
+         uci = X97.5..) %>% 
+  mutate(lci = exp(lci),
+         uci = exp(uci))
+
+# add in row names
+svy_emp_spells_glm_b_ci <- cbind(rownames(svy_emp_spells_glm_b_ci),svy_emp_spells_glm_b_ci, row.names=NULL)
+
+svy_emp_spells_glm_b_ci <- svy_emp_spells_glm_b_ci %>% 
+  rename(measure = `rownames(svy_emp_spells_glm_b_ci)`)
+
+## join dfs together
+svy_emp_spells_glm_b_df <- svy_emp_spells_glm_b_df %>% 
+  left_join(svy_emp_spells_glm_b_ci)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### employment contract -------------------------------------------------------
+
+### self-rated health ---------
+
+### sample A ------------
 #
 ### calculate proportions
 #srh1_a <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_a, svymean, na.rm=TRUE))
