@@ -1367,12 +1367,6 @@ svy_srh_emp_contract_glm_a_df <- data.frame(svy_srh_emp_contract_glm_a$coefficie
 
 # exponentiate to get ORs
 svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>% 
-  mutate(est = exp(svysrh__emp_contract_glm_a.coefficients)) %>% 
-  dplyr::select(est) 
-
-
-# exponentiate to get ORs
-svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>% 
   mutate(est = exp(svy_srh_emp_contract_glm_a.coefficients)) %>% 
   dplyr::select(est) 
 
@@ -1830,7 +1824,7 @@ svy_ghq_multi_emp_glm_a_ci <- svy_ghq_multi_emp_glm_a_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_a_df <- svy_ghq_multi_emp_glm_a_df %>% 
   left_join(svy_ghq_multi_emp_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel(multi_emp_class, ref = 4)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
 
 ### sample B ----------------------
 ## logistic regression
@@ -1871,10 +1865,10 @@ svy_ghq_multi_emp_glm_b_ci <- svy_ghq_multi_emp_glm_b_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_b_df <- svy_ghq_multi_emp_glm_b_df %>% 
   left_join(svy_ghq_multi_emp_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel(multi_emp_class, ref = 4)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
 
 ################################################################################
-##### Logistic regression plots #####
+#####                       Logistic regression plots                      #####
 ################################################################################
 
 #### define function for plots -------------------------------------------------
@@ -1896,100 +1890,121 @@ data %>%
 #### employment contract - self-rated health -----------------------------------
 
 ### sample A
+tiff("./output/weighted/emp_contract_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_emp_contract_glm_a_df, 
          classes = c("into employment", "non-permanent employment", 
                      "out of employment", "unemployed"),
          y_lab = "Employment contract class",
-         title_lab = "Self-rated health by employment contract class (Sample A)")
+         title_lab = "Poor self-rated health by employment contract class\n(Sample A)")
+dev.off()
 
 ### sample B
+tiff("./output/weighted/emp_contract_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_emp_contract_glm_b_df, 
          classes = c("into employment", "non-permanent employment", 
                      "out of employment", "unemployed"),
          y_lab = "Employment contract class",
-         title_lab = "Self-rated health by employment contract class (Sample B)")
+         title_lab = "Poor self-rated health by employment contract class\n(Sample B)")
+dev.off()
 
-#### employment contract - self-rated health -----------------------------------
+#### employment contract - mental health -----------------------------------
 
 ### sample A
+tiff("./output/weighted/emp_contract_ghq_OR_grouped_a.tiff")
+plotter2(data = svy_ghq_emp_contract_glm_a_df, 
+         classes = c("into employment", "non-permanent employment", 
+                     "out of employment", "unemployed"),
+         y_lab = "Employment contract class",
+         title_lab = "Common mental health conditon by employment contract\nclass (Sample A)")
+dev.off()
+
+### sample B
+tiff("./output/weighted/emp_contract_ghq_OR_grouped_b.tiff")
+plotter2(data = svy_ghq_emp_contract_glm_b_df, 
+         classes = c("into employment", "non-permanent employment", 
+                     "out of employment", "unemployed"),
+         y_lab = "Employment contract class",
+         title_lab = "Common mental health conditon by employment contract\nclass (Sample B)")
+dev.off()
+
+#### employment spells - self-rated health -----------------------------------
+
+### sample A
+tiff("./output/weighted/emp_spells_srh_OR_grouped_a.tiff")
+plotter2(data = svy_srh_emp_spells_glm_a_df, 
+         classes = c("broken employment", "unemployed"),
+         y_lab = "Employment spells class",
+         title_lab = "Poor self-rated health  by employment spells class\n(Sample A)")
+dev.off()
+
+### sample B
+tiff("./output/weighted/emp_spells_srh_OR_grouped_b.tiff")
+plotter2(data = svy_srh_emp_spells_glm_b_df, 
+         classes = c("broken employment", "unemployed"),
+         y_lab = "Employment spells class",
+         title_lab = "Poor self-rated health  by employment spells class\n(Sample B)")
+dev.off()
+
+
+#### employment spells - mental health -----------------------------------------
+
+### sample A
+tiff("./output/weighted/emp_spells_ghq_OR_grouped_a.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_a_df, 
          classes = c("broken employment", "unemployed"),
          y_lab = "Employment spells class",
-         title_lab = "Self-rated health by employment spells class (Sample A)")
+         title_lab = "Common mental health conditon by employment spells\nclass (Sample A)")
+dev.off()
 
 ### sample B
+tiff("./output/weighted/emp_spells_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_b_df, 
          classes = c("broken employment", "unemployed"),
          y_lab = "Employment spells class",
-         title_lab = "Self-rated health by employment spells class  (Sample B)")
+         title_lab = "Common mental health conditon by employment spells\nclass (Sample B)")
+dev.off()
 
 
 #### multiple employment - self-rated health -----------------------------------
 
 ### sample A
+tiff("./output/weighted/multi_emp_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_multi_emp_glm_a_df, 
          classes = c("into employment", "multiple employment", 
                      "out of employment", "unemployed"),
-         y_lab = "Employment contract class",
-         title_lab = "Self-rated health by multiple employment class (Sample A)")
+         y_lab = "Multiple employment class",
+         title_lab = "Poor self-rated health by multiple employment class\n(Sample A)")
+dev.off()
 
 ### sample B
+tiff("./output/weighted/multi_emp_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_multi_emp_glm_b_df, 
          classes = c("into employment", "multiple employment", 
                      "out of employment", "unemployed"),
-         y_lab = "Employment contract class",
-         title_lab = "Self-rated health by multiple employment class (Sample B)")
-
-
-#### employment contract - mental health -----------------------------------
-
-### sample A
-plotter2(data = svy_ghq_emp_contract_glm_a_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
-         y_lab = "Employment contract class",
-         title_lab = "Common mental health conditon by employment contract class (Sample A)")
-
-### sample B
-plotter2(data = svy_ghq_emp_contract_glm_b_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
-         y_lab = "Employment contract class",
-         title_lab = "Common mental health conditon by employment contract class (Sample B)")
-
-#### employment spells - mental health -----------------------------------
-
-### sample A
-plotter2(data = svy_ghq_emp_spells_glm_a_df, 
-         classes = c("broken employment", "unemployed"),
-         y_lab = "Employment spells class",
-         title_lab = "Common mental health conditon by employment spells class (Sample A)")
-
-### sample B
-plotter2(data = svy_ghq_emp_spells_glm_b_df, 
-         classes = c("broken employment", "unemployed"),
-         y_lab = "Employment spells class",
-         title_lab = "Common mental health conditon by employment spells class  (Sample B)")
+         y_lab = "Multiple employment class",
+         title_lab = "Poor self-rated health by multiple employment class\n(Sample B)")
+dev.off()
 
 
 #### multiple employment - mental health -----------------------------------
 
 ### sample A
-plotter2(data = svy_srh_multi_emp_glm_a_df, 
+tiff("./output/weighted/multi_emp_ghq_OR_grouped_a.tiff")
+plotter2(data = svy_ghq_multi_emp_glm_a_df, 
          classes = c("into employment", "multiple employment", 
                      "out of employment", "unemployed"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by multiple employment class (Sample A)")
+dev.off()
 
 ### sample B
-plotter2(data = svy_srh_multi_emp_glm_b_df, 
+tiff("./output/weighted/multi_emp_ghq_OR_grouped_b.tiff")
+plotter2(data = svy_ghq_multi_emp_glm_b_df, 
          classes = c("into employment", "multiple employment", 
                      "out of employment", "unemployed"),
          y_lab = "Employment contract class",
-         title_lab = "Common mental health conditon by multiple employment class (Sample B)")
-
-
-
+         title_lab = "Common mental health conditon by multiple employment\nclass (Sample B)")
+dev.off()
 
 
 
