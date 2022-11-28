@@ -1355,7 +1355,7 @@ svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
 ### sample A ------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                family=quasibinomial, design=svy_emp_contract_a, 
                na.action = na.omit)
 
@@ -1397,7 +1397,7 @@ svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>%
 ### sample B -------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_emp_contract_b, 
                                  na.action = na.omit)
 
@@ -1441,7 +1441,7 @@ svy_srh_emp_contract_glm_b_df <- svy_srh_emp_contract_glm_b_df %>%
 
 ### sample A ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_broken_emp_a, 
                                  na.action = na.omit)
 
@@ -1482,7 +1482,7 @@ svy_srh_emp_spells_glm_a_df <- svy_srh_emp_spells_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_broken_emp_b, 
                                  na.action = na.omit)
 
@@ -1526,7 +1526,7 @@ svy_srh_emp_spells_glm_b_df <- svy_srh_emp_spells_glm_b_df %>%
 
 ### sample A -----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_a <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_a <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_multi_emp_a, 
                                  na.action = na.omit)
 
@@ -1567,7 +1567,7 @@ svy_srh_multi_emp_glm_a_df <- svy_srh_multi_emp_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_b <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_b <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_multi_emp_b, 
                                  na.action = na.omit)
 
@@ -1617,7 +1617,7 @@ svy_srh_multi_emp_glm_b_df <- svy_srh_multi_emp_glm_b_df %>%
 ### sample A ------------------
 
 ## logistic regression
-svy_ghq_emp_contract_glm_a <- svyglm(ghq_case3~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_emp_contract_glm_a <- svyglm(ghq_case3~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_emp_contract_a, 
                                  na.action = na.omit)
 
@@ -1659,7 +1659,7 @@ svy_ghq_emp_contract_glm_a_df <- svy_ghq_emp_contract_glm_a_df %>%
 ### sample B -------------------
 
 ## logistic regression
-svy_ghq_emp_contract_glm_b <- svyglm(ghq_case3~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_emp_contract_glm_b <- svyglm(ghq_case3~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                                  family=quasibinomial, design=svy_emp_contract_b, 
                                  na.action = na.omit)
 
@@ -1702,7 +1702,7 @@ svy_ghq_emp_contract_glm_b_df <- svy_ghq_emp_contract_glm_b_df %>%
 
 ### sample A ----------------------
 ## logistic regression
-svy_ghq_emp_spells_glm_a <- svyglm(ghq_case3~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_ghq_emp_spells_glm_a <- svyglm(ghq_case3~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv+hiqual_dv, 
                                family=quasibinomial, design=svy_broken_emp_a, 
                                na.action = na.omit)
 
@@ -1743,7 +1743,7 @@ svy_ghq_emp_spells_glm_a_df <- svy_ghq_emp_spells_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_ghq_emp_spells_glm_b <- svyglm(ghq_case3~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_ghq_emp_spells_glm_b <- svyglm(ghq_case3~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv+hiqual_dv, 
                                family=quasibinomial, design=svy_broken_emp_b, 
                                na.action = na.omit)
 
@@ -1787,7 +1787,7 @@ svy_ghq_emp_spells_glm_b_df <- svy_ghq_emp_spells_glm_b_df %>%
 
 ### sample A -----------------------
 ## logistic regression
-svy_ghq_multi_emp_glm_a <- svyglm(ghq_case3~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_multi_emp_glm_a <- svyglm(ghq_case3~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                               family=quasibinomial, design=svy_multi_emp_a, 
                               na.action = na.omit)
 
@@ -1828,7 +1828,7 @@ svy_ghq_multi_emp_glm_a_df <- svy_ghq_multi_emp_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_ghq_multi_emp_glm_b <- svyglm(ghq_case3~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_multi_emp_glm_b <- svyglm(ghq_case3~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv+hiqual_dv, 
                               family=quasibinomial, design=svy_multi_emp_b, 
                               na.action = na.omit)
 
@@ -1994,7 +1994,7 @@ plotter2(data = svy_ghq_multi_emp_glm_a_df,
          classes = c("into employment", "multiple employment", 
                      "out of employment", "unemployed"),
          y_lab = "Employment contract class",
-         title_lab = "Common mental health conditon by multiple employment class (Sample A)")
+         title_lab = "Common mental health conditon by multiple employment\nclass (Sample A)")
 dev.off()
 
 ### sample B
