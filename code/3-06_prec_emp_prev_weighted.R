@@ -1215,21 +1215,40 @@ rm(list = ls()[!(ls() %in% c('svy_dsr_df1','svy_dsr_df2','svy_dsr_df3',
 #####                               plots                                  #####
 ################################################################################
 
+#### create df's for plots -----------------------------------------------------
+### employment contract
 svy_dsr_df1 <- svy_dsr_df1 %>% 
   mutate(exp_flag = factor(ifelse(class_mem=="non-permanent employment",1,
                                   ifelse(class_mem=="permanent employment",2,
-                                         0))))
+                                         0)))) %>% 
+  mutate(class_mem = str_to_sentence(class_mem))
 
+### employment spells
 svy_dsr_df2 <- svy_dsr_df2 %>% 
   mutate(exp_flag = factor(ifelse(class_mem=="broken employment",1,
                                   ifelse(class_mem=="unbroken employment",2,
-                                         0))))
+                                         0)))) %>% 
+  mutate(class_mem = str_to_sentence(class_mem))
 
+### multiple employment
 svy_dsr_df3 <- svy_dsr_df3 %>% 
   mutate(exp_flag = factor(ifelse(class_mem=="multiple employment",1,
                                   ifelse(class_mem=="single employment",2,
-                                         0))))
+                                         0)))) %>% 
+  mutate(class_mem = str_to_sentence(class_mem))
 
+### save df's for use in Markdown file
+## emp contract
+write_rds(svy_dsr_df1, "./working_data/weighted/svy_dsr_df1.rds")
+
+## emp spells
+write_rds(svy_dsr_df2, "./working_data/weighted/svy_dsr_df2.rds")
+
+## multiple emp
+write_rds(svy_dsr_df3, "./working_data/weighted/svy_dsr_df3.rds")
+
+
+#### function for creating prevalence plots ------------------------------------
 plotter <-  function(data, outcome, x=class_mem, y=value){ 
   temp <- data %>% 
   filter(outcome_lab == outcome &
@@ -1242,6 +1261,8 @@ plotter <-  function(data, outcome, x=class_mem, y=value){
   geom_errorbar(aes(ymin=lowercl, ymax=uppercl), colour="black", width=.1) +
   coord_flip() +
   theme_bw() +
+    xlab("Class membership") +
+    ylab("%") +
   tidytext::scale_x_reordered() +
   scale_fill_manual(name = "exp_flag", values=c("grey50","red","green")) +
   facet_wrap(~sample_grp, ncol = 1, scales = "free_y")
@@ -1250,33 +1271,45 @@ plotter <-  function(data, outcome, x=class_mem, y=value){
 #### employment contract -------------------------------------------------------
 
 ### poor self-rated health
+tiff("./output/weighted/emp_contract_srh_dsr_grouped.tiff")
 plotter(data = svy_dsr_df1,
         outcome = "poor self-rated health")
+dev.off()
 
 ### poor mental health
+tiff("./output/weighted/emp_contract_ghq_dsr_grouped.tiff")
 plotter(data = svy_dsr_df1,
         outcome = "poor mental health")
+dev.off()
 
 
 #### broken employment ---------------------------------------------------------
 
 ### poor self-rated health
+tiff("./output/weighted/emp_spells_srh_dsr_grouped.tiff")
 plotter(data = svy_dsr_df2,
         outcome = "poor self-rated health")
+dev.off()
 
 ### poor mental health
+tiff("./output/weighted/emp_spells_ghq_dsr_grouped.tiff")
 plotter(data = svy_dsr_df2,
         outcome = "poor mental health")
+dev.off()
 
 #### multiple employment -------------------------------------------------------
 
 ### poor self-rated health
+tiff("./output/weighted/multi_emp_srh_dsr_grouped.tiff")
 plotter(data = svy_dsr_df3,
         outcome = "poor self-rated health")
+dev.off()
 
 ### poor mental health
+tiff("./output/weighted/multi_emp_ghq_dsr_grouped.tiff")
 plotter(data = svy_dsr_df3,
         outcome = "poor mental health")
+dev.off()
 
 
 
