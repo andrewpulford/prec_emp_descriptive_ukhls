@@ -173,6 +173,106 @@ exposure_class_overlaps_b <- svytotal(~exp_overlap, svy_dfas1b_end_class, na.rm=
 ### very little overlap - leave for now
 
 ################################################################################
+#####                   descriptives - class totals and %s                 #####
+################################################################################
+
+#### employment contract -------------------------------------------------------
+
+### sample A ------------
+emp_contract_a <- data.frame(svymean(~emp_contract_class, svy_dfas1a_end_class, na.rm=TRUE))
+emp_contract_a <- cbind(rownames(emp_contract_a),emp_contract_a, row.names=NULL)
+emp_contract_a$`rownames(emp_contract_a)` <- str_replace(emp_contract_a$`rownames(emp_contract_a)`, "emp_contract_class","")
+emp_contract_a <- emp_contract_a %>% rename(measure = `rownames(emp_contract_a)`)
+names(emp_contract_a) <- tolower(names(emp_contract_a)) # change all col names to lower case
+
+emp_contract_a <- emp_contract_a %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "employment contract",
+         sample_grp = "A") %>% 
+  dplyr::select(-c(se, mean))
+
+### sample B ------------
+emp_contract_b <- data.frame(svymean(~emp_contract_class, svy_dfas1b_end_class, na.rm=TRUE))
+emp_contract_b <- cbind(rownames(emp_contract_b),emp_contract_b, row.names=NULL)
+emp_contract_b$`rownames(emp_contract_b)` <- str_replace(emp_contract_b$`rownames(emp_contract_b)`, "emp_contract_class","")
+emp_contract_b <- emp_contract_b %>% rename(measure = `rownames(emp_contract_b)`)
+names(emp_contract_b) <- tolower(names(emp_contract_b)) # change all col names to lower case
+
+emp_contract_b <- emp_contract_b %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "employment contract",
+         sample_grp = "B") %>% 
+  dplyr::select(-c(se, mean))
+
+#### employment spells ---------------------------------------------------------
+
+### sample A ------------
+emp_spells_a <- data.frame(svymean(~emp_spells_class, svy_dfas1a_end_class, na.rm=TRUE))
+emp_spells_a_n <- data.frame(svytotal(~emp_spells_class, svy_dfas1a_end_class, na.rm=TRUE))
+emp_spells_a <- cbind(rownames(emp_spells_a),emp_spells_a, row.names=NULL)
+emp_spells_a$`rownames(emp_spells_a)` <- str_replace(emp_spells_a$`rownames(emp_spells_a)`, "emp_spells_class","")
+emp_spells_a <- emp_spells_a %>% rename(measure = `rownames(emp_spells_a)`)
+names(emp_spells_a) <- tolower(names(emp_spells_a)) # change all col names to lower case
+
+emp_spells_a <- emp_spells_a %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "employment spells",
+         sample_grp = "A") %>% 
+  dplyr::select(-c(se, mean))
+
+### sample B ------------
+emp_spells_b <- data.frame(svymean(~emp_spells_class, svy_dfas1b_end_class, na.rm=TRUE))
+emp_spells_b <- cbind(rownames(emp_spells_b),emp_spells_b, row.names=NULL)
+emp_spells_b$`rownames(emp_spells_b)` <- str_replace(emp_spells_b$`rownames(emp_spells_b)`, "emp_spells_class","")
+emp_spells_b <- emp_spells_b %>% rename(measure = `rownames(emp_spells_b)`)
+names(emp_spells_b) <- tolower(names(emp_spells_b)) # change all col names to lower case
+
+emp_spells_b <- emp_spells_b %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "employment spells",
+         sample_grp = "B") %>% 
+  dplyr::select(-c(se, mean))
+
+#### multiple employment  ------------------------------------------------------
+
+### sample A ------------
+multi_emp_a <- data.frame(svymean(~multi_emp_class, svy_dfas1a_end_class, na.rm=TRUE))
+multi_emp_a <- cbind(rownames(multi_emp_a),multi_emp_a, row.names=NULL)
+multi_emp_a$`rownames(multi_emp_a)` <- str_replace(multi_emp_a$`rownames(multi_emp_a)`, "multi_emp_class","")
+multi_emp_a <- multi_emp_a %>% rename(measure = `rownames(multi_emp_a)`)
+names(multi_emp_a) <- tolower(names(multi_emp_a)) # change all col names to lower case
+
+multi_emp_a <- multi_emp_a %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "multiple employment",
+         sample_grp = "A") %>% 
+  dplyr::select(-c(se, mean))
+
+### sample B ------------
+multi_emp_b <- data.frame(svymean(~multi_emp_class, svy_dfas1b_end_class, na.rm=TRUE))
+multi_emp_b <- cbind(rownames(multi_emp_b),multi_emp_b, row.names=NULL)
+multi_emp_b$`rownames(multi_emp_b)` <- str_replace(multi_emp_b$`rownames(multi_emp_b)`, "multi_emp_class","")
+multi_emp_b <- multi_emp_b %>% rename(measure = `rownames(multi_emp_b)`)
+names(multi_emp_b) <- tolower(names(multi_emp_b)) # change all col names to lower case
+
+multi_emp_b <- multi_emp_b %>% 
+  mutate(pc = as.double(mean*100),
+         exp_lab = "multiple employment",
+         sample_grp = "B") %>% 
+  dplyr::select(-c(se, mean))
+
+#### join together and save ----------------------------------------------------
+
+class_pc <- emp_contract_a %>% 
+  bind_rows(emp_contract_b,
+            emp_spells_a,
+            emp_spells_b,
+            multi_emp_a,
+            multi_emp_b)
+
+write_rds(class_pc, "./working_data/weighted/class_pc.rds")
+
+################################################################################
 #####                   descriptives - employment contract                 #####
 ################################################################################
 
