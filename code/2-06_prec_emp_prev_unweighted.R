@@ -53,7 +53,8 @@ emp_contracta_5class_spine <- readRDS("./working_data/emp_contracta_5class_spine
 emp_contractb_5class_spine <- readRDS("./working_data/emp_contractb_5class_spine.rds")
 
 ### employment spells LCA spine
-
+emp_spellsa_3class_spine <- readRDS("./working_data/emp_spellsa_3class_spine.rds")
+emp_spellsb_3class_spine <- readRDS("./working_data/emp_spellsb_3class_spine.rds")
 
 ### multiple employment LCA spine
 multi_empa_5class_spine <- readRDS("./working_data/multi_empa_5class_spine.rds")
