@@ -1196,8 +1196,8 @@ emp_spellsa_lca_final <- dfas1a_pred_class2 %>% ## <<< specify for final run <<<
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_spells_class= ifelse(pred_class3==1, "broken employment",
-                                    ifelse(pred_class3==2, "unbroken employment",
+  mutate(emp_spells_class= ifelse(pred_class3==1, "unbroken employment",
+                                    ifelse(pred_class3==2, "broken employment",
                                            ifelse(pred_class3==3,"unemployed",
                                                                 "CHECK"))))
 
@@ -1209,8 +1209,8 @@ emp_spellsb_lca_final <- dfas1b_pred_class2 %>% ## <<< specify for final run <<<
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
   mutate(emp_spells_class= ifelse(pred_class3==1, "unemployed",
-                                  ifelse(pred_class3==2, "broken employment",
-                                         ifelse(pred_class3==3,"unbroken employment",
+                                  ifelse(pred_class3==2, "unbroken employment",
+                                         ifelse(pred_class3==3,"broken employment",
                                                 "CHECK"))))
 
 write_rds(emp_spellsb_lca_final, "./working_data/emp_spellsb_lca_final.rds")
