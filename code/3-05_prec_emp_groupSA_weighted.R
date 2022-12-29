@@ -52,7 +52,10 @@ emp_contractb_lca_final <- readRDS("./working_data/emp_contractb_lca_final.rds")
   dplyr::select(-pred_class5)
 
 ### broken employment spells
-# to be added
+emp_spellsa_lca_final <- readRDS("./working_data/emp_spellsa_lca_final.rds") %>% 
+  dplyr::select(-pred_class3)
+emp_spellsb_lca_final <- readRDS("./working_data/emp_spellsb_lca_final.rds") %>% 
+  dplyr::select(-pred_class3)
 
 ### multiple employment
 multi_empa_lca_final <- readRDS("./working_data/multi_empa_lca_final.rds") %>% 
@@ -79,7 +82,8 @@ emp_contracta_lca_final <- emp_contracta_lca_final %>% left_join(weight_spine_a)
 emp_contractb_lca_final <- emp_contractb_lca_final %>% left_join(weight_spine_b)
 
 ### broken employment spells
-# to be added
+emp_spellsa_lca_final <- emp_spellsa_lca_final  %>% left_join(weight_spine_a)
+emp_spellsb_lca_final <- emp_spellsb_lca_final  %>% left_join(weight_spine_b)
 
 ### multiple employment
 multi_empa_lca_final <- multi_empa_lca_final %>% left_join(weight_spine_a)
@@ -185,10 +189,100 @@ seqlegend(emp_contract2.seq.b, cex = 1.3)
 
 
 ################################################################################
-#####       sequence analysis for broken employment - x class solution     #####
+#####       sequence analysis for broken employment - 3 class solution     #####
 ################################################################################
 
-# ----------- add --------------------------------------------------------------
+### define labels and codes for sequence analysis
+emp_spells_labs <- c("Broken employment", "missing", "No employment spells", "Unbroken employment" )
+emp_spells_code <- c("BE", "NA", "NE", "UE")
+
+### create sequence data
+emp_spells2.seq.a <- seqdef(emp_spellsa_lca_final, 2:5, states = emp_spells_code,
+                              labels = emp_spells_labs, 
+                              weights = emp_spellsa_lca_final$indinub_xw)
+
+
+emp_spells2.seq.b <- seqdef(emp_spellsb_lca_final, 2:5, states = emp_spells_code,
+                              labels = emp_spells_labs, 
+                              weights = emp_spellsb_lca_final$indinui_xw)
+
+## first 100 sequences
+tiff("./output/weighted/emp_spellsa_grouped_seqiplot100.tiff")#, width = 960, height = 960)
+seqiplot(emp_spells2.seq.a,
+         idxs=1:100, # to add more lines
+         with.legend = T, 
+         main = NULL,
+         group = emp_spellsa_lca_final$emp_spells_class,
+         border = NA)
+dev.off()
+
+tiff("./output/weighted/emp_spellsb_grouped_seqiplot100.tiff")#, width = 960, height = 960)
+seqiplot(emp_spells2.seq.b,
+         idxs=1:100, # to add more lines
+         with.legend = T, 
+         main = NULL,
+         group = emp_spellsb_lca_final$emp_spells_class,
+         border = NA)
+dev.off()
+
+## all sequences
+tiff("output/weighted/emp_spellsa_grouped_seqiplot.tiff")#, width = 960, height = 1920)
+seqIplot(emp_spells2.seq.a,
+         with.legend = T, 
+         main = NULL,
+         group = emp_spellsa_lca_final$emp_spells_class,
+         border = NA)
+dev.off()
+
+tiff("output/weighted/emp_spellsb_grouped_seqiplot.tiff")#, width = 960, height = 1920)
+seqIplot(emp_spells2.seq.b,
+         with.legend = T, 
+         main = NULL,
+         group = emp_spellsb_lca_final$emp_spells_class,
+         border = NA)
+dev.off()
+
+# sequence frequency plot (all common sequences)
+tiff("./output/weighted/emp_spellsa_grouped_seqfplot.tiff")#, width = 960, height = 1920)
+seqfplot(emp_spells2.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         group = emp_spellsa_lca_final$emp_spells_class,
+         border = NA, 
+         main = NULL)
+dev.off()
+
+tiff("output/weighted/emp_spellsb_grouped_seqfplot.tiff")#, width = 960, height = 1920)
+seqfplot(emp_spells2.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = emp_spellsb_lca_final$emp_spells_class,
+         main = NULL)
+dev.off()
+
+# state distribution plot
+tiff("output/weighted/emp_spellsa_grouped_seqdplot.tiff")#, width = 960, height = 960)
+seqdplot(emp_spells2.seq.a, 
+         with.legend = T, 
+         border = NA, 
+         group = emp_spellsa_lca_final$emp_spells_class,
+         main = NULL)
+dev.off()
+
+tiff("output/weighted/emp_spellsb_grouped_seqdplot.tiff")#, width = 960, height = 960)
+seqdplot(emp_spells2.seq.b, 
+         with.legend = T, 
+         border = NA, 
+         group = emp_spellsb_lca_final$emp_spells_class,
+         main = NULL)
+dev.off()
+
+# legend
+#tiff("output/weighted/emp_spells_legend.tiff", width = 400, height = 250)
+seqlegend(emp_spells2.seq.a, cex = 1.3)
+#seqlegend(emp_spells2.seq.b, cex = 1.3)
+#dev.off()
 
 ################################################################################
 #####      sequence analysis for multiple employment - 5 class solution    #####
