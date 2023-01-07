@@ -1425,7 +1425,9 @@ svy_srh_emp_contract_glm_a_ci <- svy_srh_emp_contract_glm_a_ci %>%
 ## join dfs together
 svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>% 
   left_join(svy_srh_emp_contract_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+         exp_group = "Employment contract",
+         sample_grp = "A")
 
 ### sample B -------------------
 
@@ -1467,7 +1469,9 @@ svy_srh_emp_contract_glm_b_ci <- svy_srh_emp_contract_glm_b_ci %>%
 ## join dfs together
 svy_srh_emp_contract_glm_b_df <- svy_srh_emp_contract_glm_b_df %>% 
   left_join(svy_srh_emp_contract_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+         exp_group = "Employment contract",
+         sample_grp = "B")
 
 
 #### employment spells ---------------------------------------------------------
@@ -1511,7 +1515,9 @@ svy_srh_emp_spells_glm_a_ci <- svy_srh_emp_spells_glm_a_ci %>%
 ## join dfs together
 svy_srh_emp_spells_glm_a_df <- svy_srh_emp_spells_glm_a_df %>% 
   left_join(svy_srh_emp_spells_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+         exp_group = "Employment spells",
+         sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
@@ -1552,7 +1558,9 @@ svy_srh_emp_spells_glm_b_ci <- svy_srh_emp_spells_glm_b_ci %>%
 ## join dfs together
 svy_srh_emp_spells_glm_b_df <- svy_srh_emp_spells_glm_b_df %>% 
   left_join(svy_srh_emp_spells_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+         exp_group = "Employment spells",
+         sample_grp = "B")
 
 
 #### multiple employment -------------------------------------------------------
@@ -1596,7 +1604,9 @@ svy_srh_multi_emp_glm_a_ci <- svy_srh_multi_emp_glm_a_ci %>%
 ## join dfs together
 svy_srh_multi_emp_glm_a_df <- svy_srh_multi_emp_glm_a_df %>% 
   left_join(svy_srh_multi_emp_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+         exp_group = "Multiple employment",
+         sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
@@ -1637,7 +1647,9 @@ svy_srh_multi_emp_glm_b_ci <- svy_srh_multi_emp_glm_b_ci %>%
 ## join dfs together
 svy_srh_multi_emp_glm_b_df <- svy_srh_multi_emp_glm_b_df %>% 
   left_join(svy_srh_multi_emp_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+         exp_group = "Multiple employment",
+         sample_grp = "B")
 
 
 
@@ -1687,7 +1699,9 @@ svy_ghq_emp_contract_glm_a_ci <- svy_ghq_emp_contract_glm_a_ci %>%
 ## join dfs together
 svy_ghq_emp_contract_glm_a_df <- svy_ghq_emp_contract_glm_a_df %>% 
   left_join(svy_ghq_emp_contract_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+                              exp_group = "Employment contract",
+                              sample_grp = "A")
 
 ### sample B -------------------
 
@@ -1729,7 +1743,9 @@ svy_ghq_emp_contract_glm_b_ci <- svy_ghq_emp_contract_glm_b_ci %>%
 ## join dfs together
 svy_ghq_emp_contract_glm_b_df <- svy_ghq_emp_contract_glm_b_df %>% 
   left_join(svy_ghq_emp_contract_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+                              exp_group = "Employment contract",
+                              sample_grp = "B")
 
 #### employment spells ---------------------------------------------------------
 
@@ -1772,7 +1788,9 @@ svy_ghq_emp_spells_glm_a_ci <- svy_ghq_emp_spells_glm_a_ci %>%
 ## join dfs together
 svy_ghq_emp_spells_glm_a_df <- svy_ghq_emp_spells_glm_a_df %>% 
   left_join(svy_ghq_emp_spells_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+         exp_group = "Employment spells",
+         sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
@@ -1813,7 +1831,9 @@ svy_ghq_emp_spells_glm_b_ci <- svy_ghq_emp_spells_glm_b_ci %>%
 ## join dfs together
 svy_ghq_emp_spells_glm_b_df <- svy_ghq_emp_spells_glm_b_df %>% 
   left_join(svy_ghq_emp_spells_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+         exp_group = "Employment spells",
+         sample_grp = "B")
 
 
 #### multiple employment -------------------------------------------------------
@@ -1857,7 +1877,9 @@ svy_ghq_multi_emp_glm_a_ci <- svy_ghq_multi_emp_glm_a_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_a_df <- svy_ghq_multi_emp_glm_a_df %>% 
   left_join(svy_ghq_multi_emp_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+         exp_group = "Multiple employment",
+         sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
@@ -1898,7 +1920,9 @@ svy_ghq_multi_emp_glm_b_ci <- svy_ghq_multi_emp_glm_b_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_b_df <- svy_ghq_multi_emp_glm_b_df %>% 
   left_join(svy_ghq_multi_emp_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"))
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+         exp_group = "Multiple employment",
+         sample_grp = "B")
 
 ################################################################################
 #####                       Logistic regression plots                      #####
@@ -2039,8 +2063,93 @@ plotter2(data = svy_ghq_multi_emp_glm_b_df,
          title_lab = "Common mental health conditon by multiple employment\nclass (Sample B)")
 dev.off()
 
+#### define function for faceted plots -----------------------------------------
+plotter3 <- function(data, y_lab, title_lab){
+  data %>% 
+#    filter(measure %in% classes) %>% 
+    ggplot(aes(x = est, y = measure, col=exp_flag)) +
+    geom_point() +
+    geom_vline(xintercept=1, linetype="dotted") +
+    geom_errorbar(aes(xmin=lci, xmax=uci, colour=exp_flag), width=.1) +
+    theme_bw() +
+    theme(legend.position = "none") +
+    scale_x_log10(breaks = c(0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10),
+                  minor_breaks = NULL) +
+    scale_color_manual(name = "exp_flag", values=c("grey10","red")) +
+    ggtitle(title_lab) +
+    labs(y = y_lab, x = "Odds ratio") +
+    facet_grid(exp_group~sample_grp, scales = "free_y")
+  
+}
 
 
+##### srh faceted chart --------------------------------------------------------
+### create df
+srh_facet_df <- svy_srh_emp_contract_glm_a_df %>% 
+  bind_rows(svy_srh_emp_contract_glm_b_df,
+            svy_srh_emp_spells_glm_a_df,
+            svy_srh_emp_spells_glm_b_df,
+            svy_srh_multi_emp_glm_a_df,
+            svy_srh_multi_emp_glm_b_df) %>% 
+  filter(measure %in% c("into employment", "non-permanent employment", 
+                        "out of employment", "unemployed","broken employment", 
+                        "multiple employment")) %>% 
+  mutate(exp_flag = factor(ifelse(measure %in% c("non-permanent employment",
+                                                   "broken employment", 
+                                                   "multiple employment"),1,
+                                         0)))
+
+
+## save df
+write_rds(srh_facet_df, "./working_data/weighted/srh_facet_df")
+
+### call function to create plot
+tiff("./output/weighted/srh_prev_grouped_facet.tiff")
+plotter3(data = srh_facet_df, 
+#         classes = c("into employment", "non-permanent employment", 
+#                     "out of employment", "unemployed","broken employment", 
+#                     "multiple employment"),
+         y_lab = "",
+         title_lab = "")
+dev.off()
+
+##### ghq faceted chart --------------------------------------------------------
+### create df
+ghq_facet_df <- svy_ghq_emp_contract_glm_a_df %>% 
+  bind_rows(svy_ghq_emp_contract_glm_b_df,
+            svy_ghq_emp_spells_glm_a_df,
+            svy_ghq_emp_spells_glm_b_df,
+            svy_ghq_multi_emp_glm_a_df,
+            svy_ghq_multi_emp_glm_b_df) %>% 
+  filter(measure %in% c("into employment", "non-permanent employment", 
+                        "out of employment", "unemployed","broken employment", 
+                        "multiple employment")) %>% 
+  mutate(exp_flag = factor(ifelse(measure %in% c("non-permanent employment",
+                                                 "broken employment", 
+                                                 "multiple employment"),1,
+                                  0)))
+
+
+## save df
+write_rds(ghq_facet_df, "./working_data/weighted/ghq_facet_df")
+
+### call function to create plot
+tiff("./output/weighted/ghq_prev_grouped_facet.tiff")
+plotter3(data = ghq_facet_df, 
+         #         classes = c("into employment", "non-permanent employment", 
+         #                     "out of employment", "unemployed","broken employment", 
+         #                     "multiple employment"),
+         y_lab = "",
+         title_lab = "")
+dev.off()
+
+
+
+
+
+
+
+############## junk ############################################################
 
 
 #### employment contract -------------------------------------------------------
