@@ -517,7 +517,7 @@ emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
 
 ```
 
-Supplementary figure 3 presents employment contract sequences ascending in order of frequency. Consistent permanent employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had employment contract sequences with varying states during the study periods. Supplementary figure 4 presents employment spell sequences ascending in order of frequency. Consistent unbroken employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment.A large minority of cases had employment spell sequences with varying states during the study periods. Supplementary figure 5 presents multiple employment sequences ascending in order of frequency. Consistent single employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had sequences with varying states during the study periods.  
+Supplementary figure 3 presents employment contract sequences ascending in order of frequency. Consistent permanent employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had employment contract sequences with varying states during the study periods. Supplementary figure 4 presents employment spell sequences ascending in order of frequency. Consistent unbroken employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had employment spell sequences with varying states during the study periods. Supplementary figure 5 presents multiple employment sequences ascending in order of frequency. Consistent single employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had sequences with varying states during the study periods.  
 
 ## Latent class analaysis
 
@@ -564,7 +564,7 @@ image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
 ### Employment contract - Sample B
 Latent class analysis of employment contract across study period B provided a very similar solution to that modelled for study period A, with a five class solution presenting as the optimum solution (Supplementary table 2, Supplementary figure 8, Supplementary figure 9).
 
-Figure 3 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample B. The same codification of latent classes identified for Sample A was applicable to Sample B.Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_b_pc)`% of Sample B.
+Figure 3 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample B. The same codification of latent classes identified for Sample A was applicable to Sample B. Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_b_pc)`% of Sample B.
 
 **Figure 3: Employment contract sequences ascending in order of frequency grouped by latent class membership - Sample B **
 ```{r, echo=FALSE}
@@ -596,7 +596,7 @@ image_read("../output/weighted/emp_spellsb_grouped_seqfplot.tiff")
 
 ```
 
-### Mutiple employment - Sample A
+### Multiple employment - Sample A
 ```{r, echo=FALSE}
 
 multi_empa_lca_fit_stats <- read.csv("../output/descriptive/multi_empa_lca_fit_stats.csv")
@@ -604,7 +604,7 @@ multi_empa_lca_fit_stats <- read.csv("../output/descriptive/multi_empa_lca_fit_s
 Latent class analysis of multiple employment across study period A provided a very similar solution to that modelled for employment contract, with a five class model presenting as the optimum solution (Supplementary table 5, Supplementary figure 14, Supplementary figure 15). 
 
 
-Figure 6 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in single employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in multiple employment during the study period.Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_a_pc)`% of Sample A.
+Figure 6 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in single employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in multiple employment during the study period. Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_a_pc)`% of Sample A.
 
 **Figure 6: Multiple employment sequences ascending in order of frequency grouped by latent class membership - Sample A **
 
@@ -615,7 +615,7 @@ image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
 
 \newpage
 
-### Mutiple employment - Sample B
+### Multiple employment - Sample B
 ```{r, echo=FALSE}
 
 multi_empb_lca_fit_stats <- read.csv("../output/descriptive/multi_empb_lca_fit_stats.csv")
@@ -633,235 +633,215 @@ image_read("../output/weighted/emp_contractb_grouped_seqfplot.tiff")
 
 \newpage
 
-## Prevalence of outcomes of interest by employment contract class
-### Employment contract
-
-```{r, echo=FALSE, include=FALSE}
-### % poor SRH
-## non-permanent sample A
-non_perm_srh_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
-                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
-
-## non-permanent sample B
-non_perm_srh_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
-                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
-
-## permanent sample A
-perm_srh_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
-                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Permanent employment"]
-
-## permanent sample B
-perm_srh_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
-                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Permanent employment"]
-
-
-### % poor mental health
-## non-permanent sample A
-non_perm_ghq_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
-                                       svy_dsr_df1$outcome_lab=="poor mental health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
-
-## non-permanent sample B
-non_perm_ghq_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
-                                       svy_dsr_df1$outcome_lab=="poor mental health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
-
-## permanent sample A
-perm_ghq_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
-                                       svy_dsr_df1$outcome_lab=="poor mental health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Permanent employment"]
-
-## permanent sample B
-perm_ghq_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
-                                       svy_dsr_df1$outcome_lab=="poor mental health" &
-                                       svy_dsr_df1$sex_dv=="both" &
-                                       svy_dsr_df1$class_mem=="Permanent employment"]
-
-
-```
-
-The non-permanent class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(non_perm_srh_prev_a, big.mark=",")`% in Sample A and `r prettyNum(non_perm_srh_prev_b, big.mark=",")`% in Sample B (Figure 8). In neither sample was the prevalence found to be different from that for the permanent employment group (`r prettyNum(perm_srh_prev_a, big.mark=",")`% and `r prettyNum(perm_srh_prev_b, big.mark=",")`% respectively). 
-
-In Sample A, prevalence of common mental health disorder (measured by GHQ-12 caseness) was found to be higher among the non-permanent employment class than the permanent employment class: `r prettyNum(non_perm_ghq_prev_a)`% and `r prettyNum(perm_ghq_prev_a)`% respectively (Figure 9). However, no different was observed between these classes in Sample B:  `r prettyNum(non_perm_ghq_prev_b)`% and `r prettyNum(perm_ghq_prev_b)`% respectively.
-
-\newpage
-
-**Figure 8: Prevalence of poor self-reported health by employment contract class**
+## Outcomes of interest by exposure class
+### Self-rated health
 ```{r, echo=FALSE}
-image_read("../output/weighted/emp_contract_srh_dsr_grouped.tiff")
+#### load in logistic regression df for self-rated health
+srh_facet_df <- readRDS("../working_data/weighted/srh_facet_df.rds")
 
+#### extract data for in-line code
+
+### employment contract
+## sample A
+# OR
+srh_non_perm_or_a <- as.character(srh_facet_df$est[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_non_perm_or_a <- str_sub(srh_non_perm_or_a, start = 1, end = 4)
+# LCI
+srh_non_perm_lci_a <- as.character(srh_facet_df$lci[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_non_perm_lci_a <- str_sub(srh_non_perm_lci_a, start = 1, end = 4)
+# UCI
+srh_non_perm_uci_a <- as.character(srh_facet_df$uci[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_non_perm_uci_a <- str_sub(srh_non_perm_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+srh_non_perm_or_b <- as.character(srh_facet_df$est[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_non_perm_or_b <- str_sub(srh_non_perm_or_b, start = 1, end = 4)
+# LCI
+srh_non_perm_lci_b <- as.character(srh_facet_df$lci[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_non_perm_lci_b <- str_sub(srh_non_perm_lci_b, start = 1, end = 4)
+# UCI
+srh_non_perm_uci_b <- as.character(srh_facet_df$uci[srh_facet_df$measure=="non-permanent employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_non_perm_uci_b <- str_sub(srh_non_perm_uci_b, start = 1, end = 4)
+
+### employment spells
+## sample A
+# OR
+srh_broken_or_a <- as.character(srh_facet_df$est[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_broken_or_a <- str_sub(srh_broken_or_a, start = 1, end = 4)
+# LCI
+srh_broken_lci_a <- as.character(srh_facet_df$lci[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_broken_lci_a <- str_sub(srh_broken_lci_a, start = 1, end = 4)
+# UCI
+srh_broken_uci_a <- as.character(srh_facet_df$uci[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_broken_uci_a <- str_sub(srh_broken_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+srh_broken_or_b <- as.character(srh_facet_df$est[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_broken_or_b <- str_sub(srh_broken_or_b, start = 1, end = 4)
+# LCI
+srh_broken_lci_b <- as.character(srh_facet_df$lci[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_broken_lci_b <- str_sub(srh_broken_lci_b, start = 1, end = 4)
+# UCI
+srh_broken_uci_b <- as.character(srh_facet_df$uci[srh_facet_df$measure=="broken employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_broken_uci_b <- str_sub(srh_broken_uci_b, start = 1, end = 4)
+
+### multiple employment
+## sample A
+# OR
+srh_multi_or_a <- as.character(srh_facet_df$est[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_multi_or_a <- str_sub(srh_multi_or_a, start = 1, end = 4)
+# LCI
+srh_multi_lci_a <- as.character(srh_facet_df$lci[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_multi_lci_a <- str_sub(srh_multi_lci_a, start = 1, end = 4)
+# UCI
+srh_multi_uci_a <- as.character(srh_facet_df$uci[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="A"])
+srh_multi_uci_a <- str_sub(srh_multi_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+srh_multi_or_b <- as.character(srh_facet_df$est[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_multi_or_b <- str_sub(srh_multi_or_b, start = 1, end = 4)
+# LCI
+srh_multi_lci_b <- as.character(srh_facet_df$lci[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_multi_lci_b <- str_sub(srh_multi_lci_b, start = 1, end = 4)
+# UCI
+srh_multi_uci_b <- as.character(srh_facet_df$uci[srh_facet_df$measure=="multiple employment" &
+                     srh_facet_df$sample_grp=="B"])
+srh_multi_uci_b <- str_sub(srh_multi_uci_b, start = 1, end = 4)
 ```
 
-\newpage
+The odds of poor self-rated health were not found to differ for members of the persistent non-permanent class in either study period (`r srh_non_perm_or_a` OR, `r srh_non_perm_lci_a` to `r srh_non_perm_uci_a` 95% CI in Sample A; `r srh_non_perm_or_b` OR, `r srh_non_perm_lci_b` to `r srh_non_perm_uci_b` 95% CI in Sample B) compared to the persistently permanently employed class (Figure 8). The odds for poor self-rated health were found to be higher among members of the broken employment spells class in both study periods (`r srh_broken_or_a` OR, `r srh_broken_lci_a` to `r srh_broken_uci_a` 95% CI in Sample A; `r srh_broken_or_b` OR, `r srh_broken_lci_b` to `r srh_broken_uci_b` 95% CI in Sample B) compared to the unbroken employment spells class. The odds of poor self-rated health were lower for the persistent multiple employment class in both study periods compared to the persistent single employment class(`r srh_multi_or_a` OR, `r srh_multi_lci_a` to `r srh_multi_uci_a` 95% CI in Sample A; `r srh_multi_or_b` OR, `r srh_multi_lci_b` to `r srh_multi_uci_b` 95% CI in Sample B).
 
-**Figure 9: Prevalence of common mental health disorder by employment contract class**
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_contract_ghq_dsr_grouped.tiff")
-
-```
-
-\newpage
-
-### Broken employment spells
-```{r, echo=FALSE, include=FALSE}
-### % poor SRH
-## broken spells sample A
-broken_srh_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
-                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Broken employment"]
-
-## broken spells sample B
-broken_srh_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
-                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Broken employment"]
-
-## unbroken spells sample A
-unbroken_srh_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
-                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Unbroken employment"]
-
-## unbroken spells sample B
-unbroken_srh_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
-                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Unbroken employment"]
-
-
-### % poor mental health
-## broken spells sample A
-broken_ghq_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
-                                       svy_dsr_df2$outcome_lab=="poor mental health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Broken employment"]
-
-## broken spells sample B
-broken_ghq_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
-                                       svy_dsr_df2$outcome_lab=="poor mental health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Broken employment"]
-
-## unbroken spells sample A
-unbroken_ghq_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
-                                       svy_dsr_df2$outcome_lab=="poor mental health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Unbroken employment"]
-
-## unbroken spells sample B
-unbroken_ghq_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
-                                       svy_dsr_df2$outcome_lab=="poor mental health" &
-                                       svy_dsr_df2$sex_dv=="both" &
-                                       svy_dsr_df2$class_mem=="Unbroken employment"]
-
-
-```
-The prevalence of poor self-rated health for the broken employment class in Sample A was `r prettyNum(broken_srh_prev_a)`% compared with `r prettyNum(broken_srh_prev_b)`% in sample B (Figure 10). For both samples the prevalence among the broken employment class was slightly higher than the equivalent unbroken employment class - `r prettyNum(unbroken_srh_prev_a)`% and `r prettyNum(unbroken_srh_prev_b)`% respectively.
-
-The prevalence of common mental health disorder among the broken employment class was `r prettyNum(broken_ghq_prev_a)`% in Sample A and `r prettyNum(broken_ghq_prev_b)`% in Sample B (Figure 11). Similar prevalence rates were observed for the unbroken employment class - `r prettyNum(unbroken_ghq_prev_a)`% and `r prettyNum(unbroken_ghq_prev_b)`% respectively.
-
-**Figure 10: Prevalence of poor self-reported health by employment spells class**
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_spells_srh_dsr_grouped.tiff")
-
-```
-
-\newpage
-
-**Figure 11: Prevalence of common mental health disorder by employment spells class**
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_spells_ghq_dsr_grouped.tiff")
-
-```
-
-\newpage
-
-### Multiple employment
-```{r, echo=FALSE, include=FALSE}
-### % poor SRH
-## multiple emp sample A
-multiple_srh_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
-                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Multiple employment"]
-
-## multiple emp sample B
-multiple_srh_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
-                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Multiple employment"]
-
-## single emp sample A
-single_srh_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
-                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Single employment"]
-
-## single emp sample B
-single_srh_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
-                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Single employment"]
-
-
-### % poor mental health
-## multiple emp sample A
-multiple_ghq_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
-                                       svy_dsr_df3$outcome_lab=="poor mental health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Multiple employment"]
-
-## multiple emp sample B
-multiple_ghq_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
-                                       svy_dsr_df3$outcome_lab=="poor mental health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Multiple employment"]
-
-## single emp sample A
-single_ghq_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
-                                       svy_dsr_df3$outcome_lab=="poor mental health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Single employment"]
-
-## single emp sample B
-single_ghq_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
-                                       svy_dsr_df3$outcome_lab=="poor mental health" &
-                                       svy_dsr_df3$sex_dv=="both" &
-                                       svy_dsr_df3$class_mem=="Single employment"]
-
-
-```
-
-The multiple employment class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(multiple_srh_prev_a)`% in Sample A and `r prettyNum(multiple_srh_prev_b)`% in Sample B (Figure 12). In both samples the prevalence of poor self-reported health was found to be lower than that for the single employment class (`r prettyNum(single_srh_prev_a)`% and `r prettyNum(single_srh_prev_b)`% respectively).
-
-The Sample A multiple employment class was found to have a similar prevalence of common mental health disorder to the single employment class: `r prettyNum(multiple_ghq_prev_a)`% and `r prettyNum(single_ghq_prev_a)`% respectively (Figure 13). However, the prevalence of common mental health disorder was higher among the Sample B multiple employment class compared to the single employment class: `r prettyNum(multiple_ghq_prev_b)`% and `r prettyNum(single_ghq_prev_b)`% respectively.
-
-\newpage
-
-**Figure 12: Prevalence of poor self-reported health by multiple employment class**
-```{r, echo=FALSE}
-image_read("../output/weighted/multi_emp_srh_dsr_grouped.tiff")
-
-```
-
-\newpage
-
-**Figure 13: Prevalence of common mental health disorder by multiple employment class**
+**Figure 8: The odds of poor self-rate health by precarious employment history class compared to more securely employed reference group (study periods A and B) **
 
 ```{r, echo=FALSE}
-image_read("../output/weighted/multi_emp_ghq_dsr_grouped.tiff")
+image_read("../output/weighted/srh_prev_grouped_facet.tiff")
+
+```
+
+
+### Common mental disorders
+
+```{r, echo=FALSE}
+#### load in logistic regression df for self-rated health
+ghq_facet_df <- readRDS("../working_data/weighted/ghq_facet_df.rds")
+
+#### extract data for in-line code
+
+### employment contract
+## sample A
+# OR
+ghq_non_perm_or_a <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_non_perm_or_a <- str_sub(ghq_non_perm_or_a, start = 1, end = 4)
+# LCI
+ghq_non_perm_lci_a <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_non_perm_lci_a <- str_sub(ghq_non_perm_lci_a, start = 1, end = 4)
+# UCI
+ghq_non_perm_uci_a <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_non_perm_uci_a <- str_sub(ghq_non_perm_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+ghq_non_perm_or_b <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_non_perm_or_b <- str_sub(ghq_non_perm_or_b, start = 1, end = 4)
+# LCI
+ghq_non_perm_lci_b <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_non_perm_lci_b <- str_sub(ghq_non_perm_lci_b, start = 1, end = 4)
+# UCI
+ghq_non_perm_uci_b <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="non-permanent employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_non_perm_uci_b <- str_sub(ghq_non_perm_uci_b, start = 1, end = 4)
+
+### employment spells
+## sample A
+# OR
+ghq_broken_or_a <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_broken_or_a <- str_sub(ghq_broken_or_a, start = 1, end = 4)
+# LCI
+ghq_broken_lci_a <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_broken_lci_a <- str_sub(ghq_broken_lci_a, start = 1, end = 4)
+# UCI
+ghq_broken_uci_a <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_broken_uci_a <- str_sub(ghq_broken_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+ghq_broken_or_b <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_broken_or_b <- str_sub(ghq_broken_or_b, start = 1, end = 4)
+# LCI
+ghq_broken_lci_b <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_broken_lci_b <- str_sub(ghq_broken_lci_b, start = 1, end = 4)
+# UCI
+ghq_broken_uci_b <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="broken employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_broken_uci_b <- str_sub(ghq_broken_uci_b, start = 1, end = 4)
+
+### multiple employment
+## sample A
+# OR
+ghq_multi_or_a <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_multi_or_a <- str_sub(ghq_multi_or_a, start = 1, end = 4)
+# LCI
+ghq_multi_lci_a <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_multi_lci_a <- str_sub(ghq_multi_lci_a, start = 1, end = 4)
+# UCI
+ghq_multi_uci_a <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="A"])
+ghq_multi_uci_a <- str_sub(ghq_multi_uci_a, start = 1, end = 4)
+
+## sample B
+# OR
+ghq_multi_or_b <- as.character(ghq_facet_df$est[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_multi_or_b <- str_sub(ghq_multi_or_b, start = 1, end = 4)
+# LCI
+ghq_multi_lci_b <- as.character(ghq_facet_df$lci[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_multi_lci_b <- str_sub(ghq_multi_lci_b, start = 1, end = 4)
+# UCI
+ghq_multi_uci_b <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="multiple employment" &
+                     ghq_facet_df$sample_grp=="B"])
+ghq_multi_uci_b <- str_sub(ghq_multi_uci_b, start = 1, end = 4)
+```
+
+Membership of the persistent non-permanent employment class was associated with higher odds of GHQ-12 caseness compared to the persistent permanent employment class in study period A (`r ghq_non_perm_or_a` OR, `r ghq_non_perm_lci_a` to `r ghq_non_perm_uci_a` 95% CI) but not in study period B (`r ghq_non_perm_or_b` OR, `r ghq_non_perm_lci_b` to `r ghq_non_perm_uci_b` 95% CI) (Figure 9). The odds of GHQ-12 caseness were higher among members of the broken employment spells class compared to the the unbroken spells class in study period A (`r ghq_broken_or_a` OR, `r ghq_broken_lci_a` to `r ghq_broken_uci_a` 95% CI) but not in study period B (`r ghq_broken_or_b` OR, `r ghq_broken_lci_b` to `r ghq_broken_uci_b` 95% CI). Membership of the persistent multiple employment class was associated with similar odds of GHQ-12 caseness in study period A (`r ghq_multi_or_a` OR, `r ghq_multi_lci_a` to `r ghq_multi_uci_a` 95% CI) and higher odds in study period B (`r ghq_multi_or_b` OR, `r ghq_multi_lci_b` to `r ghq_multi_uci_b` 95 CI) compared to the persistent single employment class.
+
+
+**Figure 9: The odds of common mental disorder by precarious employment history class compared to more securely employed reference group (study periods A and B) **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/ghq_prev_grouped_facet.tiff")
 
 ```
 
@@ -1161,7 +1141,7 @@ seqlegend(multi_jobs.seq.a, cex = 1.3)
 
 \newpage
 
-## Latent class analaysis - Employment contract
+## Latent class analysis - Employment contract
 ### Employment contract - Sample A
 **Supplementary table 1: Model fit statistics for employment contract latent class analysis solutions (2-8 classes) - Sample A **
 
@@ -1247,8 +1227,8 @@ add code chunk
 
 \newpage
 
-## Latent class analaysis - Mutiple employment
-### Mutiple employment - Sample A
+## Latent class analaysis - Multiple employment
+### Multiple employment - Sample A
 **Supplementary table 5: Model fit statistics for multiple employment latent class analysis solutions (2-8 classes) - Sample A **
 
 ```{r, echo=FALSE}
@@ -1278,7 +1258,7 @@ image_read("../output/descriptive/multi_empa_lca_final.tiff")
 ```
 
 \newpage
-### Mutiple employment - Sample B
+### Multiple employment - Sample B
 **Supplementary table 6: Model fit statistics for multiple employment latent class analysis solutions (2-8 classes) - Sample B **
 
 ```{r, echo=FALSE}
@@ -1310,4 +1290,234 @@ image_read("../output/descriptive/multi_empb_lca_final.tiff")
 
 \newpage
 
-## Age-standardised prevalence by sex
+## Prevalence of outcomes of interest by employment contract class
+### Employment contract
+
+```{r, echo=FALSE, include=FALSE}
+### % poor SRH
+## non-permanent sample A
+non_perm_srh_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
+                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
+
+## non-permanent sample B
+non_perm_srh_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
+                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
+
+## permanent sample A
+perm_srh_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
+                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Permanent employment"]
+
+## permanent sample B
+perm_srh_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
+                                       svy_dsr_df1$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Permanent employment"]
+
+
+### % poor mental health
+## non-permanent sample A
+non_perm_ghq_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
+                                       svy_dsr_df1$outcome_lab=="poor mental health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
+
+## non-permanent sample B
+non_perm_ghq_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
+                                       svy_dsr_df1$outcome_lab=="poor mental health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Non-permanent employment"]
+
+## permanent sample A
+perm_ghq_prev_a <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="A" &
+                                       svy_dsr_df1$outcome_lab=="poor mental health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Permanent employment"]
+
+## permanent sample B
+perm_ghq_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
+                                       svy_dsr_df1$outcome_lab=="poor mental health" &
+                                       svy_dsr_df1$sex_dv=="both" &
+                                       svy_dsr_df1$class_mem=="Permanent employment"]
+
+
+```
+
+The non-permanent class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(non_perm_srh_prev_a, big.mark=",")`% in Sample A and `r prettyNum(non_perm_srh_prev_b, big.mark=",")`% in Sample B (Figure 8). In neither sample was the prevalence found to be different from that for the permanent employment group (`r prettyNum(perm_srh_prev_a, big.mark=",")`% and `r prettyNum(perm_srh_prev_b, big.mark=",")`% respectively). 
+
+In Sample A, prevalence of common mental health disorder (measured by GHQ-12 caseness) was found to be higher among the non-permanent employment class than the permanent employment class: `r prettyNum(non_perm_ghq_prev_a)`% and `r prettyNum(perm_ghq_prev_a)`% respectively (Figure 9). However, no different was observed between these classes in Sample B:  `r prettyNum(non_perm_ghq_prev_b)`% and `r prettyNum(perm_ghq_prev_b)`% respectively.
+
+\newpage
+
+**Figure 8: Prevalence of poor self-reported health by employment contract class**
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_contract_srh_dsr_grouped.tiff")
+
+```
+
+\newpage
+
+**Figure 9: Prevalence of common mental health disorder by employment contract class**
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_contract_ghq_dsr_grouped.tiff")
+
+```
+
+\newpage
+
+### Broken employment spells
+```{r, echo=FALSE, include=FALSE}
+### % poor SRH
+## broken spells sample A
+broken_srh_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
+                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Broken employment"]
+
+## broken spells sample B
+broken_srh_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
+                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Broken employment"]
+
+## unbroken spells sample A
+unbroken_srh_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
+                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Unbroken employment"]
+
+## unbroken spells sample B
+unbroken_srh_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
+                                       svy_dsr_df2$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Unbroken employment"]
+
+
+### % poor mental health
+## broken spells sample A
+broken_ghq_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
+                                       svy_dsr_df2$outcome_lab=="poor mental health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Broken employment"]
+
+## broken spells sample B
+broken_ghq_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
+                                       svy_dsr_df2$outcome_lab=="poor mental health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Broken employment"]
+
+## unbroken spells sample A
+unbroken_ghq_prev_a <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="A" &
+                                       svy_dsr_df2$outcome_lab=="poor mental health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Unbroken employment"]
+
+## unbroken spells sample B
+unbroken_ghq_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
+                                       svy_dsr_df2$outcome_lab=="poor mental health" &
+                                       svy_dsr_df2$sex_dv=="both" &
+                                       svy_dsr_df2$class_mem=="Unbroken employment"]
+
+
+```
+The prevalence of poor self-rated health for the broken employment class in Sample A was `r prettyNum(broken_srh_prev_a)`% compared with `r prettyNum(broken_srh_prev_b)`% in sample B (Figure 10). For both samples the prevalence among the broken employment class was slightly higher than the equivalent unbroken employment class - `r prettyNum(unbroken_srh_prev_a)`% and `r prettyNum(unbroken_srh_prev_b)`% respectively.
+
+The prevalence of common mental health disorder among the broken employment class was `r prettyNum(broken_ghq_prev_a)`% in Sample A and `r prettyNum(broken_ghq_prev_b)`% in Sample B (Figure 11). Similar prevalence rates were observed for the unbroken employment class - `r prettyNum(unbroken_ghq_prev_a)`% and `r prettyNum(unbroken_ghq_prev_b)`% respectively.
+
+**Figure 10: Prevalence of poor self-reported health by employment spells class**
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_spells_srh_dsr_grouped.tiff")
+
+```
+
+\newpage
+
+**Figure 11: Prevalence of common mental health disorder by employment spells class**
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_spells_ghq_dsr_grouped.tiff")
+
+```
+
+\newpage
+
+### Multiple employment
+```{r, echo=FALSE, include=FALSE}
+### % poor SRH
+## multiple emp sample A
+multiple_srh_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
+                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Multiple employment"]
+
+## multiple emp sample B
+multiple_srh_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
+                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Multiple employment"]
+
+## single emp sample A
+single_srh_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
+                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Single employment"]
+
+## single emp sample B
+single_srh_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
+                                       svy_dsr_df3$outcome_lab=="poor self-rated health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Single employment"]
+
+
+### % poor mental health
+## multiple emp sample A
+multiple_ghq_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
+                                       svy_dsr_df3$outcome_lab=="poor mental health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Multiple employment"]
+
+## multiple emp sample B
+multiple_ghq_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
+                                       svy_dsr_df3$outcome_lab=="poor mental health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Multiple employment"]
+
+## single emp sample A
+single_ghq_prev_a <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="A" &
+                                       svy_dsr_df3$outcome_lab=="poor mental health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Single employment"]
+
+## single emp sample B
+single_ghq_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
+                                       svy_dsr_df3$outcome_lab=="poor mental health" &
+                                       svy_dsr_df3$sex_dv=="both" &
+                                       svy_dsr_df3$class_mem=="Single employment"]
+
+
+```
+
+The multiple employment class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(multiple_srh_prev_a)`% in Sample A and `r prettyNum(multiple_srh_prev_b)`% in Sample B (Figure 12). In both samples the prevalence of poor self-reported health was found to be lower than that for the single employment class (`r prettyNum(single_srh_prev_a)`% and `r prettyNum(single_srh_prev_b)`% respectively).
+
+The Sample A multiple employment class was found to have a similar prevalence of common mental health disorder to the single employment class: `r prettyNum(multiple_ghq_prev_a)`% and `r prettyNum(single_ghq_prev_a)`% respectively (Figure 13). However, the prevalence of common mental health disorder was higher among the Sample B multiple employment class compared to the single employment class: `r prettyNum(multiple_ghq_prev_b)`% and `r prettyNum(single_ghq_prev_b)`% respectively.
+
+\newpage
+
+**Figure 12: Prevalence of poor self-reported health by multiple employment class**
+```{r, echo=FALSE}
+image_read("../output/weighted/multi_emp_srh_dsr_grouped.tiff")
+
+```
+
+\newpage
+
+**Figure 13: Prevalence of common mental health disorder by multiple employment class**
+
+```{r, echo=FALSE}
+image_read("../output/weighted/multi_emp_ghq_dsr_grouped.tiff")
+
+```
