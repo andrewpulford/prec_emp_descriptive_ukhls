@@ -2101,7 +2101,7 @@ srh_facet_df <- svy_srh_emp_contract_glm_a_df %>%
 
 
 ## save df
-write_rds(srh_facet_df, "./working_data/weighted/srh_facet_df")
+write_rds(srh_facet_df, "./working_data/weighted/srh_facet_df.rds")
 
 ### call function to create plot
 tiff("./output/weighted/srh_prev_grouped_facet.tiff")
@@ -2131,7 +2131,7 @@ ghq_facet_df <- svy_ghq_emp_contract_glm_a_df %>%
 
 
 ## save df
-write_rds(ghq_facet_df, "./working_data/weighted/ghq_facet_df")
+write_rds(ghq_facet_df, "./working_data/weighted/ghq_facet_df.rds")
 
 ### call function to create plot
 tiff("./output/weighted/ghq_prev_grouped_facet.tiff")
