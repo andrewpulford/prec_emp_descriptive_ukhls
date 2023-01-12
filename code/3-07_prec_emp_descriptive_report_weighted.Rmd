@@ -519,7 +519,7 @@ emp_contract.seq.b <- seqdef(dfas1b_seq_wide, 2:5, states = emp_contract_code,
 
 Supplementary figure 3 presents employment contract sequences ascending in order of frequency. Consistent permanent employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had employment contract sequences with varying states during the study periods. Supplementary figure 4 presents employment spell sequences ascending in order of frequency. Consistent unbroken employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had employment spell sequences with varying states during the study periods. Supplementary figure 5 presents multiple employment sequences ascending in order of frequency. Consistent single employment was the most commonly observed sequence across both samples, followed by consistent un/non-employment. A large minority of cases had sequences with varying states during the study periods.  
 
-## Latent class analaysis
+## Latent class analysis
 
 ```{r, echo=FALSE}
 class_pc <- readRDS("../working_data/weighted/class_pc.rds")
@@ -547,91 +547,30 @@ empcontracta_fit_stats <- read.csv("../output/descriptive/empcontracta_lca_fit_s
 
 
 ```
-### Employment contract - Sample A
-Seven latent class models were run specifying between two and eight latent classes. Based on the Bayesian Information Criterion (BIC) scores for these models, a five class solution appeared to be the optimum model (Supplementary table 1). Visual inspection of the BIC elbow plot indicated that suitable "joints" in the BIC score occurred at three and five solutions (Supplementary figure 6). Visual inspection of class membership indicated that the five class model had greater face validity than the three class model (Supplementary figure 7).
+### Employment contract
+Seven latent class models were run specifying between two and eight latent classes. Based on the Bayesian Information Criterion (BIC) scores for these models, a five class solution appeared to be the optimum model (Supplementary table 1). Visual inspection of the BIC elbow plot indicated that suitable "joints" in the BIC score occurred at three and five solutions (Supplementary figure 6). Visual inspection of class membership indicated that the five class model had greater face validity than the three class model (Supplementary figure 7). Supplementary figure 8 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in permanent employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in non-permanent employment during the study period. Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_a_pc)`% of Sample A.
 
-Figure 2 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in permanent employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in non-permanent employment during the study period. Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_a_pc)`% of Sample A.
+Latent class analysis of employment contract across study period B provided a very similar solution to that modelled for study period A, with a five class solution presenting as the optimum solution (Supplementary table 2, Supplementary figure 9, Supplementary figure 10). Supplementary figure 11 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample B. The same codification of latent classes identified for Sample A was applicable to Sample B. Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_b_pc)`% of Sample B.
 
-**Figure 2: Employment contract sequences ascending in order of frequency grouped by latent class membership - Sample A **
+### Broken employment spells
+Latent class analysis of broken employment spells between survey waves identified a three class model as providing the optimum solution (Supplementary table 3, Supplementary figure 12, Supplementary figure 13). Supplementary figure 14 presents broken employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The three latent classes have been codified as: (a) individuals who were in unbroken employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who reported broken employment spells for most or all the study waves. Individuals who reported broken employment spells for most or all the study waves represented `r prettyNum(broken_a_pc)`% of Sample A.
 
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
+Latent class analysis of broken employment spells across study period B provided a very similar solution to that modelled for study period A, with a five class solution presenting as the optimum solution (Supplementary table 4, Supplementary figure 15, Supplementary figure 16). Supplementary figure 17 presents employment spells sequences ascending in order of frequency grouped by latent class membership for Sample B. Individuals who reported broken employment spells for most or all the study waves represented `r prettyNum(broken_b_pc)`% of Sample B.
 
-```
-
-\newpage
-
-### Employment contract - Sample B
-Latent class analysis of employment contract across study period B provided a very similar solution to that modelled for study period A, with a five class solution presenting as the optimum solution (Supplementary table 2, Supplementary figure 8, Supplementary figure 9).
-
-Figure 3 presents employment contract sequences ascending in order of frequency grouped by latent class membership for Sample B. The same codification of latent classes identified for Sample A was applicable to Sample B. Individuals who were in non-permanent employment for most or all the study period represented `r prettyNum(non_perm_b_pc)`% of Sample B.
-
-**Figure 3: Employment contract sequences ascending in order of frequency grouped by latent class membership - Sample B **
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_contractb_grouped_seqfplot.tiff")
-```
-
-### Broken employment spells - Sample A
-Latent class analysis of broken employment spells between survey waves identified a three class model as providing the optimum solution (Supplementary table 3, Supplementary figure 10, Supplementary figure 11). Figure 4 presents broken employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The three latent classes have been codified as: (a) individuals who were in unbroken employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who reported broken employment spells for most or all the study waves. Figure x presents employment spells sequences ascending in order of frequency grouped by latent class membership for Sample A. Individuals who reported broken employment spells for most or all the study waves represented `r prettyNum(broken_a_pc)`% of Sample A.
-
-**Figure 4: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample A **
-
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_spellsa_grouped_seqfplot.tiff")
-
-```
-
-
-\newpage
-
-### Broken employment spells - Sample B
-Latent class analysis of broken employment spells across study period B provided a very similar solution to that modelled for study period A, with a five class solution presenting as the optimum solution (Supplementary table 4, Supplementary figure 12, Supplementary figure 13). 
-
-Figure 5 presents employment spells sequences ascending in order of frequency grouped by latent class membership for Sample B. Individuals who reported broken employment spells for most or all the study waves represented `r prettyNum(broken_b_pc)`% of Sample B.
-
-**Figure 5: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample B **
-
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_spellsb_grouped_seqfplot.tiff")
-
-```
-
-### Multiple employment - Sample A
+### Multiple employment
 ```{r, echo=FALSE}
 
 multi_empa_lca_fit_stats <- read.csv("../output/descriptive/multi_empa_lca_fit_stats.csv")
 ```
-Latent class analysis of multiple employment across study period A provided a very similar solution to that modelled for employment contract, with a five class model presenting as the optimum solution (Supplementary table 5, Supplementary figure 14, Supplementary figure 15). 
+Latent class analysis of multiple employment across study period A provided a very similar solution to that modelled for employment contract, with a five class model presenting as the optimum solution (Supplementary table 5, Supplementary figure 18, Supplementary figure 19). 
 
+Supplementary figure 20 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in single employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in multiple employment during the study period. Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_a_pc)`% of Sample A.
 
-Figure 6 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. The five latent classes have been codified as: (a) individuals who were in single employment for most or all the study period; (b) individuals who were unemployed/no in employment for most or all of the study period; (c) individuals who moved into employment during the study period; (d) individuals who moved out of employment during the study period; and (e) individuals who were often in multiple employment during the study period. Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_a_pc)`% of Sample A.
-
-**Figure 6: Multiple employment sequences ascending in order of frequency grouped by latent class membership - Sample A **
-
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
-
-```
-
-\newpage
-
-### Multiple employment - Sample B
 ```{r, echo=FALSE}
 
 multi_empb_lca_fit_stats <- read.csv("../output/descriptive/multi_empb_lca_fit_stats.csv")
 ```
-Latent class analysis of multiple employment across study period B provided a very similar solution to that modelled study period A, with a five class solution presenting as the optimum solution (Supplementary table 6, Figure 16, Figure 17).
-
-Figure 7 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_b_pc)`% of Sample B.
-
-**Figure 7: Multiple employment sequences ascending in order of frequency grouped by latent class membership - Sample B **
-
-```{r, echo=FALSE}
-image_read("../output/weighted/emp_contractb_grouped_seqfplot.tiff")
-
-```
-
-\newpage
+Latent class analysis of multiple employment across study period B provided a very similar solution to that modelled study period A, with a five class solution presenting as the optimum solution (Supplementary table 6, Supplementary figure 21, Supplementary figure 22). Supplementary figure 23 presents multiple employment sequences ascending in order of frequency grouped by latent class membership for Sample A. Individuals who reported multiple employment for most or all the study waves represented `r prettyNum(multi_b_pc)`% of Sample B.
 
 ## Outcomes of interest by exposure class
 ### Self-rated health
@@ -729,9 +668,10 @@ srh_multi_uci_b <- as.character(srh_facet_df$uci[srh_facet_df$measure=="multiple
 srh_multi_uci_b <- str_sub(srh_multi_uci_b, start = 1, end = 4)
 ```
 
-The odds of poor self-rated health were not found to differ for members of the persistent non-permanent class in either study period (`r srh_non_perm_or_a` OR, `r srh_non_perm_lci_a` to `r srh_non_perm_uci_a` 95% CI in Sample A; `r srh_non_perm_or_b` OR, `r srh_non_perm_lci_b` to `r srh_non_perm_uci_b` 95% CI in Sample B) compared to the persistently permanently employed class (Figure 8). The odds for poor self-rated health were found to be higher among members of the broken employment spells class in both study periods (`r srh_broken_or_a` OR, `r srh_broken_lci_a` to `r srh_broken_uci_a` 95% CI in Sample A; `r srh_broken_or_b` OR, `r srh_broken_lci_b` to `r srh_broken_uci_b` 95% CI in Sample B) compared to the unbroken employment spells class. The odds of poor self-rated health were lower for the persistent multiple employment class in both study periods compared to the persistent single employment class(`r srh_multi_or_a` OR, `r srh_multi_lci_a` to `r srh_multi_uci_a` 95% CI in Sample A; `r srh_multi_or_b` OR, `r srh_multi_lci_b` to `r srh_multi_uci_b` 95% CI in Sample B).
+The odds of poor self-rated health were not found to differ for members of the persistent non-permanent class in either study period (`r srh_non_perm_or_a` OR, `r srh_non_perm_lci_a` to `r srh_non_perm_uci_a` 95% CI in Sample A; `r srh_non_perm_or_b` OR, `r srh_non_perm_lci_b` to `r srh_non_perm_uci_b` 95% CI in Sample B) compared to the persistently permanently employed class (Figure 2). The odds for poor self-rated health were found to be higher among members of the broken employment spells class in both study periods (`r srh_broken_or_a` OR, `r srh_broken_lci_a` to `r srh_broken_uci_a` 95% CI in Sample A; `r srh_broken_or_b` OR, `r srh_broken_lci_b` to `r srh_broken_uci_b` 95% CI in Sample B) compared to the unbroken employment spells class. The odds of poor self-rated health were lower for the persistent multiple employment class in both study periods compared to the persistent single employment class(`r srh_multi_or_a` OR, `r srh_multi_lci_a` to `r srh_multi_uci_a` 95% CI in Sample A; `r srh_multi_or_b` OR, `r srh_multi_lci_b` to `r srh_multi_uci_b` 95% CI in Sample B).
 
-**Figure 8: The odds of poor self-rate health by precarious employment history class compared to more securely employed reference group (study periods A and B) **
+\newpage
+**Figure 2: The odds of poor self-rate health by precarious employment history class compared to more securely employed reference group (study periods A and B) **
 
 ```{r, echo=FALSE}
 image_read("../output/weighted/srh_prev_grouped_facet.tiff")
@@ -835,10 +775,10 @@ ghq_multi_uci_b <- as.character(ghq_facet_df$uci[ghq_facet_df$measure=="multiple
 ghq_multi_uci_b <- str_sub(ghq_multi_uci_b, start = 1, end = 4)
 ```
 
-Membership of the persistent non-permanent employment class was associated with higher odds of GHQ-12 caseness compared to the persistent permanent employment class in study period A (`r ghq_non_perm_or_a` OR, `r ghq_non_perm_lci_a` to `r ghq_non_perm_uci_a` 95% CI) but not in study period B (`r ghq_non_perm_or_b` OR, `r ghq_non_perm_lci_b` to `r ghq_non_perm_uci_b` 95% CI) (Figure 9). The odds of GHQ-12 caseness were higher among members of the broken employment spells class compared to the the unbroken spells class in study period A (`r ghq_broken_or_a` OR, `r ghq_broken_lci_a` to `r ghq_broken_uci_a` 95% CI) but not in study period B (`r ghq_broken_or_b` OR, `r ghq_broken_lci_b` to `r ghq_broken_uci_b` 95% CI). Membership of the persistent multiple employment class was associated with similar odds of GHQ-12 caseness in study period A (`r ghq_multi_or_a` OR, `r ghq_multi_lci_a` to `r ghq_multi_uci_a` 95% CI) and higher odds in study period B (`r ghq_multi_or_b` OR, `r ghq_multi_lci_b` to `r ghq_multi_uci_b` 95 CI) compared to the persistent single employment class.
+Membership of the persistent non-permanent employment class was associated with higher odds of GHQ-12 caseness compared to the persistent permanent employment class in study period A (`r ghq_non_perm_or_a` OR, `r ghq_non_perm_lci_a` to `r ghq_non_perm_uci_a` 95% CI) but not in study period B (`r ghq_non_perm_or_b` OR, `r ghq_non_perm_lci_b` to `r ghq_non_perm_uci_b` 95% CI) (Figure 3). The odds of GHQ-12 caseness were higher among members of the broken employment spells class compared to the unbroken spells class in study period A (`r ghq_broken_or_a` OR, `r ghq_broken_lci_a` to `r ghq_broken_uci_a` 95% CI) but not in study period B (`r ghq_broken_or_b` OR, `r ghq_broken_lci_b` to `r ghq_broken_uci_b` 95% CI). Membership of the persistent multiple employment class was associated with similar odds of GHQ-12 caseness in study period A (`r ghq_multi_or_a` OR, `r ghq_multi_lci_a` to `r ghq_multi_uci_a` 95% CI) and higher odds in study period B (`r ghq_multi_or_b` OR, `r ghq_multi_lci_b` to `r ghq_multi_uci_b` 95 CI) compared to the persistent single employment class.
 
-
-**Figure 9: The odds of common mental disorder by precarious employment history class compared to more securely employed reference group (study periods A and B) **
+\newpage
+**Figure 3: The odds of common mental disorder by precarious employment history class compared to more securely employed reference group (study periods A and B) **
 
 ```{r, echo=FALSE}
 image_read("../output/weighted/ghq_prev_grouped_facet.tiff")
@@ -1173,6 +1113,15 @@ image_read("../output/descriptive/emp_contracta_lca_final.tiff")
 
 \newpage
 
+**Supplementary figure 8: Employment contract sequences ascending in order of frequency grouped by latent class membership - Sample A **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
+
+```
+
+\newpage
+
 ### Employment contract - Sample B
 ```{r, echo=FALSE}
 
@@ -1184,19 +1133,19 @@ empcontractb_fit_stats <- read.csv("../output/descriptive/empcontractb_lca_fit_s
 kable(empcontractb_fit_stats)
 ```
 
-**Supplementary figure 8: BIC elbow plot for employment contract latent class analysis solutions (2-8 classes) - Sample B**
+**Supplementary figure 9: BIC elbow plot for employment contract latent class analysis solutions (2-8 classes) - Sample B**
 ```{r, echo=FALSE}
 image_read("../output/descriptive/empcontractb_lca_elbow.tiff")
 ```
 
 \newpage
 
-#### Sample B - five class model
+**Supplementary figure 10: Employment contract sequences ascending in order of frequency grouped by latent class membership - Sample B **
 ```{r, echo=FALSE}
-#readRDS("../output/descriptive/emp_contractb_lca_final_model.rds")
+image_read("../output/weighted/emp_contractb_grouped_seqfplot.tiff")
 ```
 
-**Supplementary figure 9: Employment contract latent class membership for five class model - Sample B  **
+**Supplementary figure 11: Employment contract latent class membership for five class model - Sample B  **
 
 ```{r, echo=FALSE}
 image_read("../output/descriptive/emp_contractb_lca_final.tiff")
@@ -1204,30 +1153,47 @@ image_read("../output/descriptive/emp_contractb_lca_final.tiff")
 
 \newpage
 
-## Latent class analaysis - Broken employment spells
+## Latent class analysis - Broken employment spells
 ### Broken employment spells - Sample A
 **Supplementary table 3: Model fit statistics for employment spells latent class analysis solutions (2-8 classes) - Sample A** 
 add code chunk
 
-**Supplementary figure 10: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample A** 
+**Supplementary figure 12: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample A** 
 add code chunk
 
-**Supplementary figure 11: Employment spells latent class membership for five class model - Sample A**
+**Supplementary figure 13: Employment spells latent class membership for five class model - Sample A**
 add code chunk
+
+**Supplementary figure 14: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample A **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_spellsa_grouped_seqfplot.tiff")
+
+```
+
+
+\newpage
 
 ### Broken employment spells - Sample B
 **Supplementary table 4: Model fit statistics for employment spells latent class analysis solutions (2-8 classes) - Sample B** 
 add code chunk
 
-**Supplementary figure 12: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample B** 
+**Supplementary figure 15: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample B** 
 add code chunk
 
-**Supplementary figure 13: Employment spells latent class membership for five class model - Sample B**
+**Supplementary figure 16: Employment spells latent class membership for five class model - Sample B**
 add code chunk
+
+**Supplementary figure 17: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample B **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_spellsb_grouped_seqfplot.tiff")
+
+```
 
 \newpage
 
-## Latent class analaysis - Multiple employment
+## Latent class analysis - Multiple employment
 ### Multiple employment - Sample A
 **Supplementary table 5: Model fit statistics for multiple employment latent class analysis solutions (2-8 classes) - Sample A **
 
@@ -1237,7 +1203,7 @@ kable(multi_empa_lca_fit_stats)
 
 \newpage
 
-**Supplementary figure 14: BIC elbow plot for multiple employment latent class analysis solutions (2-8 classes) - Sample A **
+**Supplementary figure 18: BIC elbow plot for multiple employment latent class analysis solutions (2-8 classes) - Sample A **
 
 ```{r, echo=FALSE}
 image_read("../output/descriptive/multi_empa_lca_elbow.tiff")
@@ -1251,13 +1217,24 @@ image_read("../output/descriptive/multi_empa_lca_elbow.tiff")
 #readRDS("../output/descriptive/multi_empa_lca_final_model.rds")
 ```
 
-**Supplementary figure 15: Multiple employment latent class membership for five class model - Sample A **
+**Supplementary figure 19: Multiple employment latent class membership for five class model - Sample A **
 
 ```{r, echo=FALSE}
 image_read("../output/descriptive/multi_empa_lca_final.tiff")
 ```
 
 \newpage
+
+**Supplementary figure 20: Multiple employment sequences ascending in order of frequency grouped by latent class membership - Sample A **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_contracta_grouped_seqfplot.tiff")
+
+```
+
+\newpage
+
+
 ### Multiple employment - Sample B
 **Supplementary table 6: Model fit statistics for multiple employment latent class analysis solutions (2-8 classes) - Sample B **
 
@@ -1267,7 +1244,7 @@ kable(multi_empb_lca_fit_stats)
 
 \newpage
 
-**Supplementary figure 16: BIC elbow plot for multiple employment latent class analysis solutions (2-8 classes) - Sample B **
+**Supplementary figure 21: BIC elbow plot for multiple employment latent class analysis solutions (2-8 classes) - Sample B **
 
 ```{r, echo=FALSE}
 image_read("../output/descriptive/multi_empb_lca_elbow.tiff")
@@ -1282,10 +1259,17 @@ image_read("../output/descriptive/multi_empb_lca_elbow.tiff")
 
 \newpage
 
-**Supplementary figure 17: Multiple employment latent class membership for five class model - Sample B **
+**Supplementary figure 22: Multiple employment latent class membership for five class model - Sample B **
 
 ```{r, echo=FALSE}
 image_read("../output/descriptive/multi_empb_lca_final.tiff")
+```
+
+**Supplementary figure 23: Multiple employment sequences ascending in order of frequency grouped by latent class membership - Sample B **
+
+```{r, echo=FALSE}
+image_read("../output/weighted/emp_contractb_grouped_seqfplot.tiff")
+
 ```
 
 \newpage
@@ -1348,13 +1332,13 @@ perm_ghq_prev_b <- svy_dsr_df1$value[svy_dsr_df1$sample_grp=="B" &
 
 ```
 
-The non-permanent class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(non_perm_srh_prev_a, big.mark=",")`% in Sample A and `r prettyNum(non_perm_srh_prev_b, big.mark=",")`% in Sample B (Figure 8). In neither sample was the prevalence found to be different from that for the permanent employment group (`r prettyNum(perm_srh_prev_a, big.mark=",")`% and `r prettyNum(perm_srh_prev_b, big.mark=",")`% respectively). 
+The non-permanent class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(non_perm_srh_prev_a, big.mark=",")`% in Sample A and `r prettyNum(non_perm_srh_prev_b, big.mark=",")`% in Sample B (Figure x). In neither sample was the prevalence found to be different from that for the permanent employment group (`r prettyNum(perm_srh_prev_a, big.mark=",")`% and `r prettyNum(perm_srh_prev_b, big.mark=",")`% respectively). 
 
-In Sample A, prevalence of common mental health disorder (measured by GHQ-12 caseness) was found to be higher among the non-permanent employment class than the permanent employment class: `r prettyNum(non_perm_ghq_prev_a)`% and `r prettyNum(perm_ghq_prev_a)`% respectively (Figure 9). However, no different was observed between these classes in Sample B:  `r prettyNum(non_perm_ghq_prev_b)`% and `r prettyNum(perm_ghq_prev_b)`% respectively.
+In Sample A, prevalence of common mental health disorder (measured by GHQ-12 caseness) was found to be higher among the non-permanent employment class than the permanent employment class: `r prettyNum(non_perm_ghq_prev_a)`% and `r prettyNum(perm_ghq_prev_a)`% respectively (Figure x). However, no different was observed between these classes in Sample B:  `r prettyNum(non_perm_ghq_prev_b)`% and `r prettyNum(perm_ghq_prev_b)`% respectively.
 
 \newpage
 
-**Figure 8: Prevalence of poor self-reported health by employment contract class**
+**Figure x: Prevalence of poor self-reported health by employment contract class**
 ```{r, echo=FALSE}
 image_read("../output/weighted/emp_contract_srh_dsr_grouped.tiff")
 
@@ -1362,7 +1346,7 @@ image_read("../output/weighted/emp_contract_srh_dsr_grouped.tiff")
 
 \newpage
 
-**Figure 9: Prevalence of common mental health disorder by employment contract class**
+**Figure x: Prevalence of common mental health disorder by employment contract class**
 ```{r, echo=FALSE}
 image_read("../output/weighted/emp_contract_ghq_dsr_grouped.tiff")
 
@@ -1425,11 +1409,11 @@ unbroken_ghq_prev_b <- svy_dsr_df2$value[svy_dsr_df2$sample_grp=="B" &
 
 
 ```
-The prevalence of poor self-rated health for the broken employment class in Sample A was `r prettyNum(broken_srh_prev_a)`% compared with `r prettyNum(broken_srh_prev_b)`% in sample B (Figure 10). For both samples the prevalence among the broken employment class was slightly higher than the equivalent unbroken employment class - `r prettyNum(unbroken_srh_prev_a)`% and `r prettyNum(unbroken_srh_prev_b)`% respectively.
+The prevalence of poor self-rated health for the broken employment class in Sample A was `r prettyNum(broken_srh_prev_a)`% compared with `r prettyNum(broken_srh_prev_b)`% in sample B (Figure x). For both samples the prevalence among the broken employment class was slightly higher than the equivalent unbroken employment class - `r prettyNum(unbroken_srh_prev_a)`% and `r prettyNum(unbroken_srh_prev_b)`% respectively.
 
-The prevalence of common mental health disorder among the broken employment class was `r prettyNum(broken_ghq_prev_a)`% in Sample A and `r prettyNum(broken_ghq_prev_b)`% in Sample B (Figure 11). Similar prevalence rates were observed for the unbroken employment class - `r prettyNum(unbroken_ghq_prev_a)`% and `r prettyNum(unbroken_ghq_prev_b)`% respectively.
+The prevalence of common mental health disorder among the broken employment class was `r prettyNum(broken_ghq_prev_a)`% in Sample A and `r prettyNum(broken_ghq_prev_b)`% in Sample B (Figure x). Similar prevalence rates were observed for the unbroken employment class - `r prettyNum(unbroken_ghq_prev_a)`% and `r prettyNum(unbroken_ghq_prev_b)`% respectively.
 
-**Figure 10: Prevalence of poor self-reported health by employment spells class**
+**Figure x: Prevalence of poor self-reported health by employment spells class**
 ```{r, echo=FALSE}
 image_read("../output/weighted/emp_spells_srh_dsr_grouped.tiff")
 
@@ -1437,7 +1421,7 @@ image_read("../output/weighted/emp_spells_srh_dsr_grouped.tiff")
 
 \newpage
 
-**Figure 11: Prevalence of common mental health disorder by employment spells class**
+**Figure x: Prevalence of common mental health disorder by employment spells class**
 ```{r, echo=FALSE}
 image_read("../output/weighted/emp_spells_ghq_dsr_grouped.tiff")
 
@@ -1501,13 +1485,13 @@ single_ghq_prev_b <- svy_dsr_df3$value[svy_dsr_df3$sample_grp=="B" &
 
 ```
 
-The multiple employment class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(multiple_srh_prev_a)`% in Sample A and `r prettyNum(multiple_srh_prev_b)`% in Sample B (Figure 12). In both samples the prevalence of poor self-reported health was found to be lower than that for the single employment class (`r prettyNum(single_srh_prev_a)`% and `r prettyNum(single_srh_prev_b)`% respectively).
+The multiple employment class was found to have the lowest prevalence of poor self-reported health in both samples: `r prettyNum(multiple_srh_prev_a)`% in Sample A and `r prettyNum(multiple_srh_prev_b)`% in Sample B (Figure x). In both samples the prevalence of poor self-reported health was found to be lower than that for the single employment class (`r prettyNum(single_srh_prev_a)`% and `r prettyNum(single_srh_prev_b)`% respectively).
 
-The Sample A multiple employment class was found to have a similar prevalence of common mental health disorder to the single employment class: `r prettyNum(multiple_ghq_prev_a)`% and `r prettyNum(single_ghq_prev_a)`% respectively (Figure 13). However, the prevalence of common mental health disorder was higher among the Sample B multiple employment class compared to the single employment class: `r prettyNum(multiple_ghq_prev_b)`% and `r prettyNum(single_ghq_prev_b)`% respectively.
+The Sample A multiple employment class was found to have a similar prevalence of common mental health disorder to the single employment class: `r prettyNum(multiple_ghq_prev_a)`% and `r prettyNum(single_ghq_prev_a)`% respectively (Figure x). However, the prevalence of common mental health disorder was higher among the Sample B multiple employment class compared to the single employment class: `r prettyNum(multiple_ghq_prev_b)`% and `r prettyNum(single_ghq_prev_b)`% respectively.
 
 \newpage
 
-**Figure 12: Prevalence of poor self-reported health by multiple employment class**
+**Figure x: Prevalence of poor self-reported health by multiple employment class**
 ```{r, echo=FALSE}
 image_read("../output/weighted/multi_emp_srh_dsr_grouped.tiff")
 
@@ -1515,7 +1499,7 @@ image_read("../output/weighted/multi_emp_srh_dsr_grouped.tiff")
 
 \newpage
 
-**Figure 13: Prevalence of common mental health disorder by multiple employment class**
+**Figure x: Prevalence of common mental health disorder by multiple employment class**
 
 ```{r, echo=FALSE}
 image_read("../output/weighted/multi_emp_ghq_dsr_grouped.tiff")
