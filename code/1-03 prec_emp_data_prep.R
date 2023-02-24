@@ -291,7 +291,32 @@ master_raw1 <- master_raw1 %>%
 
 
 #### recode GHQ-12 caseness for analysis
-## calculate caseness (cut point = 3)
+## calculate caseness for main analysis (cut point = 4)
+master_raw1 <- master_raw1 %>% mutate(ghq_case4 = ifelse(grepl("0",as.character(scghq2_dv)),0,
+                                                         ifelse(grepl("1",as.character(scghq2_dv)),0,
+                                                                ifelse(grepl("2",as.character(scghq2_dv)),0,
+                                                                       ifelse(grepl("3",as.character(scghq2_dv)),0,
+                                                                              ifelse(grepl("4",as.character(scghq2_dv)),1,
+                                                                                     ifelse(grepl("5",as.character(scghq2_dv)),1,
+                                                                                            ifelse(grepl("6",as.character(scghq2_dv)),1,
+                                                                                                   ifelse(grepl("7",as.character(scghq2_dv)),1,
+                                                                                                          ifelse(grepl("8",as.character(scghq2_dv)),1,
+                                                                                                                 ifelse(grepl("9",as.character(scghq2_dv)),1,
+                                                                                                                        ifelse(grepl("10",as.character(scghq2_dv)),1,
+                                                                                                                               ifelse(grepl("11",as.character(scghq2_dv)),1,
+                                                                                                                                      ifelse(grepl("12",as.character(scghq2_dv)),1,
+                                                                                                                                             as.character(scghq2_dv))))))))))))))) 
+
+master_raw1 <- master_raw1 %>% 
+  mutate(ghq_case4 = ifelse(ghq_case4=="0","0-3",
+                          ifelse(ghq_case4=="1","4 or more",
+                                 ifelse(ghq_case4 %in% c("inapplicable", 
+                                                         "missing", 
+                                                         "proxy"),
+                                        "missing",
+                                        ghq_case4))))
+
+## calculate caseness for sensitivity analysis (cut point = 3)
 master_raw1 <- master_raw1 %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(scghq2_dv)),0,
                                                          ifelse(grepl("1",as.character(scghq2_dv)),0,
                                                                 ifelse(grepl("2",as.character(scghq2_dv)),0,
@@ -309,12 +334,12 @@ master_raw1 <- master_raw1 %>% mutate(ghq_case3 = ifelse(grepl("0",as.character(
 
 master_raw1 <- master_raw1 %>% 
   mutate(ghq_case3 = ifelse(ghq_case3=="0","0-2",
-                          ifelse(ghq_case3=="1","3 or more",
-                                 ifelse(ghq_case3 %in% c("inapplicable", 
-                                                         "missing", 
-                                                         "proxy"),
-                                        "missing",
-                                        ghq_case3))))
+                            ifelse(ghq_case3=="1","3 or more",
+                                   ifelse(ghq_case3 %in% c("inapplicable", 
+                                                           "missing", 
+                                                           "proxy"),
+                                          "missing",
+                                          ghq_case3))))
 
 ################################################################################
 #####                         save cleaned dataframe                       #####
