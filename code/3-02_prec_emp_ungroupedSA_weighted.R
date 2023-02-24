@@ -83,8 +83,8 @@ dfas1a_seq_wide  <-  dfas1a_seq %>%
   mutate(wv=paste0("wv_",wv_n)) %>% 
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing") %>% 
-  filter(wv_6!="missing") %>% 
-  dplyr::select(-wv_NA)
+  filter(wv_6!="missing")# %>% 
+#  dplyr::select(-wv_NA)
 
 
 dfas1b_seq_wide  <-  dfas1b_seq %>% 
@@ -197,8 +197,8 @@ dfas1a_seq_wide2  <-  dfas1a_seq2 %>%
   #  mutate(broken_emp = ifelse(is.na(broken_emp),"missing",broken_emp)) %>% 
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = broken_emp, values_fill = "missing") %>% 
-  filter(wv_6!="missing") %>% 
-  dplyr::select(-wv_NA)
+  filter(wv_6!="missing") #%>% 
+#  dplyr::select(-wv_NA)
 
 
 dfas1b_seq_wide2  <-  dfas1b_seq2 %>% 
@@ -306,8 +306,8 @@ dfas1a_seq_wide3  <-  dfas1a_seq3 %>%
   mutate(wv=paste0("wv_",wv_n)) %>% 
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = j2has_dv2, values_fill = "missing") %>% 
-  filter(wv_6!="missing") %>% 
-  dplyr::select(-wv_NA)
+  filter(wv_6!="missing")# %>% 
+#  dplyr::select(-wv_NA)
 
 
 dfas1b_seq_wide3  <-  dfas1b_seq3 %>% 
@@ -420,4 +420,43 @@ saveRDS(broken_emp.seq.b, "./working_data/weighted/broken_emp.seq.b.rds")
 
 saveRDS(multi_jobs.seq.a, "./working_data/weighted/multi_jobs.seq.a.rds")
 saveRDS(multi_jobs.seq.b, "./working_data/weighted/multi_jobs.seq.b.rds")
+
+################################################################################
+#####                  Sequence frequency plots for paper                  #####
+################################################################################
+
+#### Sample A ------------------------------------------------------------------
+# sequence frequency plot (all common sequences)
+tiff("output/weighted/sample_a_seqfplot.tiff", width = 960, height = 960)
+par(mfrow=c(1,3))
+seqfplot(emp_contract.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract")
+seqfplot(broken_emp.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Job separation")
+seqfplot(multi_jobs.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment")
+dev.off()
+
+tiff("output/weighted/sample_a_legend.tiff", width = 960, height = 180)
+par(mfrow=c(1,3))
+seqlegend(emp_contract.seq.a, cex = 1.3)
+seqlegend(broken_emp.seq.a, cex = 1.3)
+seqlegend(multi_jobs.seq.a, cex = 1.3)
+dev.off()
+
+
+#### Sample B ------------------------------------------------------------------
+
+
+
+
 
