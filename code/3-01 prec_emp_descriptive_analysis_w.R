@@ -891,23 +891,23 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(sf12pcs_b)
 ### sample A ------------
 
 ## calculate proportions
-ghq3_a <- data.frame(svymean(~ghq_case3, svy_dfas1a_end))
-ghq3_a <- cbind(rownames(ghq3_a),ghq3_a, row.names=NULL)
-ghq3_a$`rownames(ghq3_a)` <- str_replace(ghq3_a$`rownames(ghq3_a)`, "ghq_case3","")
-ghq3_a <- ghq3_a %>% rename(measure = `rownames(ghq3_a)`)
-names(ghq3_a) <- tolower(names(ghq3_a)) # change all col names to lower case
+ghq4_a <- data.frame(svymean(~ghq_case4, svy_dfas1a_end))
+ghq4_a <- cbind(rownames(ghq4_a),ghq4_a, row.names=NULL)
+ghq4_a$`rownames(ghq4_a)` <- str_replace(ghq4_a$`rownames(ghq4_a)`, "ghq_case4","")
+ghq4_a <- ghq4_a %>% rename(measure = `rownames(ghq4_a)`)
+names(ghq4_a) <- tolower(names(ghq4_a)) # change all col names to lower case
 
 ## calculate totals
-ghq32_a <- data.frame(svytotal(~ghq_case3, svy_dfas1a_end))
-ghq32_a <- ghq32_a %>% dplyr::select(-SE)
-ghq32_a <- cbind(rownames(ghq32_a),ghq32_a, row.names=NULL)
-ghq32_a$`rownames(ghq32_a)` <- str_replace(ghq32_a$`rownames(ghq32_a)`, "ghq_case3","")
-ghq32_a <- ghq32_a %>% rename(measure = `rownames(ghq32_a)`)
-ghq32_a$total <- as.integer(ghq32_a$total)
+ghq42_a <- data.frame(svytotal(~ghq_case4, svy_dfas1a_end))
+ghq42_a <- ghq42_a %>% dplyr::select(-SE)
+ghq42_a <- cbind(rownames(ghq42_a),ghq42_a, row.names=NULL)
+ghq42_a$`rownames(ghq42_a)` <- str_replace(ghq42_a$`rownames(ghq42_a)`, "ghq_case4","")
+ghq42_a <- ghq42_a %>% rename(measure = `rownames(ghq42_a)`)
+ghq42_a$total <- as.integer(ghq42_a$total)
 
 ## join together and format
-ghq3_a <- ghq3_a %>%
-  left_join(ghq32_a) %>% 
+ghq4_a <- ghq4_a %>%
+  left_join(ghq42_a) %>% 
   mutate(est = mean*100,
          var="GHQ12 score",
          wv_n=6) %>% 
@@ -916,28 +916,28 @@ ghq3_a <- ghq3_a %>%
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more")))
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3_a)
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq4_a)
 
 ### sample B ------------
 
 ## calculate proportions
-ghq3_b <- data.frame(svymean(~ghq_case3, svy_dfas1b_end))
-ghq3_b <- cbind(rownames(ghq3_b),ghq3_b, row.names=NULL)
-ghq3_b$`rownames(ghq3_b)` <- str_replace(ghq3_b$`rownames(ghq3_b)`, "ghq_case3","")
-ghq3_b <- ghq3_b %>% rename(measure = `rownames(ghq3_b)`)
-names(ghq3_b) <- tolower(names(ghq3_b)) # change all col names to lower case
+ghq4_b <- data.frame(svymean(~ghq_case4, svy_dfas1b_end))
+ghq4_b <- cbind(rownames(ghq4_b),ghq4_b, row.names=NULL)
+ghq4_b$`rownames(ghq4_b)` <- str_replace(ghq4_b$`rownames(ghq4_b)`, "ghq_case4","")
+ghq4_b <- ghq4_b %>% rename(measure = `rownames(ghq4_b)`)
+names(ghq4_b) <- tolower(names(ghq4_b)) # change all col names to lower case
 
 ## calculate totals
-ghq32_b <- data.frame(svytotal(~ghq_case3, svy_dfas1b_end))
-ghq32_b <- ghq32_b %>% dplyr::select(-SE)
-ghq32_b <- cbind(rownames(ghq32_b),ghq32_b, row.names=NULL)
-ghq32_b$`rownames(ghq32_b)` <- str_replace(ghq32_b$`rownames(ghq32_b)`, "ghq_case3","")
-ghq32_b <- ghq32_b %>% rename(measure = `rownames(ghq32_b)`)
-ghq32_b$total <- as.integer(ghq32_b$total)
+ghq42_b <- data.frame(svytotal(~ghq_case4, svy_dfas1b_end))
+ghq42_b <- ghq42_b %>% dplyr::select(-SE)
+ghq42_b <- cbind(rownames(ghq42_b),ghq42_b, row.names=NULL)
+ghq42_b$`rownames(ghq42_b)` <- str_replace(ghq42_b$`rownames(ghq42_b)`, "ghq_case4","")
+ghq42_b <- ghq42_b %>% rename(measure = `rownames(ghq42_b)`)
+ghq42_b$total <- as.integer(ghq42_b$total)
 
 ## join together and format
-ghq3_b <- ghq3_b %>%
-  left_join(ghq32_b) %>% 
+ghq4_b <- ghq4_b %>%
+  left_join(ghq42_b) %>% 
   mutate(est = mean*100,
          var="GHQ12 score",
          wv_n=10) %>% 
@@ -946,7 +946,7 @@ ghq3_b <- ghq3_b %>%
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more"))) 
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3_b)
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq4_b)
 
 
 #### SF-12 mental component summary -------------------------------------------- 
