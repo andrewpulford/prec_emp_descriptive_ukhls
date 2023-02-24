@@ -130,31 +130,31 @@ dev.off()
 
 
 ### mental health symptoms
-ghq_prev_a <- dfas1a_end_class1 %>% group_by(emp_contract_class, ghq_case3) %>% 
-  summarise(a_ghq_case3_n=n()) %>% 
+ghq_prev_a <- dfas1a_end_class1 %>% group_by(emp_contract_class, ghq_case4) %>% 
+  summarise(a_ghq_case4_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(d=sum(a_ghq_case3_n),
-         p=a_ghq_case3_n/d,
-         a_ghq_case3_pc=p*100,
+  mutate(d=sum(a_ghq_case4_n),
+         p=a_ghq_case4_n/d,
+         a_ghq_case4_pc=p*100,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_ghq_lci = a_ghq_case3_pc-margin,
-         a_ghq_uci = a_ghq_case3_pc+margin) %>% 
+         a_ghq_lci = a_ghq_case4_pc-margin,
+         a_ghq_uci = a_ghq_case4_pc+margin) %>% 
   ungroup() %>% 
   dplyr::select(-c(d,p,margin))
 
 
 
-ghq_prev_b <- dfas1b_end_class1 %>% group_by(emp_contract_class, ghq_case3) %>% 
-  summarise(b_ghq_case3_n=n()) %>% 
+ghq_prev_b <- dfas1b_end_class1 %>% group_by(emp_contract_class, ghq_case4) %>% 
+  summarise(b_ghq_case4_n=n()) %>% 
   ungroup() %>% 
   group_by(emp_contract_class) %>% 
-  mutate(d=sum(b_ghq_case3_n),
-         p=b_ghq_case3_n/d,
-         b_ghq_case3_pc=p*100,
+  mutate(d=sum(b_ghq_case4_n),
+         p=b_ghq_case4_n/d,
+         b_ghq_case4_pc=p*100,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_ghq_lci = b_ghq_case3_pc-margin,
-         b_ghq_uci = b_ghq_case3_pc+margin) %>% 
+         b_ghq_lci = b_ghq_case4_pc-margin,
+         b_ghq_uci = b_ghq_case4_pc+margin) %>% 
   ungroup() %>% 
   dplyr::select(-c(d,p,margin))
 
@@ -165,9 +165,9 @@ ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
 
 tiff("./output/descriptive/empcontract_ghq_prev_grouped_a.tiff")
 ghq_prev_a %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_ghq_case3_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=a_ghq_case3_pc)) +
+  filter(ghq_case4=="4 or more") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,a_ghq_case4_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=a_ghq_case4_pc)) +
   geom_col() +
   geom_errorbar(aes(ymin=a_ghq_lci, ymax=a_ghq_uci), colour="black", width=.1)+
   coord_flip() +
@@ -176,9 +176,9 @@ dev.off()
 
 tiff("./output/descriptive/empcontract_ghq_prev_grouped_b.tiff")
 ghq_prev_b %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_ghq_case3_pc)) %>% 
-  ggplot(aes(x=emp_contract_class, y=b_ghq_case3_pc)) +
+  filter(ghq_case4=="4 or more") %>% 
+  mutate(emp_contract_class=fct_reorder(emp_contract_class,b_ghq_case4_pc)) %>% 
+  ggplot(aes(x=emp_contract_class, y=b_ghq_case4_pc)) +
   geom_col() +
   geom_errorbar(aes(ymin=b_ghq_lci, ymax=b_ghq_uci), colour="black", width=.1)+
   coord_flip() +
@@ -259,31 +259,31 @@ dev.off()
 
 
 ### mental health symptoms
-ghq_prev_a <- dfas1a_end_class3 %>% group_by(multi_emp_class, ghq_case3) %>% 
-  summarise(a_ghq_case3_n=n()) %>% 
+ghq_prev_a <- dfas1a_end_class3 %>% group_by(multi_emp_class, ghq_case4) %>% 
+  summarise(a_ghq_case4_n=n()) %>% 
   ungroup() %>% 
   group_by(multi_emp_class) %>% 
-  mutate(d=sum(a_ghq_case3_n),
-         p=a_ghq_case3_n/d,
-         a_ghq_case3_pc=p*100,
+  mutate(d=sum(a_ghq_case4_n),
+         p=a_ghq_case4_n/d,
+         a_ghq_case4_pc=p*100,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         a_ghq_lci = a_ghq_case3_pc-margin,
-         a_ghq_uci = a_ghq_case3_pc+margin) %>% 
+         a_ghq_lci = a_ghq_case4_pc-margin,
+         a_ghq_uci = a_ghq_case4_pc+margin) %>% 
   ungroup() %>% 
   dplyr::select(-c(d,p,margin))
 
 
 
-ghq_prev_b <- dfas1b_end_class3 %>% group_by(multi_emp_class, ghq_case3) %>% 
-  summarise(b_ghq_case3_n=n()) %>% 
+ghq_prev_b <- dfas1b_end_class3 %>% group_by(multi_emp_class, ghq_case4) %>% 
+  summarise(b_ghq_case4_n=n()) %>% 
   ungroup() %>% 
   group_by(multi_emp_class) %>% 
-  mutate(d=sum(b_ghq_case3_n),
-         p=b_ghq_case3_n/d,
-         b_ghq_case3_pc=p*100,
+  mutate(d=sum(b_ghq_case4_n),
+         p=b_ghq_case4_n/d,
+         b_ghq_case4_pc=p*100,
          margin = qnorm(0.975)*sqrt(p*(1-p)/d)*100,
-         b_ghq_lci = b_ghq_case3_pc-margin,
-         b_ghq_uci = b_ghq_case3_pc+margin) %>% 
+         b_ghq_lci = b_ghq_case4_pc-margin,
+         b_ghq_uci = b_ghq_case4_pc+margin) %>% 
   ungroup() %>% 
   dplyr::select(-c(d,p,margin))
 
@@ -294,9 +294,9 @@ ghq_combined <- ghq_prev_a %>% left_join(ghq_prev_b)
 
 tiff("./output/descriptive/multi_emp_ghq_prev_grouped_a.tiff")
 ghq_prev_a %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,a_ghq_case3_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=a_ghq_case3_pc)) +
+  filter(ghq_case4=="4 or more") %>% 
+  mutate(multi_emp_class=fct_reorder(multi_emp_class,a_ghq_case4_pc)) %>% 
+  ggplot(aes(x=multi_emp_class, y=a_ghq_case4_pc)) +
   geom_col() +
   geom_errorbar(aes(ymin=a_ghq_lci, ymax=a_ghq_uci), colour="black", width=.1)+
   coord_flip() +
@@ -305,9 +305,9 @@ dev.off()
 
 tiff("./output/descriptive/multi_emp_ghq_prev_grouped_b.tiff")
 ghq_prev_b %>% 
-  filter(ghq_case3=="3 or more") %>% 
-  mutate(multi_emp_class=fct_reorder(multi_emp_class,b_ghq_case3_pc)) %>% 
-  ggplot(aes(x=multi_emp_class, y=b_ghq_case3_pc)) +
+  filter(ghq_case4=="4 or more") %>% 
+  mutate(multi_emp_class=fct_reorder(multi_emp_class,b_ghq_case4_pc)) %>% 
+  ggplot(aes(x=multi_emp_class, y=b_ghq_case4_pc)) +
   geom_col() +
   geom_errorbar(aes(ymin=b_ghq_lci, ymax=b_ghq_uci), colour="black", width=.1)+
   coord_flip() +
