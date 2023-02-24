@@ -263,7 +263,7 @@ incomplete_spine_a <- eligible_pop_a %>%
          no_broken_emp = ifelse(broken_emp == "missing",1,0),
          no_j2has_dv = ifelse(j2has_dv == "missing",1,0),
          no_srh = ifelse(srh_dv %in% c("missing", "inapplicable", "refusal", "don't know"),1,0),
-         no_ghq = ifelse(ghq_case3 %in% c("missing", "inapplicable", "proxy","refusal", 
+         no_ghq = ifelse(ghq_case4 %in% c("missing", "inapplicable", "proxy","refusal", 
                             "don't know"),1,0)) %>% 
   dplyr::select(pidp, no_age, no_sex, no_hiqual, no_emp_contract, no_broken_emp, no_j2has_dv, 
          no_srh, no_ghq)
