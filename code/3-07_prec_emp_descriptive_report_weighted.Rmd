@@ -268,18 +268,18 @@ srh_nocase_b <- srh_nocase_b %>% nrow()
 # events
 ghq_case <- "x"
 
-ghq_case_a <- dfas1a %>% filter(wv_n==6 & ghq_case3=="3 or more")
+ghq_case_a <- dfas1a %>% filter(wv_n==6 & ghq_case4=="4 or more")
 ghq_case_a <- ghq_case_a %>% nrow()
 
-ghq_case_b <- dfas1b %>% filter(wv_n==10 & ghq_case3=="3 or more")
+ghq_case_b <- dfas1b %>% filter(wv_n==10 & ghq_case4=="4 or more")
 ghq_case_b <- ghq_case_b %>% nrow()
 
 # non-events
 ghq_nocase <- "x"
-ghq_nocase_a <- dfas1a %>% filter(wv_n==6 & ghq_case3=="0-2")
+ghq_nocase_a <- dfas1a %>% filter(wv_n==6 & ghq_case4=="0-3")
 ghq_nocase_a <- ghq_nocase_a %>% nrow()
 
-ghq_nocase_b <- dfas1b %>% filter(wv_n==10 & ghq_case3=="0-2")
+ghq_nocase_b <- dfas1b %>% filter(wv_n==10 & ghq_case4=="0-3")
 ghq_nocase_b <- ghq_nocase_b %>% nrow()
 
 #### weights spines -------------------
