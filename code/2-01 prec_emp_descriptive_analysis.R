@@ -344,16 +344,16 @@ sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(srh)
 
 #### GHQ-12 --------------------------------------------------------------------
 
-ghq3 <- dfas1_end %>% group_by(wv_n, ghq_case3) %>% summarise(n=n()) %>%  
+ghq4 <- dfas1_end %>% group_by(wv_n, ghq_case4) %>% summarise(n=n()) %>%  
   mutate(est = n/sum(n)*100) %>% 
   mutate(var="GHQ12 score") %>% 
-  rename("measure"= "ghq_case3") %>% 
+  rename("measure"= "ghq_case4") %>% 
   dplyr::select(wv_n,var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("0-2",
                                            "3 or more")))
 
 
-sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq3)
+sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(ghq4)
 
 #### SF-12 mental component summary -------------------------------------------- 
 ## leave for now
