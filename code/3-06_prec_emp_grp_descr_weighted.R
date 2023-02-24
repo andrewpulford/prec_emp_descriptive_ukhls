@@ -163,14 +163,43 @@ svy_dfas1b_end_class <- svydesign(id=~psu, strata=~strata,
 ################################################################################
 
 ## proportion
-exposure_class_overlaps_a <- svymean(~exp_overlap, svy_dfas1a_end_class, na.rm=TRUE)
-exposure_class_overlaps_b <- svymean(~exp_overlap, svy_dfas1b_end_class, na.rm=TRUE)
+exposure_class_overlaps_pc_a <- data.frame(svymean(~exp_overlap, svy_dfas1a_end_class, na.rm=TRUE))
+exposure_class_overlaps_pc_a <- cbind(rownames(exposure_class_overlaps_pc_a),exposure_class_overlaps_pc_a, row.names=NULL)
+names(exposure_class_overlaps_pc_a)[1] <- "overlaps"
+
+exposure_class_overlaps_pc_b <- data.frame(svymean(~exp_overlap, svy_dfas1b_end_class, na.rm=TRUE))
+exposure_class_overlaps_pc_b <- cbind(rownames(exposure_class_overlaps_pc_b),exposure_class_overlaps_pc_b, row.names=NULL)
+names(exposure_class_overlaps_pc_b)[1] <- "overlaps"
 
 ## total
-exposure_class_overlaps_a <- svytotal(~exp_overlap, svy_dfas1a_end_class, na.rm=TRUE)
-exposure_class_overlaps_b <- svytotal(~exp_overlap, svy_dfas1b_end_class, na.rm=TRUE)
+exposure_class_overlaps_n_a <- data.frame(svytotal(~exp_overlap, svy_dfas1a_end_class, na.rm=TRUE))
+exposure_class_overlaps_n_a <- cbind(rownames(exposure_class_overlaps_n_a),exposure_class_overlaps_n_a, row.names=NULL)
+names(exposure_class_overlaps_n_a)[1] <- "overlaps"
 
-### very little overlap - leave for now
+exposure_class_overlaps_n_b <- data.frame(svytotal(~exp_overlap, svy_dfas1b_end_class, na.rm=TRUE))
+exposure_class_overlaps_n_b <- cbind(rownames(exposure_class_overlaps_n_b),exposure_class_overlaps_n_b, row.names=NULL)
+names(exposure_class_overlaps_n_b)[1] <- "overlaps"
+
+### join df's together
+
+exposure_class_overlaps_a <- exposure_class_overlaps_pc_a %>% 
+  mutate(pc = mean*100) %>% 
+  dplyr::select(-c(mean,SE)) %>% 
+  left_join(exposure_class_overlaps_n_a) %>% 
+  dplyr::select(-SE)
+
+exposure_class_overlaps_b <- exposure_class_overlaps_pc_b %>% 
+  mutate(pc = mean*100) %>% 
+  dplyr::select(-c(mean,SE)) %>% 
+  left_join(exposure_class_overlaps_n_b) %>% 
+  dplyr::select(-SE)
+
+## save 
+write_rds(exposure_class_overlaps_a, 
+          "./output/weighted/exposure_class_overlaps_a.rds")
+
+write_rds(exposure_class_overlaps_b, 
+          "./output/weighted/exposure_class_overlaps_b.rds")
 
 ################################################################################
 #####                   descriptives - class totals and %s                 #####
