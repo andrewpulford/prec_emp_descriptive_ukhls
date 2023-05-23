@@ -80,9 +80,8 @@ dfas1b_seq_wide  <-  dfas1b_seq %>%
   pivot_wider(names_from = wv, values_from = emp_contract, values_fill = "missing")
 
 ### define labels and codes for sequence analysis
-## retaining missing values for now but plan to imput
-emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
-emp_contract_code <- c("FT", "NA", "PE", "UE")
+emp_contract_labs <- c("fixed term", "missing", "permanent", "non-employment" )
+emp_contract_code <- c("FT", "NA", "NE", "PE")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
@@ -290,9 +289,9 @@ write_rds(dfas1b_seq_wide3, "./working_data/dfas1b_seq_wide3.rds")
 
 
 ### define labels and codes for sequence analysis
-multi_jobs_labs <- c("missing", "multiple jobs", "one job", 
-                     "unemployed/not in employment", "unemployed/not in employment with additional")
-multi_jobs_code <- c("NA","ME", "OE", "UE", "UA")
+multi_jobs_labs <- c("missing", "multiple jobs", 
+                     "non-employment", "one job")
+multi_jobs_code <- c("NA","ME", "NE", "OE")
 
 ### create sequence data
 multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
