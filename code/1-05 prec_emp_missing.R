@@ -14,6 +14,7 @@
 # (a) Checks non-response across survey waves 
 # (b) Checks exposure data completeness across waves
 
+### note - added alt Sample B code but not for sequence analysis
 
 ################################################################################
 
@@ -41,6 +42,7 @@ dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds")
 ## for missing vars by wave (7-10) use dfas1b
 dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds")
 
+dfas1b_alt <- readRDS("./analytic_sample_data/dfas1b_alt.rds")
 
 ################################################################################
 #####                        check wave non-response                       #####
@@ -73,7 +75,20 @@ spine_total_b <- spine_total_b %>%
   mutate(pc = n/total*100) %>% 
   mutate(as = "b")
 
-spine_total <- spine_total_a %>% bind_rows(spine_total_b)
+spine_total_b_alt <- dfas1b_alt %>% group_by(wv_n) %>% 
+  summarise(n=n()) %>% 
+  ungroup() 
+
+# number and % of individuals in sample based on endpoint
+indivs_b_alt <- spine_total_b_alt[[4,2]]
+
+spine_total_b_alt <- spine_total_b_alt %>% 
+  mutate(total = indivs_b_alt) %>% 
+  mutate(pc = n/total*100) %>% 
+  mutate(as = "b_alt")
+
+
+spine_total <- spine_total_a %>% bind_rows(spine_total_b, spine_total_b_alt)
 
 # chart
 indivs_wave_plot <- spine_total %>% 
@@ -108,8 +123,18 @@ spine_waves_b <- dfas1b %>%
   mutate(pc= n/sum(n)*100) %>% 
   mutate(as = "b")
 
+spine_waves_b_alt <- dfas1b_alt %>% 
+  group_by(pidp) %>% 
+  summarise(n_wvs = n()) %>% # calculate number of waves responded to
+  ungroup() %>% 
+  group_by(n_wvs) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  mutate(pc= n/sum(n)*100) %>% 
+  mutate(as = "b_alt")
+
 ## join together
-spine_waves <- spine_waves_a %>% bind_rows(spine_waves_b)
+spine_waves <- spine_waves_a %>% bind_rows(spine_waves_b, spine_waves_b_alt)
 
 # chart
 spine_waves %>% 
@@ -146,11 +171,19 @@ spine_wide_b <- dfas1b %>%
   dplyr::select(-wv_n) %>% 
   pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
+spine_wide_b_alt <- dfas1b_alt %>%
+  dplyr::select(pidp,wv_n) %>% 
+  mutate(response=1) %>% 
+  mutate(wv=paste0("wv_",wv_n)) %>% 
+  dplyr::select(-wv_n) %>% 
+  pivot_wider(names_from = wv, values_from = response, values_fill = 99)
 
 spine.seq.a <- seqdef(spine_wide_a, 2:5, states = spine_code,
                     labels = spine_labs)
 spine.seq.b <- seqdef(spine_wide_b, 2:5, states = spine_code,
                     labels = spine_labs)
+spine.seq.b.alt <- seqdef(spine_wide_b_alt, 2:5, states = spine_code,
+                      labels = spine_labs)
 
 
 ## Index plot - first 10 sequences
