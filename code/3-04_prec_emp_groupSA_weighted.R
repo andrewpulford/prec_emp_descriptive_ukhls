@@ -59,10 +59,10 @@ emp_spellsb_lca_final <- readRDS("./working_data/emp_spellsb_lca_final.rds") %>%
 
 ### multiple employment
 multi_empa_lca_final <- readRDS("./working_data/multi_empa_lca_final.rds") %>% 
-  dplyr::select(-pred_class5)
+  dplyr::select(-pred_class3)
 
 multi_empb_lca_final <- readRDS("./working_data/multi_empb_lca_final.rds") %>% 
-  dplyr::select(-pred_class5)
+  dplyr::select(-pred_class3)
 
 
 #### weights spines ----------
@@ -85,6 +85,21 @@ emp_contractb_lca_final <- emp_contractb_lca_final %>% left_join(weight_spine_b)
 emp_spellsa_lca_final <- emp_spellsa_lca_final  %>% left_join(weight_spine_a)
 emp_spellsb_lca_final <- emp_spellsb_lca_final  %>% left_join(weight_spine_b)
 
+# recode class names
+emp_spellsa_lca_final <- emp_spellsa_lca_final %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
+
+emp_spellsb_lca_final <- emp_spellsb_lca_final %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
+
 ### multiple employment
 multi_empa_lca_final <- multi_empa_lca_final %>% left_join(weight_spine_a)
 multi_empb_lca_final <- multi_empb_lca_final %>% left_join(weight_spine_b)
@@ -96,8 +111,8 @@ multi_empb_lca_final <- multi_empb_lca_final %>% left_join(weight_spine_b)
 ################################################################################
 
 ### define labels and codes for sequence analysis
-emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
-emp_contract_code <- c("FT", "NA", "PE", "UE")
+emp_contract_labs <- c("fixed term", "missing", "non-employment", "permanent" )
+emp_contract_code <- c("FT", "NA", "NE", "PE")
 
 ### create sequence data
 emp_contract2.seq.a <- seqdef(emp_contracta_lca_final, 2:5, states = emp_contract_code,
@@ -193,7 +208,7 @@ seqlegend(emp_contract2.seq.b, cex = 1.3)
 ################################################################################
 
 ### define labels and codes for sequence analysis
-emp_spells_labs <- c("Broken employment", "missing", "No employment spells", "Unbroken employment" )
+emp_spells_labs <- c("broken employment", "missing", "no employment spells", "unbroken employment" )
 emp_spells_code <- c("BE", "NA", "NE", "UE")
 
 ### create sequence data
@@ -285,13 +300,13 @@ seqlegend(emp_spells2.seq.a, cex = 1.3)
 #dev.off()
 
 ################################################################################
-#####      sequence analysis for multiple employment - 5 class solution    #####
+#####      sequence analysis for multiple employment - 3 class solution    #####
 ################################################################################
 
 ### define labels and codes for sequence analysis
-multi_jobs_labs <- c("missing", "multiple employment", "single employment", 
-                     "unemployed/not in employment", "unemployed/not in employment with additional")
-multi_jobs_code <- c("NA","ME", "OE", "UE", "UA")
+multi_jobs_labs <- c("missing", "multiple employment", 
+                     "non-employed", "single employment")
+multi_jobs_code <- c("NA","ME", "NE", "OE")
 
 ### create sequence data
 multi_emp2.seq.a <- seqdef(multi_empa_lca_final, 2:5, states = multi_jobs_code,
@@ -378,3 +393,116 @@ dev.off()
 seqlegend(multi_emp2.seq.a, cex = 1.3)
 seqlegend(multi_emp2.seq.b, cex = 1.3)
 #dev.off()
+
+
+################################################################################
+#####                  Sequence frequency plots for paper                  #####
+################################################################################
+
+
+#### Set palettes --------------------------------------------------------------
+## for emp contract 
+cpal(emp_contract2.seq.a) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(emp_contract2.seq.b) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+## for emp continuity
+cpal(emp_spells2.seq.a) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(emp_spells2.seq.b) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+## for multiple emp
+cpal(multi_emp2.seq.a) <- c("#999999", "#E69F00", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(multi_emp2.seq.b) <- c("#999999", "#E69F00", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
+#### Employment contract -------------------------------------------------------
+
+# sequence frequency plot (all common sequences)
+tiff("./output/weighted/emp_contracta_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(emp_contract2.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = emp_contracta_lca_final$emp_contract_class,
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.8,
+         cex.lab = 1.8,
+         cex.legend =2)
+dev.off()
+
+tiff("output/weighted/emp_contractb_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(emp_contract2.seq.b, 
+                  idxs=1:900, # to add more lines
+                  with.legend = T, 
+                  border = NA, 
+                  group = emp_contractb_lca_final$emp_contract_class,
+                  ylab = "Cumulative frequency (%)",
+                  cex.main = 2,
+                  cex.axis = 1.8,
+                  cex.lab = 1.8,
+                  cex.legend =2)
+dev.off()
+
+#### Employment continuity -------------------------------------------------------
+
+# sequence frequency plot (all common sequences)
+tiff("./output/weighted/emp_continuitya_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(emp_spells2.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = emp_spellsa_lca_final$emp_spells_class,
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.8,
+         cex.lab = 1.8,
+         cex.legend =2)
+dev.off()
+
+tiff("output/weighted/emp_continuityb_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(emp_spells2.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = emp_spellsb_lca_final$emp_spells_class,
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.8,
+         cex.lab = 1.8,
+         cex.legend =2)
+dev.off()
+
+#### Multiple employment -------------------------------------------------------
+
+# sequence frequency plot (all common sequences)
+tiff("./output/weighted/multiple_empa_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(multi_emp2.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = multi_empa_lca_final$multi_emp_class,
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.8,
+         cex.lab = 1.8,
+         cex.legend =2)
+dev.off()
+
+tiff("./output/weighted/multiple_empb_grouped_seqfplot_FINAL.tiff", width = 960, height = 960)
+par(mar = c(3,5,3,5))
+seqfplot(multi_emp2.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = T, 
+         border = NA, 
+         group = multi_empb_lca_final$multi_emp_class,
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.8,
+         cex.lab = 1.8,
+         cex.legend =2)
+dev.off()
