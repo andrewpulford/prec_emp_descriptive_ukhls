@@ -38,6 +38,7 @@ library(poLCA) # for latent class analysis
 #library(randomLCA) # for repeated measures latent class analysis
 library(survey) # for applying survey weights to analysis
 options(survey.lonely.psu="adjust") # single-PSU strata are centred at the sample mean
+library(tableone) # for creating Table 1
 
 #library(srvyr) # for applying survey weights to analysis
 
@@ -54,13 +55,13 @@ dfas1a <- readRDS("./analytic_sample_data/dfas1a.rds") %>%
   mutate(sample_group = "a")# %>% select(-valid_6)
 
 ## endpoint only <<<<<< change to read
-dfas1a_end <- dfas1a %>% filter(wv_n==6)
-#write_rds(dfas1a_end, "./working_data/dfas1a_end.rds")
+dfas1a_end <- readRDS("./working_data/dfas1a_end.rds")
 
 # drop unused levels, reorder etc
 dfas1a_end$sex_dv <- droplevels(dfas1a_end$sex_dv)
 dfas1a_end$hiqual_dv <- droplevels(dfas1a_end$hiqual_dv)
 dfas1a_end$gor_dv <- droplevels(dfas1a_end$gor_dv)
+dfas1a_end$fimnnet_dv <- as.character(dfas1a_end$fimnnet_dv)
 dfas1a_end$fimnnet_dv <- as.numeric(dfas1a_end$fimnnet_dv)
 
 dfas1a_end$srh_dv <- factor(dfas1a_end$srh_dv, 
@@ -72,13 +73,14 @@ dfas1b <- readRDS("./analytic_sample_data/dfas1b.rds") %>%
   mutate(sample_group = "b")# %>% select(-valid_10)
 
 ## endpoint only <<<<<< change to read
-dfas1b_end <- dfas1b %>% filter(wv_n==10) 
-#write_rds(dfas1b_end, "./working_data/dfas1b_end.rds")
+dfas1b_end <- readRDS("./working_data/dfas1b_end.rds")
+
 
 # drop unused levels, reorder factors etc
 dfas1b_end$sex_dv <- droplevels(dfas1b_end$sex_dv)
 dfas1b_end$hiqual_dv <- droplevels(dfas1b_end$hiqual_dv)
 dfas1b_end$gor_dv <- droplevels(dfas1b_end$gor_dv)
+dfas1b_end$fimnnet_dv <- as.character(dfas1b_end$fimnnet_dv)
 dfas1b_end$fimnnet_dv <- as.numeric(dfas1b_end$fimnnet_dv)
 
 dfas1b_end$srh_dv <- factor(dfas1b_end$srh_dv, 
@@ -707,8 +709,7 @@ emp_2nd_a <- emp_2nd_a %>%
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("multiple jobs",
                                            "one job",
-                                           "unemployed/not in employment",
-                                           "unemployed/not in employment with additional")))
+                                           "unemployed/not in employment")))
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd_a)
 
@@ -739,8 +740,7 @@ emp_2nd_b <- emp_2nd_b %>%
   dplyr::select(wv_n, var, measure, n, est, se)  %>% 
   arrange(wv_n, factor(measure, levels = c("multiple jobs",
                                            "one job",
-                                           "unemployed/not in employment",
-                                           "unemployed/not in employment with additional")))
+                                           "unemployed/not in employment")))
 
 sample_chars_endpoint <- sample_chars_endpoint %>% bind_rows(emp_2nd_b)
 
@@ -990,3 +990,10 @@ write_rds(sample_chars_endpoint, "./working_data/weighted/sample_chars_endpoint.
 
 ## as output
 write_csv(sample_chars_endpoint, "./output/weighted/sample_chars_endpoint.rds")
+
+
+################################################################################
+#####                             Create Table 1                           #####
+################################################################################
+
+### leave for now - can't combine data if using different weights
