@@ -195,7 +195,7 @@ perm_emp <- dfas1_end %>% group_by(wv_n,emp_contract) %>% summarise(n=n()) %>%
   dplyr::select(wv_n,var, measure, n, est) %>% 
   arrange(wv_n, factor(measure, levels = c("fixed-term",
                                            "permanent",
-                                           "unemployed/not in employment")))
+                                           "non-employment")))
 
 
 
@@ -474,7 +474,7 @@ expos_df3 %>%
 
 
 #test <- dfas1_end %>% 
-#  filter(emp_contract!="unemployed/not in employment" & 
+#  filter(emp_contract!="non-employment" & 
 #           broken_emp == "No employment spells") %>% 
 #  select(pidp,wv_n,emp_contract,broken_emp, emp_spells_bin, nmpsp_dv, 
 #         unemp_spells_bin, nunmpsp_dv, nonemp_spells_bin, nnmpsp_dv, jbterm1,
