@@ -74,15 +74,15 @@ dfas1b_seq_wide <- dfas1b_seq_wide %>%  mutate(across(where(is.character), ~na_i
 
 
 ## convert variables to factors so that they have numeric values
-dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
+dfas1a_seq_wide$wv_3 <- factor(dfas1a_seq_wide$wv_3, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1a_seq_wide$wv_4 <- factor(dfas1a_seq_wide$wv_4, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1a_seq_wide$wv_5 <- factor(dfas1a_seq_wide$wv_5, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1a_seq_wide$wv_6 <- factor(dfas1a_seq_wide$wv_6, levels = c("fixed-term", "permanent", "non-employment"))
 
-dfas1b_seq_wide$wv_7 <- factor(dfas1b_seq_wide$wv_7, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1b_seq_wide$wv_8 <- factor(dfas1b_seq_wide$wv_8, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1b_seq_wide$wv_9 <- factor(dfas1b_seq_wide$wv_9, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
-dfas1b_seq_wide$wv_10 <- factor(dfas1b_seq_wide$wv_10, levels = c("fixed-term", "permanent", "unemployed/not in employment"))
+dfas1b_seq_wide$wv_7 <- factor(dfas1b_seq_wide$wv_7, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1b_seq_wide$wv_8 <- factor(dfas1b_seq_wide$wv_8, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1b_seq_wide$wv_9 <- factor(dfas1b_seq_wide$wv_9, levels = c("fixed-term", "permanent", "non-employment"))
+dfas1b_seq_wide$wv_10 <- factor(dfas1b_seq_wide$wv_10, levels = c("fixed-term", "permanent", "non-employment"))
 
 # check levels
 levels(dfas1a_seq_wide$wv_3)
@@ -415,15 +415,15 @@ dfas1b_seq_wide2 <- dfas1b_seq_wide2 %>%  mutate(across(where(is.character), ~na
 
 
 ## convert variables to factors so that they have numeric values
-dfas1a_seq_wide2$wv_3 <- factor(dfas1a_seq_wide2$wv_3, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1a_seq_wide2$wv_4 <- factor(dfas1a_seq_wide2$wv_4, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1a_seq_wide2$wv_5 <- factor(dfas1a_seq_wide2$wv_5, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1a_seq_wide2$wv_6 <- factor(dfas1a_seq_wide2$wv_6, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
+dfas1a_seq_wide2$wv_3 <- factor(dfas1a_seq_wide2$wv_3, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1a_seq_wide2$wv_4 <- factor(dfas1a_seq_wide2$wv_4, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1a_seq_wide2$wv_5 <- factor(dfas1a_seq_wide2$wv_5, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1a_seq_wide2$wv_6 <- factor(dfas1a_seq_wide2$wv_6, levels = c("broken employment", "unbroken employment", "no employment spells"))
 
-dfas1b_seq_wide2$wv_7 <- factor(dfas1b_seq_wide2$wv_7, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1b_seq_wide2$wv_8 <- factor(dfas1b_seq_wide2$wv_8, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1b_seq_wide2$wv_9 <- factor(dfas1b_seq_wide2$wv_9, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
-dfas1b_seq_wide2$wv_10 <- factor(dfas1b_seq_wide2$wv_10, levels = c("Broken employment", "Unbroken employment", "No employment spells"))
+dfas1b_seq_wide2$wv_7 <- factor(dfas1b_seq_wide2$wv_7, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1b_seq_wide2$wv_8 <- factor(dfas1b_seq_wide2$wv_8, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1b_seq_wide2$wv_9 <- factor(dfas1b_seq_wide2$wv_9, levels = c("broken employment", "unbroken employment", "no employment spells"))
+dfas1b_seq_wide2$wv_10 <- factor(dfas1b_seq_wide2$wv_10, levels = c("broken employment", "unbroken employment", "no employment spells"))
 
 # check levels
 levels(dfas1a_seq_wide2$wv_3)
@@ -763,30 +763,22 @@ dfas1b_seq_wide3 <- dfas1b_seq_wide3 %>%  mutate(across(where(is.character), ~na
 
 ## convert variables to factors so that they have numeric values
 dfas1a_seq_wide3$wv_3 <- factor(dfas1a_seq_wide3$wv_3, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1a_seq_wide3$wv_4 <- factor(dfas1a_seq_wide3$wv_4, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1a_seq_wide3$wv_5 <- factor(dfas1a_seq_wide3$wv_5, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1a_seq_wide3$wv_6 <- factor(dfas1a_seq_wide3$wv_6, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 
 dfas1b_seq_wide3$wv_7 <- factor(dfas1b_seq_wide3$wv_7, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1b_seq_wide3$wv_8 <- factor(dfas1b_seq_wide3$wv_8, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1b_seq_wide3$wv_9 <- factor(dfas1b_seq_wide3$wv_9, levels = c("multiple jobs", "one job", 
-                                                                  "unemployed/not in employment",
-                                                                  "unemployed/not in employment with additional"))
+                                                                  "non-employment"))
 dfas1b_seq_wide3$wv_10 <- factor(dfas1b_seq_wide3$wv_10, levels = c("multiple jobs", "one job", 
-                                                                    "unemployed/not in employment",
-                                                                    "unemployed/not in employment with additional"))
+                                                                    "non-employment"))
 
 # check levels
 levels(dfas1a_seq_wide3$wv_3)
@@ -1125,11 +1117,11 @@ emp_contracta_lca_final <- dfas1a_pred_class %>% ## <<< specify for final run <<
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_contract_class= ifelse(pred_class5==1, "non-permanent employment",
-                                    ifelse(pred_class5==2, "into employment",
-                                           ifelse(pred_class5==3,"permanent employment",
-                                                  ifelse(pred_class5==4,"unemployed",
-                                                         ifelse(pred_class5==5,"out of employment",
+  mutate(emp_contract_class= ifelse(pred_class5==1, "permanent employment",
+                                    ifelse(pred_class5==2, "gained employment",
+                                           ifelse(pred_class5==3,"non-permanent employment",
+                                                  ifelse(pred_class5==4,"non-employment",
+                                                         ifelse(pred_class5==5,"left employment",
                                                                 "CHECK"))))))
 
 write_rds(emp_contracta_lca_final, "./working_data/emp_contracta_lca_final.rds")
@@ -1139,10 +1131,10 @@ emp_contractb_lca_final <- dfas1b_pred_class %>% ## <<< specify for final run <<
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_contract_class= ifelse(pred_class5==1, "unemployed",
-                                    ifelse(pred_class5==2, "out of employment",
-                                           ifelse(pred_class5==3,"permanent employment",
-                                                  ifelse(pred_class5==4,"into employment",
+  mutate(emp_contract_class= ifelse(pred_class5==1, "permanent employment",
+                                    ifelse(pred_class5==2, "non-employment",
+                                           ifelse(pred_class5==3,"gained employment",
+                                                  ifelse(pred_class5==4,"left employment",
                                                          ifelse(pred_class5==5,"non-permanent employment",
                                                                 "CHECK"))))))
 
@@ -1159,12 +1151,12 @@ emp_contractb_5class_spine <- emp_contractb_lca_final %>%
 write_rds(emp_contracta_5class_spine, "./working_data/emp_contracta_5class_spine.rds")
 write_rds(emp_contractb_5class_spine, "./working_data/emp_contractb_5class_spine.rds")
 
-## reorder the classes so there appear in a set order (FE,PE,UE,IE,OE)
+## reorder the classes so there appear in a set order (FE,PE,NE,IE,OE)
 probs.start.a <-empcontract_lca5a$probs.start
-new.probs.start.a <- poLCA.reorder(probs.start, c(1,3,4,2,5)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(empcontract_lca5a$probs.start, c(3,1,4,2,5)) ## <<< specify for final run <<< ##
 
 probs.start.b <-empcontract_lca5b$probs.start
-new.probs.start.b <- poLCA.reorder(probs.start, c(5,3,1,4,2)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(empcontract_lca5b$probs.start, c(5,1,2,3,4)) ## <<< specify for final run <<< ##
 
 #save output
 emp_contracta_lca_final_model <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
@@ -1177,7 +1169,7 @@ saveRDS(emp_contractb_lca_final_model, "./output/descriptive/emp_contractb_lca_f
 
 # save plot
 tiff("./output/descriptive/emp_contracta_lca_final.tiff", width = 400, height = 400)
-poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start, 
+poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.a, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
@@ -1196,9 +1188,9 @@ emp_spellsa_lca_final <- dfas1a_pred_class2 %>% ## <<< specify for final run <<<
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_spells_class= ifelse(pred_class3==1, "unbroken employment",
-                                    ifelse(pred_class3==2, "broken employment",
-                                           ifelse(pred_class3==3,"unemployed",
+  mutate(emp_spells_class= ifelse(pred_class3==1, "broken employment",
+                                    ifelse(pred_class3==2, "non-employment",
+                                           ifelse(pred_class3==3,"unbroken employment",
                                                                 "CHECK"))))
 
 write_rds(emp_spellsa_lca_final, "./working_data/emp_spellsa_lca_final.rds")
@@ -1208,9 +1200,9 @@ emp_spellsb_lca_final <- dfas1b_pred_class2 %>% ## <<< specify for final run <<<
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_spells_class= ifelse(pred_class3==1, "unemployed",
-                                  ifelse(pred_class3==2, "unbroken employment",
-                                         ifelse(pred_class3==3,"broken employment",
+  mutate(emp_spells_class= ifelse(pred_class3==1, "unbroken employment",
+                                  ifelse(pred_class3==2, "broken employment",
+                                         ifelse(pred_class3==3,"non-employment",
                                                 "CHECK"))))
 
 write_rds(emp_spellsb_lca_final, "./working_data/emp_spellsb_lca_final.rds")
@@ -1228,10 +1220,10 @@ write_rds(emp_spellsb_3class_spine, "./working_data/emp_spellsb_3class_spine.rds
 
 ### reorder the classes so there appear in a set order
 probs.start.a<-empspells_lca3a$probs.start
-new.probs.start.a <- poLCA.reorder(probs.start, c(1,2,3)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(empspells_lca3a$probs.start, c(1,3,2)) ## <<< specify for final run <<< ##
 
 probs.start.b <-empspells_lca3b$probs.start
-new.probs.start.b <- poLCA.reorder(probs.start.b, c(2,3,1)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(empspells_lca3b$probs.start.b, c(2,1,3)) ## <<< specify for final run <<< ##
 
 ##save output
 emp_spellsa_lca_final_model <- poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 9000, probs.start=new.probs.start.a, 
@@ -1244,12 +1236,12 @@ saveRDS(emp_spellsb_lca_final_model, "./output/descriptive/emp_spellsb_lca_final
 
 ## save plot
 tiff("./output/descriptive/emp_spellsa_lca_final.tiff", width = 400, height = 400)
-poLCA(f, dfas1a_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start, 
+poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 8000, probs.start=new.probs.start.a, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
 tiff("./output/descriptive/emp_spellsb_lca_final.tiff", width = 400, height = 400)
-poLCA(f2, dfas1b_seq_wide2, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
+poLCA(f2, dfas1b_seq_wide2, nclass = 3, maxiter = 8000, probs.start=new.probs.start.b, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
@@ -1259,69 +1251,65 @@ dev.off()
 #### ---------------------------------------------------------------------------
 
 #### Most plausible model ------------------------------------------------------
-### 5 classes for both samples
+### 3 classes for both samples
 
 multi_empa_lca_final <- dfas1a_pred_class3 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
-  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
+  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
-                                    ifelse(pred_class5==2, "single employment",
-                                           ifelse(pred_class5==3,"multiple employment",
-                                                  ifelse(pred_class5==4,"into employment",
-                                                         ifelse(pred_class5==5,"unemployed",
-                                                                "CHECK"))))))
+  mutate(multi_emp_class= ifelse(pred_class3==1, "non-employment",
+                                    ifelse(pred_class3==2, "multiple employment",
+                                           ifelse(pred_class3==3,"single employment","CHECK"))))
 
 write_rds(multi_empa_lca_final, "./working_data/multi_empa_lca_final.rds")
 
 
 multi_empb_lca_final <- dfas1b_pred_class3 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
-  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
+  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
-                                 ifelse(pred_class5==2, "single employment",
-                                        ifelse(pred_class5==3,"into employment",
-                                               ifelse(pred_class5==4,"multiple employment",
-                                                      ifelse(pred_class5==5,"unemployed",
-                                                             "CHECK"))))))
+  mutate(multi_emp_class= ifelse(pred_class3==1, "single employment",
+                                 ifelse(pred_class3==2, "Multiple employment",
+                                        ifelse(pred_class3==3,"non-employment","CHECK"))))
 
 write_rds(multi_empb_lca_final, "./working_data/multi_empb_lca_final.rds")
 
 
 ## create spine for allocating classes back onto survey data
-multi_empa_5class_spine <- multi_empa_lca_final %>% 
+multi_empa_3class_spine <- multi_empa_lca_final %>% 
   dplyr::select(pidp,multi_emp_class)
 
-multi_empb_5class_spine <- multi_empb_lca_final %>% 
+multi_empb_3class_spine <- multi_empb_lca_final %>% 
   dplyr::select(pidp,multi_emp_class)
 
-write_rds(multi_empa_5class_spine, "./working_data/multi_empa_5class_spine.rds")
-write_rds(multi_empb_5class_spine, "./working_data/multi_empb_5class_spine.rds")
+write_rds(multi_empa_3class_spine, "./working_data/multi_empa_3class_spine.rds")
+write_rds(multi_empb_3class_spine, "./working_data/multi_empb_3class_spine.rds")
 
-## reorder the classes so there appear in a set order (ME,SE,UE,IE,OE)
-probs.start.a <-multi_emp_lca5a$probs.start
-new.probs.start.a <- poLCA.reorder(probs.start.a, c(3,2,5,4,1)) ## <<< specify for final run <<< ##
+## reorder the classes so there appear in a set order (ME,SE,NE,...)
+probs.start.a <-multi_emp_lca3a$probs.start
+new.probs.start.a <- poLCA.reorder(multi_emp_lca3a$probs.start.a, c(2,3,1)) ## <<< specify for final run <<< ##
 
-probs.start.b <-multi_emp_lca5b$probs.start
-new.probs.start.b <- poLCA.reorder(probs.start.b, c(4,2,3,5,1)) ## <<< specify for final run <<< ##
+probs.start.b <-multi_emp_lca3b$probs.start
+new.probs.start.b <- poLCA.reorder(multi_emp_lca3b$probs.start.b, c(2,1,3)) ## <<< specify for final run <<< ##
 
 #save output
-multi_empa_lca_final_model <- poLCA(f, dfas1a_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
+multi_empa_lca_final_model <- poLCA(f, dfas1a_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.start.a, 
                                        graphs = FALSE, na.rm = FALSE)
 saveRDS(multi_empa_lca_final_model, "./output/descriptive/multi_empa_lca_final_model.rds")
 
-multi_empb_lca_final_model <- poLCA(f2, dfas1b_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.b, 
+multi_empb_lca_final_model <- poLCA(f2, dfas1b_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.start.b, 
                                        graphs = FALSE, na.rm = FALSE)
 saveRDS(multi_empb_lca_final_model, "./output/descriptive/multi_empb_lca_final_model.rds")
 
 # save plot
 tiff("./output/descriptive/multi_empa_lca_final.tiff", width = 400, height = 400)
-poLCA(f, dfas1a_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
+poLCA(f, dfas1a_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.start.a, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
 tiff("./output/descriptive/multi_empb_lca_final.tiff", width = 400, height = 400)
-poLCA(f2, dfas1b_seq_wide3, nclass = 5, maxiter = 8000, probs.start=new.probs.start.b, 
+poLCA(f2, dfas1b_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.start.b, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
+
+
