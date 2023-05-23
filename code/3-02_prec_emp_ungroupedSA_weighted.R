@@ -21,6 +21,9 @@
 #       
 # (e) 
 
+########## fix labels ####################################################
+
+
 ################################################################################
 
 ## remove any existing objects from global environment
@@ -102,9 +105,8 @@ dfas1b_seq_wide <- dfas1b_seq_wide %>%
   left_join(weight_spine_b)
 
 ### define labels and codes for sequence analysis
-## retaining missing values for now but plan to imput
-emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
-emp_contract_code <- c("FT", "NA", "PE", "UE")
+emp_contract_labs <- c("fixed term", "missing", "non-employment", "permanent" )
+emp_contract_code <- c("FT", "NA", "NE", "PE")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
@@ -218,7 +220,7 @@ dfas1b_seq_wide2 <- dfas1b_seq_wide2 %>%
 
 ### define labels and codes for sequence analysis
 ## retaining missing values for now but plan to impute
-broken_emp_labs <- c("Broken employment", "Missing", "No employment spells", "Unbroken employment" )
+broken_emp_labs <- c("broken employment", "missing", "no employment spells", "unbroken employment" )
 broken_emp_code <- c("BE","NA", "NE", "UE")
 
 ### create sequence data
@@ -325,9 +327,9 @@ dfas1b_seq_wide3 <- dfas1b_seq_wide3 %>%
   left_join(weight_spine_b)
 
 ### define labels and codes for sequence analysis
-multi_jobs_labs <- c("missing", "multiple jobs", "one job", 
-                     "unemployed/not in employment", "unemployed/not in employment with additional")
-multi_jobs_code <- c("NA","ME", "OE", "UE", "UA")
+multi_jobs_labs <- c("missing", "multiple jobs", 
+                     "non-employment", "one job")
+multi_jobs_code <- c("NA","ME", "NE", "OE")
 
 ### create sequence data
 multi_jobs.seq.a <- seqdef(dfas1a_seq_wide3, 2:5, states = multi_jobs_code,
@@ -425,38 +427,153 @@ saveRDS(multi_jobs.seq.b, "./working_data/weighted/multi_jobs.seq.b.rds")
 #####                  Sequence frequency plots for paper                  #####
 ################################################################################
 
+#### Set palettes --------------------------------------------------------------
+## for emp contract 
+cpal(emp_contract.seq.a) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(emp_contract.seq.b) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+## for emp continuity
+cpal(broken_emp.seq.a) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(broken_emp.seq.b) <- c("#E69F00", "#999999", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+## for multiple emp
+cpal(multi_jobs.seq.a) <- c("#999999", "#E69F00", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cpal(multi_jobs.seq.b) <- c("#999999", "#E69F00", "#56B4E9", "#009E73")#, "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
 #### Sample A ------------------------------------------------------------------
 # sequence frequency plot (all common sequences)
-tiff("output/weighted/sample_a_seqfplot.tiff", width = 960, height = 960)
-par(mfrow=c(1,3))
+tiff("output/weighted/sample_a_seqfplot.tiff", width = 960, height = 480)
+par(mfrow=c(2,3), mar = c(3,8,3,8))
 seqfplot(emp_contract.seq.a, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Employment contract")
+         main = "Employment contract",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
 seqfplot(broken_emp.seq.a, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Job separation")
+         main = "Employment continuity",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
 seqfplot(multi_jobs.seq.a, 
          idxs=1:900, # to add more lines
          with.legend = F, 
          border = NA, 
-         main = "Multiple employment")
-dev.off()
-
-tiff("output/weighted/sample_a_legend.tiff", width = 960, height = 180)
-par(mfrow=c(1,3))
+         main = "Multiple employment",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
 seqlegend(emp_contract.seq.a, cex = 1.3)
 seqlegend(broken_emp.seq.a, cex = 1.3)
 seqlegend(multi_jobs.seq.a, cex = 1.3)
 dev.off()
 
-
 #### Sample B ------------------------------------------------------------------
+# sequence frequency plot (all common sequences)
+tiff("output/weighted/sample_b_seqfplot.tiff", width = 960, height = 440)
+par(mfrow=c(2,3), mar = c(3,8,3,8))
+seqfplot(emp_contract.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
+seqfplot(broken_emp.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment continuity",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
+seqfplot(multi_jobs.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.3,
+         cex.lab = 1.3)
+seqlegend(emp_contract.seq.b, cex = 1.3)
+seqlegend(broken_emp.seq.b, cex = 1.3)
+seqlegend(multi_jobs.seq.b, cex = 1.3)
+dev.off()
 
 
 
-
-
+#### combined ------------------------------------------------------------------
+# sequence frequency plot (all common sequences)
+tiff("output/weighted/ungrouped_seqfplot.tiff", width = 960, height = 960)
+par(mfrow=c(3,3), mar = c(3,7,3,7))
+seqfplot(emp_contract.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(broken_emp.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment continuity (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(multi_jobs.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(emp_contract.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(broken_emp.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment continuity (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(multi_jobs.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqlegend(emp_contract.seq.a, cex = 1.8)
+seqlegend(broken_emp.seq.a, cex = 1.8)
+seqlegend(multi_jobs.seq.a, cex = 1.8)
+dev.off()
