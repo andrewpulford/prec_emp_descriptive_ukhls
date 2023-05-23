@@ -153,7 +153,7 @@ master_raw1 <- master_raw1 %>%
                                                            "Unpaid, family business",
                                                            "doing something else",
                                                            "Doing something else"), 
-                                                    "unemployed/not in employment",
+                                                    "non-employment",
                                                     "missing"))))
 
 #### recode employment spells vars to create a broken employment variable
@@ -216,15 +216,15 @@ sum(master_raw1$unemp_spells_bin=="missing")
 
 ### create broken employment variable ------
 master_raw1 <- master_raw1 %>% 
-  mutate(broken_emp = ifelse(emp_spells_bin=="no","No employment spells", 
+  mutate(broken_emp = ifelse(emp_spells_bin=="no","no employment spells", 
                              ifelse(emp_spells_bin=="yes" & 
                                       non_emp_spells_bin=="no" & 
                                       unemp_spells_bin=="no",
-                                    "Unbroken employment",
+                                    "unbroken employment",
                                     ifelse(emp_spells_bin=="yes" & 
                                              (non_emp_spells_bin=="yes" |
                                                 unemp_spells_bin=="yes"),
-                                           "Broken employment","missing"))))
+                                           "broken employment","missing"))))
 
 #### recode multiple jobs var for analysis
 
@@ -244,14 +244,14 @@ master_raw1 <- master_raw1 %>%
                               emp_contract %in% c("fixed-term","permanent"), 
                             "multiple jobs",
                             ifelse(j2has_dv == "yes" & 
-                                     emp_contract %in% c("unemployed/not in employment","missing"),
-                                   "unemployed/not in employment with additional",
+                                     emp_contract %in% c("non-employment","missing"),
+                                   "non-employment",
                             ifelse(j2has_dv %in% c("no","missing") & 
                                      emp_contract %in% c("fixed-term","permanent"), 
                                    "one job",
                                    ifelse(j2has_dv %in% c("no","missing") & 
-                                            emp_contract=="unemployed/not in employment",
-                                   "unemployed/not in employment",
+                                            emp_contract=="non-employment",
+                                   "non-employment",
                                    "missing")))))
 
 ################################################################################
