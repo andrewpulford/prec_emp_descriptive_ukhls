@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 3-07 - grouped prevalence - weighted
+# 3-06 - grouped prevalence - weighted
 # Andrew Pulford
 
 # Data source:
@@ -125,8 +125,8 @@ emp_spellsa_3class_spine <- readRDS("./working_data/emp_spellsa_3class_spine.rds
 emp_spellsb_3class_spine <- readRDS("./working_data/emp_spellsb_3class_spine.rds")
 
 ### multiple employment LCA spine
-multi_empa_5class_spine <- readRDS("./working_data/multi_empa_5class_spine.rds")
-multi_empb_5class_spine <- readRDS("./working_data/multi_empb_5class_spine.rds")
+multi_empa_3class_spine <- readRDS("./working_data/multi_empa_3class_spine.rds")
+multi_empb_3class_spine <- readRDS("./working_data/multi_empb_3class_spine.rds")
 
 #### create five year age groups from 20-24 to 60-64 ---------------------------
 
@@ -176,19 +176,29 @@ dfas1b_end_class1 <- dfas1b_end %>%
 ### broken employment spells
 dfas1a_end_class2 <- dfas1a_end %>% 
   left_join(emp_spellsa_3class_spine, by="pidp") %>% 
-  left_join(weight_spine_a, by="pidp")
+  left_join(weight_spine_a, by="pidp") %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
 
 dfas1b_end_class2 <- dfas1b_end %>% 
   left_join(emp_spellsb_3class_spine, by="pidp") %>% 
-  left_join(weight_spine_b, by="pidp")
+  left_join(weight_spine_b, by="pidp") %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
 
 ### multiple employment
 dfas1a_end_class3 <- dfas1a_end %>% 
-  left_join(multi_empa_5class_spine, by="pidp") %>% 
+  left_join(multi_empa_3class_spine, by="pidp") %>% 
   left_join(weight_spine_a, by="pidp")
   
 dfas1b_end_class3 <- dfas1b_end %>% 
-  left_join(multi_empb_5class_spine, by="pidp") %>% 
+  left_join(multi_empb_3class_spine, by="pidp") %>% 
   left_join(weight_spine_b, by="pidp")
 
 
@@ -1240,15 +1250,15 @@ svy_dsr_df1 <- svy_dsr_df1 %>%
 
 ### employment spells
 svy_dsr_df2 <- svy_dsr_df2 %>% 
-  mutate(exp_flag = factor(ifelse(class_mem=="broken employment",1,
-                                  ifelse(class_mem=="unbroken employment",2,
+  mutate(exp_flag = factor(ifelse(class_mem=="employment discontinuity",1,
+                                  ifelse(class_mem=="continuous employment",2,
                                          0)))) %>% 
   mutate(class_mem = str_to_sentence(class_mem))
 
 ### multiple employment
 svy_dsr_df3 <- svy_dsr_df3 %>% 
-  mutate(exp_flag = factor(ifelse(class_mem=="multiple employment",1,
-                                  ifelse(class_mem=="single employment",2,
+  mutate(exp_flag = factor(ifelse(class_mem=="Multiple employment",1,
+                                  ifelse(class_mem=="Single employment",2,
                                          0)))) %>% 
   mutate(class_mem = str_to_sentence(class_mem))
 
@@ -1403,7 +1413,7 @@ svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
 ### sample A ------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                family=quasibinomial, design=svy_emp_contract_a, 
                na.action = na.omit)
 
@@ -1440,14 +1450,14 @@ svy_srh_emp_contract_glm_a_ci <- svy_srh_emp_contract_glm_a_ci %>%
 ## join dfs together
 svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>% 
   left_join(svy_srh_emp_contract_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 5\\)"),
          exp_group = "Employment contract",
          sample_grp = "A")
 
 ### sample B -------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_emp_contract_b, 
                                  na.action = na.omit)
 
@@ -1484,7 +1494,7 @@ svy_srh_emp_contract_glm_b_ci <- svy_srh_emp_contract_glm_b_ci %>%
 ## join dfs together
 svy_srh_emp_contract_glm_b_df <- svy_srh_emp_contract_glm_b_df %>% 
   left_join(svy_srh_emp_contract_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 5\\)"),
          exp_group = "Employment contract",
          sample_grp = "B")
 
@@ -1493,7 +1503,7 @@ svy_srh_emp_contract_glm_b_df <- svy_srh_emp_contract_glm_b_df %>%
 
 ### sample A ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_broken_emp_a, 
                                  na.action = na.omit)
 
@@ -1530,13 +1540,13 @@ svy_srh_emp_spells_glm_a_ci <- svy_srh_emp_spells_glm_a_ci %>%
 ## join dfs together
 svy_srh_emp_spells_glm_a_df <- svy_srh_emp_spells_glm_a_df %>% 
   left_join(svy_srh_emp_spells_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
-         exp_group = "Employment spells",
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
+         exp_group = "Employment continuity",
          sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_broken_emp_b, 
                                  na.action = na.omit)
 
@@ -1573,8 +1583,8 @@ svy_srh_emp_spells_glm_b_ci <- svy_srh_emp_spells_glm_b_ci %>%
 ## join dfs together
 svy_srh_emp_spells_glm_b_df <- svy_srh_emp_spells_glm_b_df %>% 
   left_join(svy_srh_emp_spells_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
-         exp_group = "Employment spells",
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
+         exp_group = "Employment continuity",
          sample_grp = "B")
 
 
@@ -1582,7 +1592,7 @@ svy_srh_emp_spells_glm_b_df <- svy_srh_emp_spells_glm_b_df %>%
 
 ### sample A -----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_a <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_a <- svyglm(srh_bin~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_multi_emp_a, 
                                  na.action = na.omit)
 
@@ -1619,13 +1629,13 @@ svy_srh_multi_emp_glm_a_ci <- svy_srh_multi_emp_glm_a_ci %>%
 ## join dfs together
 svy_srh_multi_emp_glm_a_df <- svy_srh_multi_emp_glm_a_df %>% 
   left_join(svy_srh_multi_emp_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 3\\)"),
          exp_group = "Multiple employment",
          sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_b <- svyglm(srh_bin~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_b <- svyglm(srh_bin~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_multi_emp_b, 
                                  na.action = na.omit)
 
@@ -1662,7 +1672,7 @@ svy_srh_multi_emp_glm_b_ci <- svy_srh_multi_emp_glm_b_ci %>%
 ## join dfs together
 svy_srh_multi_emp_glm_b_df <- svy_srh_multi_emp_glm_b_df %>% 
   left_join(svy_srh_multi_emp_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 3\\)"),
          exp_group = "Multiple employment",
          sample_grp = "B")
 
@@ -1677,7 +1687,7 @@ svy_srh_multi_emp_glm_b_df <- svy_srh_multi_emp_glm_b_df %>%
 ### sample A ------------------
 
 ## logistic regression
-svy_ghq_emp_contract_glm_a <- svyglm(ghq_case4~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_emp_contract_glm_a <- svyglm(ghq_case4~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_emp_contract_a, 
                                  na.action = na.omit)
 
@@ -1714,14 +1724,14 @@ svy_ghq_emp_contract_glm_a_ci <- svy_ghq_emp_contract_glm_a_ci %>%
 ## join dfs together
 svy_ghq_emp_contract_glm_a_df <- svy_ghq_emp_contract_glm_a_df %>% 
   left_join(svy_ghq_emp_contract_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 5\\)"),
                               exp_group = "Employment contract",
                               sample_grp = "A")
 
 ### sample B -------------------
 
 ## logistic regression
-svy_ghq_emp_contract_glm_b <- svyglm(ghq_case4~relevel(emp_contract_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_emp_contract_glm_b <- svyglm(ghq_case4~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_emp_contract_b, 
                                  na.action = na.omit)
 
@@ -1758,7 +1768,7 @@ svy_ghq_emp_contract_glm_b_ci <- svy_ghq_emp_contract_glm_b_ci %>%
 ## join dfs together
 svy_ghq_emp_contract_glm_b_df <- svy_ghq_emp_contract_glm_b_df %>% 
   left_join(svy_ghq_emp_contract_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_contract_class, ref = 5\\)"),
                               exp_group = "Employment contract",
                               sample_grp = "B")
 
@@ -1766,7 +1776,7 @@ svy_ghq_emp_contract_glm_b_df <- svy_ghq_emp_contract_glm_b_df %>%
 
 ### sample A ----------------------
 ## logistic regression
-svy_ghq_emp_spells_glm_a <- svyglm(ghq_case4~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_ghq_emp_spells_glm_a <- svyglm(ghq_case4~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                family=quasibinomial, design=svy_broken_emp_a, 
                                na.action = na.omit)
 
@@ -1803,13 +1813,13 @@ svy_ghq_emp_spells_glm_a_ci <- svy_ghq_emp_spells_glm_a_ci %>%
 ## join dfs together
 svy_ghq_emp_spells_glm_a_df <- svy_ghq_emp_spells_glm_a_df %>% 
   left_join(svy_ghq_emp_spells_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
          exp_group = "Employment spells",
          sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
-svy_ghq_emp_spells_glm_b <- svyglm(ghq_case4~relevel(emp_spells_class, ref = 2)+age_dv_grp+sex_dv, 
+svy_ghq_emp_spells_glm_b <- svyglm(ghq_case4~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                family=quasibinomial, design=svy_broken_emp_b, 
                                na.action = na.omit)
 
@@ -1846,7 +1856,7 @@ svy_ghq_emp_spells_glm_b_ci <- svy_ghq_emp_spells_glm_b_ci %>%
 ## join dfs together
 svy_ghq_emp_spells_glm_b_df <- svy_ghq_emp_spells_glm_b_df %>% 
   left_join(svy_ghq_emp_spells_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 2\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
          exp_group = "Employment spells",
          sample_grp = "B")
 
@@ -1855,7 +1865,7 @@ svy_ghq_emp_spells_glm_b_df <- svy_ghq_emp_spells_glm_b_df %>%
 
 ### sample A -----------------------
 ## logistic regression
-svy_ghq_multi_emp_glm_a <- svyglm(ghq_case4~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_multi_emp_glm_a <- svyglm(ghq_case4~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                               family=quasibinomial, design=svy_multi_emp_a, 
                               na.action = na.omit)
 
@@ -1892,13 +1902,13 @@ svy_ghq_multi_emp_glm_a_ci <- svy_ghq_multi_emp_glm_a_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_a_df <- svy_ghq_multi_emp_glm_a_df %>% 
   left_join(svy_ghq_multi_emp_glm_a_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 3\\)"),
          exp_group = "Multiple employment",
          sample_grp = "A")
 
 ### sample B ----------------------
 ## logistic regression
-svy_ghq_multi_emp_glm_b <- svyglm(ghq_case4~relevel(multi_emp_class, ref = 4)+age_dv_grp+sex_dv, 
+svy_ghq_multi_emp_glm_b <- svyglm(ghq_case4~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                               family=quasibinomial, design=svy_multi_emp_b, 
                               na.action = na.omit)
 
@@ -1935,7 +1945,7 @@ svy_ghq_multi_emp_glm_b_ci <- svy_ghq_multi_emp_glm_b_ci %>%
 ## join dfs together
 svy_ghq_multi_emp_glm_b_df <- svy_ghq_multi_emp_glm_b_df %>% 
   left_join(svy_ghq_multi_emp_glm_b_ci) %>% 
-  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 4\\)"),
+  mutate(measure = str_remove(measure, "relevel\\(multi_emp_class, ref = 3\\)"),
          exp_group = "Multiple employment",
          sample_grp = "B")
 
@@ -1964,8 +1974,8 @@ data %>%
 ### sample A
 tiff("./output/weighted/emp_contract_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_emp_contract_glm_a_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
+         classes = c("gained employment", "non-permanent employment", 
+                     "left employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Poor self-rated health by employment contract class\n(Sample A)")
 dev.off()
@@ -1973,8 +1983,8 @@ dev.off()
 ### sample B
 tiff("./output/weighted/emp_contract_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_emp_contract_glm_b_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
+         classes = c("gained employment", "non-permanent employment", 
+                     "left employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Poor self-rated health by employment contract class\n(Sample B)")
 dev.off()
@@ -1984,8 +1994,8 @@ dev.off()
 ### sample A
 tiff("./output/weighted/emp_contract_ghq_OR_grouped_a.tiff")
 plotter2(data = svy_ghq_emp_contract_glm_a_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
+         classes = c("gained employment", "non-permanent employment", 
+                     "left employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by employment contract\nclass (Sample A)")
 dev.off()
@@ -1993,8 +2003,8 @@ dev.off()
 ### sample B
 tiff("./output/weighted/emp_contract_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_emp_contract_glm_b_df, 
-         classes = c("into employment", "non-permanent employment", 
-                     "out of employment", "unemployed"),
+         classes = c("gained employment", "non-permanent employment", 
+                     "left employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by employment contract\nclass (Sample B)")
 dev.off()
@@ -2004,7 +2014,7 @@ dev.off()
 ### sample A
 tiff("./output/weighted/emp_spells_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_emp_spells_glm_a_df, 
-         classes = c("broken employment", "unemployed"),
+         classes = c("employment discontinuity", "non-employment"),
          y_lab = "Employment spells class",
          title_lab = "Poor self-rated health  by employment spells class\n(Sample A)")
 dev.off()
@@ -2012,7 +2022,7 @@ dev.off()
 ### sample B
 tiff("./output/weighted/emp_spells_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_emp_spells_glm_b_df, 
-         classes = c("broken employment", "unemployed"),
+         classes = c("employment discontinuity", "non-employment"),
          y_lab = "Employment spells class",
          title_lab = "Poor self-rated health  by employment spells class\n(Sample B)")
 dev.off()
@@ -2023,7 +2033,7 @@ dev.off()
 ### sample A
 tiff("./output/weighted/emp_spells_ghq_OR_grouped_a.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_a_df, 
-         classes = c("broken employment", "unemployed"),
+         classes = c("employment discontinuity", "non-employment"),
          y_lab = "Employment spells class",
          title_lab = "Common mental health conditon by employment spells\nclass (Sample A)")
 dev.off()
@@ -2031,7 +2041,7 @@ dev.off()
 ### sample B
 tiff("./output/weighted/emp_spells_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_b_df, 
-         classes = c("broken employment", "unemployed"),
+         classes = c("employment discontinuity", "non-employment"),
          y_lab = "Employment spells class",
          title_lab = "Common mental health conditon by employment spells\nclass (Sample B)")
 dev.off()
@@ -2042,8 +2052,8 @@ dev.off()
 ### sample A
 tiff("./output/weighted/multi_emp_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_multi_emp_glm_a_df, 
-         classes = c("into employment", "multiple employment", 
-                     "out of employment", "unemployed"),
+         classes = c("multiple employment", 
+                     "single employment", "non-employment"),
          y_lab = "Multiple employment class",
          title_lab = "Poor self-rated health by multiple employment class\n(Sample A)")
 dev.off()
@@ -2051,8 +2061,8 @@ dev.off()
 ### sample B
 tiff("./output/weighted/multi_emp_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_multi_emp_glm_b_df, 
-         classes = c("into employment", "multiple employment", 
-                     "out of employment", "unemployed"),
+         classes = c("multiple employment", 
+                     "single employment", "non-employment"),
          y_lab = "Multiple employment class",
          title_lab = "Poor self-rated health by multiple employment class\n(Sample B)")
 dev.off()
@@ -2063,8 +2073,8 @@ dev.off()
 ### sample A
 tiff("./output/weighted/multi_emp_ghq_OR_grouped_a.tiff")
 plotter2(data = svy_ghq_multi_emp_glm_a_df, 
-         classes = c("into employment", "multiple employment", 
-                     "out of employment", "unemployed"),
+         classes = c("multiple employment", 
+                     "single employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by multiple employment\nclass (Sample A)")
 dev.off()
@@ -2072,8 +2082,8 @@ dev.off()
 ### sample B
 tiff("./output/weighted/multi_emp_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_multi_emp_glm_b_df, 
-         classes = c("into employment", "multiple employment", 
-                     "out of employment", "unemployed"),
+         classes = c("multiple employment", 
+                     "single employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by multiple employment\nclass (Sample B)")
 dev.off()
@@ -2106,11 +2116,11 @@ srh_facet_df <- svy_srh_emp_contract_glm_a_df %>%
             svy_srh_emp_spells_glm_b_df,
             svy_srh_multi_emp_glm_a_df,
             svy_srh_multi_emp_glm_b_df) %>% 
-  filter(measure %in% c("into employment", "non-permanent employment", 
-                        "out of employment", "unemployed","broken employment", 
+  filter(measure %in% c("gained employment", "non-permanent employment", 
+                        "left employment", "non-employment","employment discontinuity", 
                         "multiple employment")) %>% 
   mutate(exp_flag = factor(ifelse(measure %in% c("non-permanent employment",
-                                                   "broken employment", 
+                                                   "employment discontinuity", 
                                                    "multiple employment"),1,
                                          0)))
 
@@ -2121,8 +2131,8 @@ write_rds(srh_facet_df, "./working_data/weighted/srh_facet_df.rds")
 ### call function to create plot
 tiff("./output/weighted/srh_prev_grouped_facet.tiff")
 plotter3(data = srh_facet_df, 
-#         classes = c("into employment", "non-permanent employment", 
-#                     "out of employment", "unemployed","broken employment", 
+#         classes = c("gained employment", "non-permanent employment", 
+#                     "left employment", "non-employment","discontinuous employment", 
 #                     "multiple employment"),
          y_lab = "",
          title_lab = "")
@@ -2136,11 +2146,11 @@ ghq_facet_df <- svy_ghq_emp_contract_glm_a_df %>%
             svy_ghq_emp_spells_glm_b_df,
             svy_ghq_multi_emp_glm_a_df,
             svy_ghq_multi_emp_glm_b_df) %>% 
-  filter(measure %in% c("into employment", "non-permanent employment", 
-                        "out of employment", "unemployed","broken employment", 
+  filter(measure %in% c("gained employment", "non-permanent employment", 
+                        "left employment", "non-employment","employment discontinuity", 
                         "multiple employment")) %>% 
   mutate(exp_flag = factor(ifelse(measure %in% c("non-permanent employment",
-                                                 "broken employment", 
+                                                 "employment discontinuity", 
                                                  "multiple employment"),1,
                                   0)))
 
@@ -2151,8 +2161,8 @@ write_rds(ghq_facet_df, "./working_data/weighted/ghq_facet_df.rds")
 ### call function to create plot
 tiff("./output/weighted/ghq_prev_grouped_facet.tiff")
 plotter3(data = ghq_facet_df, 
-         #         classes = c("into employment", "non-permanent employment", 
-         #                     "out of employment", "unemployed","broken employment", 
+         #         classes = c("gained employment", "non-permanent employment", 
+         #                     "left employment", "non-employment","discontinuous employment", 
          #                     "multiple employment"),
          y_lab = "",
          title_lab = "")
