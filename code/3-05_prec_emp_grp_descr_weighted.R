@@ -1,7 +1,7 @@
 ################################################################################
 
 # Persistent precarious employment and health - Understanding Society
-# 3-06 - grouped descriptives - weighted
+# 3-05 - grouped descriptives - weighted
 # Andrew Pulford
 
 # Data source:
@@ -106,8 +106,8 @@ emp_spellsa_3class_spine <- readRDS("./working_data/emp_spellsa_3class_spine.rds
 emp_spellsb_3class_spine <- readRDS("./working_data/emp_spellsb_3class_spine.rds")
 
 ### multiple employment LCA spine
-multi_empa_5class_spine <- readRDS("./working_data/multi_empa_5class_spine.rds")
-multi_empb_5class_spine <- readRDS("./working_data/multi_empb_5class_spine.rds")
+multi_empa_3class_spine <- readRDS("./working_data/multi_empa_3class_spine.rds")
+multi_empb_3class_spine <- readRDS("./working_data/multi_empb_3class_spine.rds")
 
 #### load weight spines ---------------------------------
 
@@ -123,14 +123,24 @@ weight_spine_b <- readRDS("./look_ups/weights_spine_b.rds") %>%
 dfas1a_end_class <- dfas1a_end %>% 
   left_join(emp_contracta_5class_spine, by="pidp") %>% 
   left_join(emp_spellsa_3class_spine, by="pidp") %>% 
-  left_join(multi_empa_5class_spine, by="pidp") %>% 
-  left_join(weight_spine_a, by="pidp")
+  left_join(multi_empa_3class_spine, by="pidp") %>% 
+  left_join(weight_spine_a, by="pidp") %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
 
 dfas1b_end_class <- dfas1b_end %>% 
   left_join(emp_contractb_5class_spine, by="pidp") %>% 
   left_join(emp_spellsb_3class_spine, by="pidp") %>% 
-  left_join(multi_empb_5class_spine, by="pidp") %>% 
-  left_join(weight_spine_b, by="pidp")
+  left_join(multi_empb_3class_spine, by="pidp") %>% 
+  left_join(weight_spine_b, by="pidp") %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
 
 #### create overlap var
 
@@ -326,9 +336,9 @@ sex_a <- sex_a %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -344,9 +354,9 @@ sex2_a <- sex2_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -374,9 +384,9 @@ sex_b <- sex_b %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -392,9 +402,9 @@ sex2_b <- sex2_b %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -421,9 +431,9 @@ age_a <- age_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n,est,se) %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")))
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")))
 names(age_a) <- tolower(names(age_a)) # change all col names to lower case
 
 emp_contract_grp <- emp_contract_grp %>% bind_rows(age_a)
@@ -442,172 +452,172 @@ age_b <- age_b %>%
          est = age_dv)  %>% 
   arrange(factor(class_mem, levels = c("non-permanent employment",
                                        "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")))
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")))
 names(age_b) <- tolower(names(age_b)) # change all col names to lower case
 
 emp_contract_grp <- emp_contract_grp %>% bind_rows(age_b)
 
 #### Educational attainment ----------------------------------------------------
 
-### sample A ------------
-
-svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_a <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
-ed_attain_a <- ed_attain_a %>% rename(class_mem = emp_contract_class)
-names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_a %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_a <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("non-permanent employment",
-                                       "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## calculate totals
-ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
-ed_attain2_a <- ed_attain2_a %>% rename(class_mem = emp_contract_class)
-names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
-ed_attain2_a <- ed_attain2_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("non-permanent employment",
-                                       "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-emp_contract_grp <- emp_contract_grp %>% bind_rows(ed_attain_a)
-
-rm(temp, temp2)
-
+#### sample A ------------
+#
+#svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_a <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
+#ed_attain_a <- ed_attain_a %>% rename(class_mem = emp_contract_class)
+#names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_a %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_a <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("non-permanent employment",
+#                                       "permanent employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### calculate totals
+#ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_a <- ed_attain2_a %>% rename(class_mem = emp_contract_class)
+#names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
+#ed_attain2_a <- ed_attain2_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("non-permanent employment",
+#                                       "permanent employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#emp_contract_grp <- emp_contract_grp %>% bind_rows(ed_attain_a)
+#
+#rm(temp, temp2)
+#
 ### sample B ------------
-
-svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_b <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
-ed_attain_b <- ed_attain_b %>% rename(class_mem = emp_contract_class)
-names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_b %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_b <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("non-permanent employment",
-                                       "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## calculate totals
-ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
-ed_attain2_b <- ed_attain2_b %>% rename(class_mem = emp_contract_class)
-names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
-ed_attain2_b <- ed_attain2_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("non-permanent employment",
-                                       "permanent employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-emp_contract_grp <- emp_contract_grp %>% bind_rows(ed_attain_b)
-
-rm(temp, temp2)
+#
+#svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_b <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
+#ed_attain_b <- ed_attain_b %>% rename(class_mem = emp_contract_class)
+#names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_b %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_b <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("non-permanent employment",
+#                                       "permanent employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### calculate totals
+#ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~emp_contract_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_b <- ed_attain2_b %>% rename(class_mem = emp_contract_class)
+#names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
+#ed_attain2_b <- ed_attain2_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("non-permanent employment",
+#                                       "permanent employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#emp_contract_grp <- emp_contract_grp %>% bind_rows(ed_attain_b)
+#
+#rm(temp, temp2)
 
 ################################################################################
 #####                    descriptives - broken employment                  #####
@@ -634,7 +644,7 @@ sex_a <- sex_a %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")),
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -650,7 +660,7 @@ sex2_a <- sex2_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")),
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -678,7 +688,7 @@ sex_b <- sex_b %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")),
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -694,7 +704,7 @@ sex2_b <- sex2_b %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")),
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -721,7 +731,7 @@ age_a <- age_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n,est,se) %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")))
+                                       "non-employment")))
 names(age_a) <- tolower(names(age_a)) # change all col names to lower case
 
 emp_spells_grp <- emp_spells_grp %>% bind_rows(age_a)
@@ -740,162 +750,162 @@ age_b <- age_b %>%
          est = age_dv)  %>% 
   arrange(factor(class_mem, levels = c("broken employment",
                                        "unbroken employment",
-                                       "unemployed")))
+                                       "non-employment")))
 names(age_b) <- tolower(names(age_b)) # change all col names to lower case
 
 emp_spells_grp <- emp_spells_grp %>% bind_rows(age_b)
 
 #### Educational attainment ----------------------------------------------------
-
-### sample A ------------
-
-svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_a <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
-ed_attain_a <- ed_attain_a %>% rename(class_mem = emp_spells_class)
-names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_a %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_a <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("broken employment",
-                                       "unbroken employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
+#
+#### sample A ------------
+#
+#svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_a <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
+#ed_attain_a <- ed_attain_a %>% rename(class_mem = emp_spells_class)
+#names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_a %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_a <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("broken employment",
+#                                       "unbroken employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### calculate totals
+#ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_a <- ed_attain2_a %>% rename(class_mem = emp_spells_class)
+#names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
+#ed_attain2_a <- ed_attain2_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("broken employment",
+#                                       "unbroken employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#emp_spells_grp <- emp_spells_grp %>% bind_rows(ed_attain_a)
+#
+#rm(temp, temp2)
+#
+#### sample B ------------
+#
+#svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_b <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
+#ed_attain_b <- ed_attain_b %>% rename(class_mem = emp_spells_class)
+#names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_b %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_b <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("broken employment",
+#                                       "unbroken employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
 ## calculate totals
-ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
-ed_attain2_a <- ed_attain2_a %>% rename(class_mem = emp_spells_class)
-names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
-ed_attain2_a <- ed_attain2_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("broken employment",
-                                       "unbroken employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-emp_spells_grp <- emp_spells_grp %>% bind_rows(ed_attain_a)
-
-rm(temp, temp2)
-
-### sample B ------------
-
-svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_b <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
-ed_attain_b <- ed_attain_b %>% rename(class_mem = emp_spells_class)
-names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_b %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_b <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("broken employment",
-                                       "unbroken employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## calculate totals
-ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
-ed_attain2_b <- ed_attain2_b %>% rename(class_mem = emp_spells_class)
-names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
-ed_attain2_b <- ed_attain2_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("broken employment",
-                                       "unbroken employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-emp_spells_grp <- emp_spells_grp %>% bind_rows(ed_attain_b)
-
-rm(temp, temp2)
+#ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~emp_spells_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_b <- ed_attain2_b %>% rename(class_mem = emp_spells_class)
+#names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
+#ed_attain2_b <- ed_attain2_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("broken employment",
+#                                       "unbroken employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#emp_spells_grp <- emp_spells_grp %>% bind_rows(ed_attain_b)
+#
+#rm(temp, temp2)
 
 ################################################################################
 #####                   descriptives - multiple employment                 #####
@@ -922,9 +932,9 @@ sex_a <- sex_a %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -940,9 +950,9 @@ sex2_a <- sex2_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -970,9 +980,9 @@ sex_b <- sex_b %>% dplyr::select(-se.sex_dvfemale) %>%
   dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## calculate totals
@@ -988,9 +998,9 @@ sex2_b <- sex2_b %>%
   dplyr::select(wv_n,var,class_mem,measure,n) %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")),
           factor(measure, levels = c("female","male")))
 
 ## join together
@@ -1017,9 +1027,9 @@ age_a <- age_a %>%
   dplyr::select(wv_n,var,class_mem,measure,n,est,se) %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")))
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")))
 names(age_a) <- tolower(names(age_a)) # change all col names to lower case
 
 multi_emp_grp <- multi_emp_grp %>% bind_rows(age_a)
@@ -1038,171 +1048,171 @@ age_b <- age_b %>%
          est = age_dv)  %>% 
   arrange(factor(class_mem, levels = c("multiple employment",
                                        "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")))
+                                       "gained employment",
+                                       "left employment",
+                                       "non-employment")))
 names(age_b) <- tolower(names(age_b)) # change all col names to lower case
 
 multi_emp_grp <- multi_emp_grp %>% bind_rows(age_b)
 
 #### Educational attainment ----------------------------------------------------
-
-### sample A ------------
-
-svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_a <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
-ed_attain_a <- ed_attain_a %>% rename(class_mem = multi_emp_class)
-names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_a %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_a <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("multiple employment",
-                                       "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## calculate totals
-ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
-ed_attain2_a <- ed_attain2_a %>% rename(class_mem = multi_emp_class)
-names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
-ed_attain2_a <- ed_attain2_a %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("multiple employment",
-                                       "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-multi_emp_grp <- multi_emp_grp %>% bind_rows(ed_attain_a)
-
-rm(temp, temp2)
-
-### sample B ------------
-
-svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
-
-## calculate proportions
-ed_attain_b <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
-ed_attain_b <- ed_attain_b %>% rename(class_mem = multi_emp_class)
-names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
-
-# create long format data for estimates
-temp <- ed_attain_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(est=value) %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv"))
-
-# create long format data for SE
-temp2 <- ed_attain_b %>% 
-  dplyr::select(c(1,8:13)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  rename(se=value) %>% 
-  mutate(measure = str_remove(measure,"se.hiqual_dv"))
-
-# join back together
-ed_attain_b <- temp %>% 
-  left_join(temp2) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         est=est*100,
-         se=se*100,
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
-  arrange(factor(class_mem, levels = c("multiple employment",
-                                       "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## calculate totals
-ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
-ed_attain2_b <- ed_attain2_b %>% rename(class_mem = multi_emp_class)
-names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
-ed_attain2_b <- ed_attain2_b %>% 
-  dplyr::select(c(1:7)) %>% 
-  pivot_longer(cols = 2:7, names_to = "measure") %>% 
-  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
-  rename(n=value) %>% 
-  mutate(wv_n=6,
-         var="educational attainment",
-         measure = str_replace(measure,"\\."," "), # need to do this twice!
-         measure = str_replace(measure,"\\."," ")) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
-  arrange(factor(class_mem, levels = c("multiple employment",
-                                       "single employment",
-                                       "into employment",
-                                       "out of employment",
-                                       "unemployed")),
-          factor(measure, levels = c("degree",
-                                     "other higher degree",
-                                     "a level etc",
-                                     "gcse etc",
-                                     "other qualification",
-                                     "no qualification")))
-
-## join together
-ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
-  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
-
-multi_emp_grp <- multi_emp_grp %>% bind_rows(ed_attain_b)
-
+#
+#### sample A ------------
+#
+#svymean(~hiqual_dv, svy_dfas1a_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_a <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1a_end_class, svymean, na.rm=TRUE))
+#ed_attain_a <- ed_attain_a %>% rename(class_mem = multi_emp_class)
+#names(ed_attain_a) <- tolower(names(ed_attain_a)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_a %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_a <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("multiple employment",
+#                                       "single employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### calculate totals
+#ed_attain2_a <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1a_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_a <- ed_attain2_a %>% rename(class_mem = multi_emp_class)
+#names(ed_attain2_a) <- tolower(names(ed_attain2_a)) # change all col names to lower case
+#ed_attain2_a <- ed_attain2_a %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("multiple employment",
+#                                       "single employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_a <- ed_attain_a %>% left_join(ed_attain2_a) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#multi_emp_grp <- multi_emp_grp %>% bind_rows(ed_attain_a)
+#
+#rm(temp, temp2)
+#
+#### sample B ------------
+#
+#svymean(~hiqual_dv, svy_dfas1b_end_class, na.rm=TRUE)
+#
+### calculate proportions
+#ed_attain_b <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1b_end_class, svymean, na.rm=TRUE))
+#ed_attain_b <- ed_attain_b %>% rename(class_mem = multi_emp_class)
+#names(ed_attain_b) <- tolower(names(ed_attain_b)) # change all col names to lower case
+#
+## create long format data for estimates
+#temp <- ed_attain_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(est=value) %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv"))
+#
+## create long format data for SE
+#temp2 <- ed_attain_b %>% 
+#  dplyr::select(c(1,8:13)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  rename(se=value) %>% 
+#  mutate(measure = str_remove(measure,"se.hiqual_dv"))
+#
+## join back together
+#ed_attain_b <- temp %>% 
+#  left_join(temp2) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         est=est*100,
+#         se=se*100,
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,est,se) %>% 
+#  arrange(factor(class_mem, levels = c("multiple employment",
+#                                       "single employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### calculate totals
+#ed_attain2_b <- data.frame(svyby(~hiqual_dv, ~multi_emp_class, svy_dfas1b_end_class, svytotal, na.rm=TRUE))
+#ed_attain2_b <- ed_attain2_b %>% rename(class_mem = multi_emp_class)
+#names(ed_attain2_b) <- tolower(names(ed_attain2_b)) # change all col names to lower case
+#ed_attain2_b <- ed_attain2_b %>% 
+#  dplyr::select(c(1:7)) %>% 
+#  pivot_longer(cols = 2:7, names_to = "measure") %>% 
+#  mutate(measure = str_remove(measure,"hiqual_dv")) %>% 
+#  rename(n=value) %>% 
+#  mutate(wv_n=6,
+#         var="educational attainment",
+#         measure = str_replace(measure,"\\."," "), # need to do this twice!
+#         measure = str_replace(measure,"\\."," ")) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n) %>% 
+#  arrange(factor(class_mem, levels = c("multiple employment",
+#                                       "single employment",
+#                                       "gained employment",
+#                                       "left employment",
+#                                       "non-employment")),
+#          factor(measure, levels = c("degree",
+#                                     "other higher degree",
+#                                     "a level etc",
+#                                     "gcse etc",
+#                                     "other qualification",
+#                                     "no qualification")))
+#
+### join together
+#ed_attain_b <- ed_attain_b %>% left_join(ed_attain2_b) %>% 
+#  dplyr::select(wv_n,var,class_mem,measure,n,est,se)
+#
+#multi_emp_grp <- multi_emp_grp %>% bind_rows(ed_attain_b)
+#
 rm(temp, temp2)
 
 ## add CI calculations
