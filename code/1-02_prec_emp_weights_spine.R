@@ -73,8 +73,22 @@ weight_spine_b  <- temp_df %>%
          strata = j_strata,
          psu = j_psu)
 
-rm(temp_df)
+#rm(temp_df)
 
 ## save spine for analytic sample b
 write_rds(weight_spine_b, "./look_ups/weights_spine_b.rds")
 
+#### alternative spine using same weights as sample A---------------------------
+
+weight_spine_b_alt  <- temp_df %>% 
+  dplyr::select(pidp, j_indinub_xw, j_strata, j_psu) %>% 
+  mutate(weight_flag = ifelse(j_indinub_xw!=0,1,0)) %>% 
+  # remove wave letter prefix from column names
+  rename(indinub_xw = j_indinub_xw,
+         strata = j_strata,
+         psu = j_psu)
+
+rm(temp_df)
+
+## save alt spine for analytic sample b
+write_rds(weight_spine_b_alt, "./look_ups/weights_spine_b_alt.rds")
