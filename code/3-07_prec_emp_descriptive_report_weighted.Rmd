@@ -38,6 +38,34 @@ master_raw_a <- master_raw %>% filter(wv_n %in% c(3:6))
 ## waves 7-10
 master_raw_b <- master_raw %>% filter(wv_n %in% c(7:10))
 
+
+## kepp only indivs with valid end point -- relates to node A in flowchart --
+end_spine_a <- master_raw_a %>% 
+  filter(wv_n==6) %>% 
+  dplyr::select(pidp)
+
+end_spine_b <- master_raw_b %>% 
+  filter(wv_n==10) %>% 
+  dplyr::select(pidp)
+
+#end_spine_b_alt <- master_raw_b_alt %>% 
+#  filter(wv_n==10) %>% 
+#  dplyr::select(pidp)
+
+end_valid_a <- end_spine_a %>% 
+  left_join(master_raw_a)
+
+end_valid_b <- end_spine_b %>% 
+  left_join(master_raw_b)
+
+#end_valid_b_alt <- end_spine_b_alt %>% 
+#  left_join(master_raw1b_alt)
+
+master_indivs_a <- length(unique(end_valid_a$pidp))
+master_indivs_b <- length(unique(end_valid_b$pidp))
+#master_indivs_b_alt <- length(unique(master_raw_b_alt$pidp))
+
+
 ### no valid weight ---------
 non_weight_spine_a <- readRDS("../look_ups/no_weight_spine_a.rds")
 non_weight_spine_b <- readRDS("../look_ups/no_weight_spine_b.rds")
@@ -47,8 +75,8 @@ non_working_age_spine_a <- readRDS("../look_ups/non_working_age_spine_a.rds")
 non_working_age_spine_b <- readRDS("../look_ups/non_working_age_spine_b.rds")
 
 ### no valid case at end-point ----------
-no_endpoint_a <- readRDS("../look_ups/no_endpoint_a.rds")
-no_endpoint_b <- readRDS("../look_ups/no_endpoint_b.rds")
+#no_endpoint_a <- readRDS("../look_ups/no_endpoint_a.rds")
+#no_endpoint_b <- readRDS("../look_ups/no_endpoint_b.rds")
 
 ### eligible population ---------
 # This includes individual respondents aged 16-64; Understanding Society waves 3-10 
@@ -63,23 +91,13 @@ censor_combined_b <- readRDS("../look_ups/censor_combined_b.rds")
 dfas1a <- read_rds("../analytic_sample_data/dfas1a.rds")
 dfas1b <- read_rds("../analytic_sample_data/dfas1b.rds")
 
-### a priori exposure groupings
-#emp_contract_group_df <- readRDS("../working_data/emp_contract_group_df.rds")
-#emp_spells_group_df <- readRDS("../working_data/emp_spells_group_df.rds")
-#multi_jobs_group_df<- readRDS("../working_data/multi_jobs_group_df.rds")
-
 ##### flowchart nodes A to xx --------------------------------------------------
 
 ### Node A:  ----------------
-### Total number of individuals and observations in study period
+### Total number of individuals in end wave of study 
 ## number of unique individuals (node A)
-raw_unique_indiv_a <- length(unique(master_raw_a$pidp))
-raw_unique_indiv_b <- length(unique(master_raw_b$pidp))
-
-## number of observations (node A)
-raw_observations_a <- nrow(master_raw_a)
-raw_observations_b <- nrow(master_raw_b)
-#raw_observations <- prettyNum(raw_observations, big.mark=",")
+raw_unique_indiv_a <- master_indivs_a
+raw_unique_indiv_b <- master_indivs_b
 
 ### Node AA: ----------------
 ### number of individuals excluded due to having no valid weight, not being 
@@ -95,13 +113,13 @@ non_work_age_b <- nrow(non_working_age_spine_b)
 #non_work_age <- prettyNum(non_work_age, big.mark=",")
 
 ## no valid endpoint response
-no_valid_end_a <- length(unique(no_endpoint_a$pidp))
-no_valid_end_b <- length(unique(no_endpoint_b$pidp))
+#no_valid_end_a <- length(unique(no_endpoint_a$pidp))
+#no_valid_end_b <- length(unique(no_endpoint_b$pidp))
 #no_wv2 <- prettyNum(no_wv2, big.mark=",")
 
 
 ### Node B: ----------------
-### number of individuals and observations in eligible population
+### number of individuals in eligible population
 eligible_unique_indiv_a <- length(unique(eligible_a$pidp))
 eligible_unique_indiv_b <- length(unique(eligible_b$pidp))
 #eligible_descr_unique_indiv <- prettyNum(eligible_descr_unique_indiv, big.mark=",")
@@ -335,7 +353,7 @@ xxxxxxxx
 \newpage
 # Results
 ## Sample description
-A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS waves 3-6 and `r prettyNum(raw_unique_indiv_b, big.mark=",")` in waves 7-10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_weight_b, big.mark=",")` and `r prettyNum(no_weight_a, big.mark=",")` individuals respectively who did not have valid weights. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2). Responses to all four waves in the study period were provided by 96.5% of analytic sample A and 95.7% of analytic sample B (Supplementary figure 1). Valid response sequences ascending in order of frequency are presented in Supplementary figure 2.
+A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participated in UKHLS wave 6 and `r prettyNum(raw_unique_indiv_b, big.mark=",")` in wave 10 (Figure 1). We excluded `r prettyNum(non_work_age_a, big.mark=",")` and `r prettyNum(non_work_age_b, big.mark=",")` individuals respectively for not being aged 20-64 at the end point of the study period; plus `r prettyNum(no_weight_a, big.mark=",")` and `r prettyNum(no_weight_b, big.mark=",")` individuals respectively who did not have valid weights. From eligible populations of `r prettyNum(eligible_unique_indiv_a, big.mark=",")` and `r prettyNum(eligible_unique_indiv_b, big.mark=",")` we excluded `r prettyNum(censor_retired_a, big.mark=",")` and `r prettyNum(censor_retired_b, big.mark=",")` retired individuals; and `r prettyNum(incomplete_a, big.mark=",")` and  `r prettyNum(incomplete_b, big.mark=",")` individuals who reported missing data for key exposure and outcomes of interest at waves 6 or 10 respectively. Table 1 presents key characteristics of the analytic sample at baseline by employment contract status (UKHLS wave 2). Responses to all four waves in the study period were provided by 96.5% of analytic sample A and 95.7% of analytic sample B (Supplementary figure 1). Valid response sequences ascending in order of frequency are presented in Supplementary figure 2.
 
 \newpage
 **Figure 1: Flowcharts for inclusion and exclusion of UKHLS respondents to create analytic sample (unweighted)**
@@ -348,9 +366,8 @@ A total of `r prettyNum(raw_unique_indiv_a, big.mark=",")` individuals participa
 grViz(paste0("digraph {
   graph []
   node []
-    A [label = '",prettyNum(raw_unique_indiv_a, big.mark=",")," individuals
-    
-    (",prettyNum(raw_observations_a, big.mark=",")," observations)', shape = box, width = 3, height = 1]
+    A [label = '",prettyNum(raw_unique_indiv_a, big.mark=",")," individuals' , shape = box, 
+    width = 3, height = 1]
     AA [label = '",prettyNum(non_work_age_a, big.mark=",")," non-working age
     
     ",prettyNum(no_weight_a, big.mark=",")," no valid weight' , shape = box, 
@@ -360,30 +377,28 @@ grViz(paste0("digraph {
     BB [label = '",prettyNum(censor_retired_a, big.mark=",")," retired
     
     ",prettyNum(incomplete_a, big.mark=",")," incomplete data', shape = box, width = 3, height = 1]
-    C [label = '",prettyNum(dfas1a_unique_indivs, big.mark=",")," in analytic sample A
-    
-    (",prettyNum(dfas1a_observations, big.mark=",")," observations)', shape = box, 
+    C [label = '",prettyNum(dfas1a_unique_indivs, big.mark=",")," in analytic sample A', shape = box, 
     width = 3, height = 1]
-    D [label = '",prettyNum(non_perm_a, big.mark=",")," in non-permanent employment class
-    
-    ",prettyNum(broken_a, big.mark=",")," in broken employment class
-    
-    ",prettyNum(multi_a, big.mark=",")," in multiple employment class' , shape = box, 
-    width = 3, height = 1]
-    E [label = '",prettyNum(srh_case_a, big.mark=",")," cases - poor self-reported health
-    
-    ",prettyNum(srh_nocase_a, big.mark=",")," event free - poor self-reported health
-    
-    ",prettyNum(ghq_case_a, big.mark=",")," cases - common mental health disorder
-    
-    ",prettyNum(ghq_nocase_a, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
+#    D [label = '",prettyNum(non_perm_a, big.mark=",")," in non-permanent employment class
+#    
+#    ",prettyNum(broken_a, big.mark=",")," in broken employment class
+#    
+#    ",prettyNum(multi_a, big.mark=",")," in multiple employment class' , shape = box, 
+#    width = 3, height = 1]
+#    E [label = '",prettyNum(srh_case_a, big.mark=",")," cases - poor self-reported health
+#    
+#    ",prettyNum(srh_nocase_a, big.mark=",")," event free - poor self-reported health
+#    
+#    ",prettyNum(ghq_case_a, big.mark=",")," cases - common mental health disorder
+#    
+#    ",prettyNum(ghq_nocase_a, big.mark=",")," event free - common mental health disorder' , shape = box, #width = 3, height = 1]
   edge []
     A->B
     A->AA
     B->BB
     B->C
-    C->D
-    D->E
+#    C->D
+#    D->E
 { rank = same; A; AA }
 { rank = same; B; BB }}"))
 ```
@@ -396,9 +411,7 @@ grViz(paste0("digraph {
 grViz(paste0("digraph {
   graph []
   node []
-    A [label = '",prettyNum(raw_unique_indiv_b, big.mark=",")," individuals
-    
-    (",prettyNum(raw_observations_b, big.mark=",")," observations)', shape = box, width = 3, height = 1]
+    A [label = '",prettyNum(raw_unique_indiv_b, big.mark=",")," individuals', shape = box, width = 3, height = 1]
     AA [label = '",prettyNum(non_work_age_b, big.mark=",")," non-working age
     
     ",prettyNum(no_weight_b, big.mark=",")," no valid weight' , shape = box, 
@@ -408,30 +421,28 @@ grViz(paste0("digraph {
     BB [label = '",prettyNum(censor_retired_b, big.mark=",")," retired
     
     ",prettyNum(incomplete_b, big.mark=",")," incomplete data', shape = box, width = 3, height = 1]
-    C [label = '",prettyNum(dfas1b_unique_indivs, big.mark=",")," in analytic sample A
-    
-    (",prettyNum(dfas1b_observations, big.mark=",")," observations)', shape = box, 
+    C [label = '",prettyNum(dfas1b_unique_indivs, big.mark=",")," in analytic sample B', shape = box, 
     width = 3, height = 1]
-    D [label = '",prettyNum(non_perm_b, big.mark=",")," in non-permanent employment class
-    
-    ",prettyNum(broken_b, big.mark=",")," in broken employment class
-    
-    ",prettyNum(multi_b, big.mark=",")," in multiple employment class' , shape = box, 
-    width = 3, height = 1]
-    E [label = '",prettyNum(srh_case_b, big.mark=",")," cases - poor self-reported health
-    
-    ",prettyNum(srh_nocase_b, big.mark=",")," event free - poor self-reported health
-    
-    ",prettyNum(ghq_case_b, big.mark=",")," cases - common mental health disorder
-    
-    ",prettyNum(ghq_nocase_b, big.mark=",")," event free - common mental health disorder' , shape = box, width = 3, height = 1]
+#    D [label = '",prettyNum(non_perm_b, big.mark=",")," in non-permanent employment class
+#    
+#    ",prettyNum(broken_b, big.mark=",")," in broken employment class
+#    
+#    ",prettyNum(multi_b, big.mark=",")," in multiple employment class' , shape = box, 
+#    width = 3, height = 1]
+#    E [label = '",prettyNum(srh_case_b, big.mark=",")," cases - poor self-reported health
+#    
+#    ",prettyNum(srh_nocase_b, big.mark=",")," event free - poor self-reported health
+#    
+#    ",prettyNum(ghq_case_b, big.mark=",")," cases - common mental health disorder
+#    
+#    ",prettyNum(ghq_nocase_b, big.mark=",")," event free - common mental health disorder' , shape = box, #width = 3, height = 1]
   edge []
     A->B
     A->AA
     B->BB
     B->C
-    C->D
-    D->E
+#    C->D
+#    D->E
 { rank = same; A; AA }
 { rank = same; B; BB }}"))
 ```
@@ -537,12 +548,16 @@ broken_a_pc <- class_pc$pc[class_pc$measure=="broken employment" &
 broken_b_pc <- class_pc$pc[class_pc$measure=="broken employment" &
                              class_pc$sample_grp=="B"]
 
-## employment contract
+
+
+## multiple employment
 multi_a_pc <- class_pc$pc[class_pc$measure=="multiple employment" &
                              class_pc$sample_grp=="A"]
 multi_b_pc <- class_pc$pc[class_pc$measure=="multiple employment" &
                              class_pc$sample_grp=="B"]
 
+
+## emp contract fit stats
 empcontracta_fit_stats <- read.csv("../output/descriptive/empcontracta_lca_fit_stats.csv")
 
 
@@ -1156,13 +1171,30 @@ image_read("../output/descriptive/emp_contractb_lca_final.tiff")
 ## Latent class analysis - Broken employment spells
 ### Broken employment spells - Sample A
 **Supplementary table 3: Model fit statistics for employment spells latent class analysis solutions (2-8 classes) - Sample A** 
-add code chunk
+```{r, echo=FALSE}
+
+## emp spells fit stats A
+empspellsa_fit_stats <- read.csv("../output/descriptive/empspellsa_lca_fit_stats.csv")
+
+kable(empspellsa_fit_stats)
+```
+
+\newpage
+
+
 
 **Supplementary figure 12: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample A** 
-add code chunk
+```{r, echo=FALSE}
+image_read("../output/descriptive/empspellsa_lca_elbow.tiff")
 
-**Supplementary figure 13: Employment spells latent class membership for five class model - Sample A**
-add code chunk
+
+```
+
+**Supplementary figure 13: Employment spells latent class membership for three class model - Sample A**
+
+```{r, echo=FALSE}
+image_read("../output/descriptive/emp_spellsa_lca_final.tiff")
+```
 
 **Supplementary figure 14: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample A **
 
@@ -1176,13 +1208,26 @@ image_read("../output/weighted/emp_spellsa_grouped_seqfplot.tiff")
 
 ### Broken employment spells - Sample B
 **Supplementary table 4: Model fit statistics for employment spells latent class analysis solutions (2-8 classes) - Sample B** 
-add code chunk
+```{r, echo=FALSE}
+
+## emp spells fit stats B
+empspellsb_fit_stats <- read.csv("../output/descriptive/empspellsb_lca_fit_stats.csv")
+
+kable(empspellsb_fit_stats)
+```
 
 **Supplementary figure 15: BIC elbow plot for employment spells latent class analysis solutions (2-8 classes) - Sample B** 
-add code chunk
+```{r, echo=FALSE}
+image_read("../output/descriptive/empspellsb_lca_elbow.tiff")
 
-**Supplementary figure 16: Employment spells latent class membership for five class model - Sample B**
-add code chunk
+
+```
+
+**Supplementary figure 16: Employment spells latent class membership for three class model - Sample B**
+```{r, echo=FALSE}
+image_read("../output/descriptive/emp_spellsa_lca_final.tiff")
+
+```
 
 **Supplementary figure 17: Employment spells sequences ascending in order of frequency grouped by latent class membership - Sample B **
 
