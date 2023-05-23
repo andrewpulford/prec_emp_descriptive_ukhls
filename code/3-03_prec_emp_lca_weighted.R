@@ -50,7 +50,10 @@ emp_contractb_lca_final <-  readRDS("./working_data/emp_contractb_lca_final.rds"
   dplyr::select(pidp, emp_contract_class)
 
 #### broken employment spells -----------
-# to be added 
+emp_spellsa_lca_final <-  readRDS("./working_data/emp_spellsa_lca_final.rds") %>% 
+  dplyr::select(pidp, emp_spells_class)
+emp_spellsb_lca_final <-  readRDS("./working_data/emp_spellsb_lca_final.rds") %>% 
+  dplyr::select(pidp, emp_spells_class)
 
 #### multiple employment ------------
 multi_empa_lca_final <- readRDS("./working_data/multi_empa_lca_final.rds") %>% 
@@ -78,8 +81,25 @@ emp_contractb_lca_final <- emp_contractb_lca_final %>%
 
 
 ### broken employment spells
-# to be added
+emp_spellsa_lca_final <- emp_spellsa_lca_final %>% 
+  left_join(weight_spine_a)
+emp_spellsb_lca_final <- emp_spellsb_lca_final %>% 
+  left_join(weight_spine_b)
 
+# recode class names
+emp_spellsa_lca_final <- emp_spellsa_lca_final %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                            ifelse(emp_spells_class=="broken employment",
+                                   "employment discontinuity",
+                                   emp_spells_class)))
+
+emp_spellsb_lca_final <- emp_spellsb_lca_final %>% 
+  mutate(emp_spells_class = ifelse(emp_spells_class=="unbroken employment",
+                                   "continuous employment",
+                                   ifelse(emp_spells_class=="broken employment",
+                                          "employment discontinuity",
+                                          emp_spells_class)))
 
 ### multiple employment
 multi_empa_lca_final <- multi_empa_lca_final %>% 
@@ -98,7 +118,11 @@ svy_emp_contract_b <- svydesign(id=~psu, strata=~strata,
                             weights=~indinui_xw, data=emp_contractb_lca_final)
 
 ### broken employment spells
-# to be added
+svy_emp_spells_a <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinub_xw, data=emp_spellsa_lca_final)
+
+svy_emp_spells_b <- svydesign(id=~psu, strata=~strata,
+                                weights=~indinui_xw, data=emp_spellsb_lca_final)
 
 ### multiple employment
 svy_multi_emp_a <- svydesign(id=~psu, strata=~strata,
@@ -141,9 +165,9 @@ emp_contract_a <- emp_contract_a %>%
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("non-permanent employment",
                                            "permanent employment",
-                                           "unemployed",
-                                           "into employment",
-                                           "out of employment")))
+                                           "non-employment",
+                                           "gained employment",
+                                           "left employment")))
 
 class_mem <- emp_contract_a
 
@@ -174,15 +198,75 @@ emp_contract_b <- emp_contract_b %>%
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("non-permanent employment",
                                            "permanent employment",
-                                           "unemployed",
-                                           "into employment",
-                                           "out of employment")))
+                                           "non-employment",
+                                           "gained employment",
+                                           "left employment")))
 
 class_mem <- class_mem %>% bind_rows(emp_contract_b)
 
 #### broken employment spells --------------------------------------------------
 
-# to be added
+### sample A ------------
+
+## calculate proportions
+emp_spells_a <- data.frame(svymean(~emp_spells_class, svy_emp_spells_a))
+emp_spells_a <- cbind(rownames(emp_spells_a),emp_spells_a, row.names=NULL)
+emp_spells_a$`rownames(emp_spells_a)` <- str_replace(emp_spells_a$`rownames(emp_spells_a)`, "emp_spells_class","")
+emp_spells_a <- emp_spells_a %>% rename(measure = `rownames(emp_spells_a)`)
+names(emp_spells_a) <- tolower(names(emp_spells_a)) # change all col names to lower case
+
+## calculate totals
+emp_spells2_a <- data.frame(svytotal(~emp_spells_class, svy_emp_spells_a))
+emp_spells2_a <- emp_spells2_a %>% dplyr::select(-SE)
+emp_spells2_a <- cbind(rownames(emp_spells2_a),emp_spells2_a, row.names=NULL)
+emp_spells2_a$`rownames(emp_spells2_a)` <- str_replace(emp_spells2_a$`rownames(emp_spells2_a)`, "emp_spells_class","")
+emp_spells2_a <- emp_spells2_a %>% rename(measure = `rownames(emp_spells2_a)`)
+emp_spells2_a$total <- as.integer(emp_spells2_a$total)
+
+## join together and format
+emp_spells_a <- emp_spells_a %>%
+  left_join(emp_spells2_a) %>% 
+  mutate(est = mean*100,
+         var="Employment continuity class",
+         wv_n=6) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("broken employment",
+                                           "unbroken employment",
+                                           "non-employment")))
+
+class_mem <- class_mem %>% bind_rows(emp_spells_a)
+
+### sample B ------------
+
+## calculate proportions
+emp_spells_b <- data.frame(svymean(~emp_spells_class, svy_emp_spells_b))
+emp_spells_b <- cbind(rownames(emp_spells_b),emp_spells_b, row.names=NULL)
+emp_spells_b$`rownames(emp_spells_b)` <- str_replace(emp_spells_b$`rownames(emp_spells_b)`, "emp_spells_class","")
+emp_spells_b <- emp_spells_b %>% rename(measure = `rownames(emp_spells_b)`)
+names(emp_spells_b) <- tolower(names(emp_spells_b)) # change all col names to lower case
+
+## calculate totals
+emp_spells2_b <- data.frame(svytotal(~emp_spells_class, svy_emp_spells_b))
+emp_spells2_b <- emp_spells2_b %>% dplyr::select(-SE)
+emp_spells2_b <- cbind(rownames(emp_spells2_b),emp_spells2_b, row.names=NULL)
+emp_spells2_b$`rownames(emp_spells2_b)` <- str_replace(emp_spells2_b$`rownames(emp_spells2_b)`, "emp_spells_class","")
+emp_spells2_b <- emp_spells2_b %>% rename(measure = `rownames(emp_spells2_b)`)
+emp_spells2_b$total <- as.integer(emp_spells2_b$total)
+
+## join together and format
+emp_spells_b <- emp_spells_b %>%
+  left_join(emp_spells2_b) %>% 
+  mutate(est = mean*100,
+         var="Employment continuity class",
+         wv_n=10) %>% 
+  rename(n=total) %>% 
+  dplyr::select(wv_n, var, measure, n, est, se) %>% 
+  arrange(wv_n, factor(measure, levels = c("broken employment",
+                                           "unbroken employment",
+                                           "non-employment")))
+
+class_mem <- class_mem %>% bind_rows(emp_spells_b)
 
 #### multiple employment -------------------------------------------------------
 
@@ -213,9 +297,7 @@ multi_emp_a <- multi_emp_a %>%
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("multiple employment",
                                            "single employment",
-                                           "unemployed",
-                                           "into employment",
-                                           "out of employment")))
+                                           "non-employment")))
 
 class_mem <- class_mem %>% bind_rows(multi_emp_a)
 
@@ -246,9 +328,7 @@ multi_emp_b <- multi_emp_b %>%
   dplyr::select(wv_n, var, measure, n, est, se) %>% 
   arrange(wv_n, factor(measure, levels = c("multiple employment",
                                            "single employment",
-                                           "unemployed",
-                                           "into employment",
-                                           "out of employment")))
+                                           "non-employment")))
 
 class_mem <- class_mem %>% bind_rows(multi_emp_b)
 
@@ -288,13 +368,18 @@ class_mem %>%
   facet_wrap(~sample_grp)
 
 ### broken employment spells
-# to be added 
+class_mem %>% 
+  filter(var=="Employment continuity class") %>% 
+  ggplot(aes(x=measure, y=est)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=lci, ymax=uci), colour="black", width=.1)+
+  coord_flip() +
+  theme_bw() +
+  facet_wrap(~sample_grp)
 
 ### multiple employment
 
-class_mem$measure <- factor(class_mem$measure, levels = c("out of employment",
-                                                          "into employment",
-                                                          "unemployed",
+class_mem$measure <- factor(class_mem$measure, levels = c("non-employment",
                                                           "single employment",
                                                           "multiple employment"))
 
@@ -1439,10 +1524,10 @@ class_mem %>%
 #  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
 #  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
 #  mutate(emp_contract_class= ifelse(pred_class5==1, "non-permanent employment",
-#                                    ifelse(pred_class5==2, "into employment",
+#                                    ifelse(pred_class5==2, "gained employment",
 #                                           ifelse(pred_class5==3,"permanent employment",
 #                                                  ifelse(pred_class5==4,"unemployed",
-#                                                         ifelse(pred_class5==5,"out of employment",
+#                                                         ifelse(pred_class5==5,"left employment",
 #                                                                "CHECK"))))))
 #
 #write_rds(emp_contracta_lca_final, "./working_data/weighted/emp_contracta_lca_final.rds")
@@ -1453,9 +1538,9 @@ class_mem %>%
 #  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
 #  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
 #  mutate(emp_contract_class= ifelse(pred_class5==1, "unemployed",
-#                                    ifelse(pred_class5==2, "out of employment",
+#                                    ifelse(pred_class5==2, "left employment",
 #                                           ifelse(pred_class5==3,"permanent employment",
-#                                                  ifelse(pred_class5==4,"into employment",
+#                                                  ifelse(pred_class5==4,"gained employment",
 #                                                         ifelse(pred_class5==5,"non-permanent employment",
 #                                                                "CHECK"))))))
 #
@@ -1511,10 +1596,10 @@ class_mem %>%
 ##  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
 ##  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
 ##  mutate(emp_spells_class= ifelse(pred_class5==1, "non-permanent employment",
-##                                    ifelse(pred_class5==2, "into employment",
+##                                    ifelse(pred_class5==2, "gained employment",
 ##                                           ifelse(pred_class5==3,"permanent employment",
 ##                                                  ifelse(pred_class5==4,"unemployed",
-##                                                         ifelse(pred_class5==5,"out of employment",
+##                                                         ifelse(pred_class5==5,"left employment",
 ##                                                                "CHECK"))))))
 ##
 ##write_rds(emp_spellsa_lca_final, "./working_data/weighted/emp_spellsa_lca_final.rds")
@@ -1527,8 +1612,8 @@ class_mem %>%
 ##  mutate(emp_spells_class= ifelse(pred_class5==1, "non-permanent employment",
 ##                                    ifelse(pred_class5==2, "permanent employment",
 ##                                           ifelse(pred_class5==3,"unemployed",
-##                                                  ifelse(pred_class5==4,"into employment",
-##                                                         ifelse(pred_class5==5,"out of employment",
+##                                                  ifelse(pred_class5==4,"gained employment",
+##                                                         ifelse(pred_class5==5,"left employment",
 ##                                                                "CHECK"))))))
 ##
 ##write_rds(emp_spellsb_lca_final, "./working_data/weighted/emp_spellsb_lca_final.rds")
@@ -1582,10 +1667,10 @@ class_mem %>%
 #  mutate(across(where(is.factor), as.character)) %>% 
 #  dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
 #  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-#  mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
+#  mutate(multi_emp_class= ifelse(pred_class5==1, "left employment",
 #                                    ifelse(pred_class5==2, "single employment",
 #                                           ifelse(pred_class5==3,"multiple employment",
-#                                                  ifelse(pred_class5==4,"into employment",
+#                                                  ifelse(pred_class5==4,"gained employment",
 #                                                         ifelse(pred_class5==5,"unemployed",
 #                                                                "CHECK"))))))
 #
@@ -1596,9 +1681,9 @@ class_mem %>%
 #  mutate(across(where(is.factor), as.character)) %>% 
 #  dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
 #  mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-#  mutate(multi_emp_class= ifelse(pred_class5==1, "out of employment",
+#  mutate(multi_emp_class= ifelse(pred_class5==1, "left employment",
 #                                 ifelse(pred_class5==2, "single employment",
-#                                        ifelse(pred_class5==3,"into employment",
+#                                        ifelse(pred_class5==3,"gained employment",
 #                                               ifelse(pred_class5==4,"multiple employment",
 #                                                      ifelse(pred_class5==5,"unemployed",
 #                                                             "CHECK"))))))
