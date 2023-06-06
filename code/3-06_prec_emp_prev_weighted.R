@@ -1814,7 +1814,7 @@ svy_ghq_emp_spells_glm_a_ci <- svy_ghq_emp_spells_glm_a_ci %>%
 svy_ghq_emp_spells_glm_a_df <- svy_ghq_emp_spells_glm_a_df %>% 
   left_join(svy_ghq_emp_spells_glm_a_ci) %>% 
   mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
-         exp_group = "Employment spells",
+         exp_group = "Employment continuity",
          sample_grp = "A")
 
 ### sample B ----------------------
@@ -1857,7 +1857,7 @@ svy_ghq_emp_spells_glm_b_ci <- svy_ghq_emp_spells_glm_b_ci %>%
 svy_ghq_emp_spells_glm_b_df <- svy_ghq_emp_spells_glm_b_df %>% 
   left_join(svy_ghq_emp_spells_glm_b_ci) %>% 
   mutate(measure = str_remove(measure, "relevel\\(emp_spells_class, ref = 1\\)"),
-         exp_group = "Employment spells",
+         exp_group = "Employment continuity",
          sample_grp = "B")
 
 
@@ -2015,7 +2015,7 @@ dev.off()
 tiff("./output/weighted/emp_spells_srh_OR_grouped_a.tiff")
 plotter2(data = svy_srh_emp_spells_glm_a_df, 
          classes = c("employment discontinuity", "non-employment"),
-         y_lab = "Employment spells class",
+         y_lab = "Employment continuity class",
          title_lab = "Poor self-rated health  by employment spells class\n(Sample A)")
 dev.off()
 
@@ -2023,7 +2023,7 @@ dev.off()
 tiff("./output/weighted/emp_spells_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_emp_spells_glm_b_df, 
          classes = c("employment discontinuity", "non-employment"),
-         y_lab = "Employment spells class",
+         y_lab = "Employment continuity class",
          title_lab = "Poor self-rated health  by employment spells class\n(Sample B)")
 dev.off()
 
@@ -2034,7 +2034,7 @@ dev.off()
 tiff("./output/weighted/emp_spells_ghq_OR_grouped_a.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_a_df, 
          classes = c("employment discontinuity", "non-employment"),
-         y_lab = "Employment spells class",
+         y_lab = "Employment continuity class",
          title_lab = "Common mental health conditon by employment spells\nclass (Sample A)")
 dev.off()
 
@@ -2042,7 +2042,7 @@ dev.off()
 tiff("./output/weighted/emp_spells_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_emp_spells_glm_b_df, 
          classes = c("employment discontinuity", "non-employment"),
-         y_lab = "Employment spells class",
+         y_lab = "Employment continuity class",
          title_lab = "Common mental health conditon by employment spells\nclass (Sample B)")
 dev.off()
 
