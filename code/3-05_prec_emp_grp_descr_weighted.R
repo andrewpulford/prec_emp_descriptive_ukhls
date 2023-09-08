@@ -146,7 +146,7 @@ dfas1b_end_class <- dfas1b_end %>%
 
 dfas1a_end_class <- dfas1a_end_class %>% 
   mutate(emp_contract_class_bin = ifelse(emp_contract_class == "non-permanent employment",1,0)) %>% 
-  mutate(broken_emp_class_bin = ifelse(emp_spells_class == "broken employment",1,0)) %>% 
+  mutate(broken_emp_class_bin = ifelse(emp_spells_class == "employment discontinuity",1,0)) %>% 
   mutate(multi_emp_class_bin = ifelse(multi_emp_class == "multiple employment",1,0)) %>% 
   mutate(exp_overlap = paste0(emp_contract_class_bin,"-",broken_emp_class_bin,"-",multi_emp_class_bin)) %>% 
   mutate(exp_overlap2 = paste0(emp_contract_class,"-",emp_spells_class,"-",multi_emp_class))
@@ -154,7 +154,7 @@ dfas1a_end_class <- dfas1a_end_class %>%
 
 dfas1b_end_class <- dfas1b_end_class %>% 
   mutate(emp_contract_class_bin = ifelse(emp_contract_class == "non-permanent employment",1,0)) %>% 
-  mutate(broken_emp_class_bin = ifelse(emp_spells_class == "broken employment",1,0)) %>% 
+  mutate(broken_emp_class_bin = ifelse(emp_spells_class == "employment discontinuity",1,0)) %>% 
   mutate(multi_emp_class_bin = ifelse(multi_emp_class == "multiple employment",1,0)) %>% 
   mutate(exp_overlap = paste0(emp_contract_class_bin,"-",broken_emp_class_bin,"-",multi_emp_class_bin)) %>% 
   mutate(exp_overlap2 = paste0(emp_contract_class,"-",emp_spells_class,"-",multi_emp_class))
@@ -205,11 +205,19 @@ exposure_class_overlaps_b <- exposure_class_overlaps_pc_b %>%
   dplyr::select(-SE)
 
 ## save 
+# RDS
 write_rds(exposure_class_overlaps_a, 
           "./output/weighted/exposure_class_overlaps_a.rds")
 
 write_rds(exposure_class_overlaps_b, 
           "./output/weighted/exposure_class_overlaps_b.rds")
+
+#CSV
+write_csv(exposure_class_overlaps_a, 
+          "./output/weighted/exposure_class_overlaps_a.csv")
+
+write_csv(exposure_class_overlaps_b, 
+          "./output/weighted/exposure_class_overlaps_b.csv")
 
 ################################################################################
 #####                   descriptives - class totals and %s                 #####
