@@ -1265,12 +1265,15 @@ svy_dsr_df3 <- svy_dsr_df3 %>%
 ### save df's for use in Markdown file
 ## emp contract
 write_rds(svy_dsr_df1, "./working_data/weighted/svy_dsr_df1.rds")
+write_csv(svy_dsr_df1, "./output/weighted/svy_dsr_df1.csv")
 
 ## emp spells
 write_rds(svy_dsr_df2, "./working_data/weighted/svy_dsr_df2.rds")
+write_csv(svy_dsr_df2, "./output/weighted/svy_dsr_df2.csv")
 
 ## multiple emp
 write_rds(svy_dsr_df3, "./working_data/weighted/svy_dsr_df3.rds")
+write_csv(svy_dsr_df3, "./output/weighted/svy_dsr_df3.csv")
 
 
 #### function for creating prevalence plots ------------------------------------
