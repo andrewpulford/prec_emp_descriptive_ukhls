@@ -373,7 +373,7 @@ tiff("./output/descriptive/empcontracta_lca_elbow.tiff", width = 400, height = 4
 empcontracta_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=empcontract_min_bic_a, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=empcontract_min_bic_a, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -381,7 +381,7 @@ tiff("./output/descriptive/empcontractb_lca_elbow.tiff", width = 400, height = 4
 empcontractb_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=empcontract_min_bic_b, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=empcontract_min_bic_b, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -721,7 +721,7 @@ tiff("./output/descriptive/empspellsa_lca_elbow.tiff", width = 400, height = 400
 empspellsa_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=empspells_min_bic_a, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=empspells_min_bic_a, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -729,7 +729,7 @@ tiff("./output/descriptive/empspellsb_lca_elbow.tiff", width = 400, height = 400
 empspellsb_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=empspells_min_bic_b, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=empspells_min_bic_b, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -1072,7 +1072,7 @@ tiff("./output/descriptive/multi_empa_lca_elbow.tiff", width = 400, height = 400
 multi_empa_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=multi_emp_min_bic_a, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=multi_emp_min_bic_a, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -1080,7 +1080,7 @@ tiff("./output/descriptive/multi_empb_lca_elbow.tiff", width = 400, height = 400
 multi_empb_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
   geom_line() +
-  geom_vline(xintercept=multi_emp_min_bic_b, colour="dark green", linetype = "longdash") +
+#  geom_vline(xintercept=multi_emp_min_bic_b, colour="dark green", linetype = "longdash") +
   theme_bw()
 dev.off()
 
@@ -1312,4 +1312,73 @@ poLCA(f2, dfas1b_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.st
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
+#### normalized entropy --------------------------------------------------------
+## see - https://jbds.isdsa.org/public/journals/1/html/v2n2/qiu/
 
+norm_entro <- function(lca_model, sample_size, n_classes){
+##RELATIVE ENTROPY
+##Numerator:
+nume.E <- sum(-lca_model$posterior * log(lca_model$posterior))
+##Denominator (n*log(K)): ## n is a sample size, and K is a number of class
+deno.E <- sample_size*log(n_classes)
+##Relative Entropy
+Entro_empcontract_l <- 1-(nume.E/deno.E)
+
+}
+
+### employment class -----------
+
+norm_entro_empcontract_lca_a <- norm_entro(lca_model = empcontract_lca3a, 
+                                           sample_size = 16161, 
+                                           n_classes = 5)
+norm_entro_empcontract_lca_a
+
+norm_entro_empcontract_lca_b <- norm_entro(lca_model = empcontract_lca3b, 
+                                           sample_size = 12963, 
+                                           n_classes = 5)
+norm_entro_empcontract_lca_b
+
+### employment continuity -------------
+norm_entro_empcontinuity_lca_a <- norm_entro(lca_model = empspells_lca3a, 
+                                           sample_size = 16161, 
+                                           n_classes = 3)
+norm_entro_empcontinuity_lca_a
+
+norm_entro_empcontinuity_lca_b <- norm_entro(lca_model = empspells_lca3b, 
+                                           sample_size = 12963, 
+                                           n_classes = 3)
+norm_entro_empcontinuity_lca_b
+
+### multiple employment ----------------
+norm_entro_multiemp_lca_a <- norm_entro(lca_model = multi_emp_lca3a, 
+                                             sample_size = 16161, 
+                                             n_classes = 3)
+norm_entro_multiemp_lca_a
+
+norm_entro_multiemp_lca_b <- norm_entro(lca_model = multi_emp_lca3b, 
+                                             sample_size = 12963, 
+                                             n_classes = 3)
+norm_entro_multiemp_lca_b
+
+### all >0.9 (but al same value???)
+
+temp_posterior_df <- data.frame(empspells_lca3a$posterior)
+
+temp_posterior_df %>% filter(X1==1) %>% filter(X2==0 | X3==0)
+
+temp_posterior_df[temp_posterior_df$X1==0] <- min(temp_posterior_df$X1[temp_posterior_df$X1!=0])
+temp_posterior_df[temp_posterior_df$X2==0] <- min(temp_posterior_df$X2[temp_posterior_df$X2!=0])
+temp_posterior_df[temp_posterior_df$X3==0] <- min(temp_posterior_df$X3[temp_posterior_df$X3!=0])
+
+temp_min <- min(temp_posterior_df$X3[temp_posterior_df$X3!=0])
+
+temp_posterior_df <- temp_posterior_df %>% 
+  mutate(X3 = ifelse(X3==0,temp_min,X3))
+
+temp_posterior <- as.matrix(temp_posterior_df)
+
+nume.E <- sum(-temp_posterior * log(temp_posterior))
+##Denominator (n*log(K)): ## n is a sample size, and K is a number of class
+deno.E <- 16161*log(3)
+##Relative Entropy
+Entro_empcontract_l <- 1-(nume.E/deno.E)
