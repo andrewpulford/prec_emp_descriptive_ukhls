@@ -1381,4 +1381,21 @@ nume.E <- sum(-temp_posterior * log(temp_posterior))
 ##Denominator (n*log(K)): ## n is a sample size, and K is a number of class
 deno.E <- 16161*log(3)
 ##Relative Entropy
-Entro_empcontract_l <- 1-(nume.E/deno.E)
+Entro_empspellsa_l <- 1-(nume.E/deno.E)
+
+rm(Entro_empcontract_l)
+
+norm_entropy_vector <- (c(norm_entro_empcontract_lca_a, norm_entro_empcontract_lca_b,
+                          norm_entro_empcontinuity_lca_a, norm_entro_empcontinuity_lca_b,
+                          norm_entro_multiemp_lca_a, norm_entro_multiemp_lca_b))
+
+norm_entropy_df <- data.frame(model = c("Employment contract (Sample A)",
+                     "Employment contract (Sample B)",
+                     "Employment continuity (Sample A)",
+                     "Employment continuity (Sample B)",
+                     "Multiple employment (Sample A)",
+                     "Multiple employment (Sample B)"),
+  norm_entropy = norm_entropy_vector)
+
+
+write.csv(norm_entropy_df, "./output/descriptive/norm_entropy_df.csv")
