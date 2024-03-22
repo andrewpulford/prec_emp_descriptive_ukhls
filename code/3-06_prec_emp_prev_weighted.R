@@ -2172,10 +2172,150 @@ plotter3(data = ghq_facet_df,
 dev.off()
 
 
+################################################################################
+#####                         final prevalence chart                       #####
+################################################################################
+
+### primary outcomes
+svy_dsr_df1 <- svy_dsr_df1 %>% 
+  mutate(dimension_pe = "Employment contract")
+svy_dsr_df2 <- svy_dsr_df2 %>% 
+  mutate(dimension_pe = "Employment discontinuity")
+svy_dsr_df3 <- svy_dsr_df3 %>% 
+  mutate(dimension_pe = "Multiple employment")
+
+primary_prev_df <- svy_dsr_df1 %>% 
+  bind_rows(svy_dsr_df2, svy_dsr_df3) %>% 
+  mutate(sample_lab = ifelse(sample_grp=="A", "2011-2015: \nhigh unemployment/\nlow income",
+                             ifelse(sample_grp=="B","2015-2019: \nlower unemployment/\nstagnant income 
+","CHECK"))) %>% 
+  mutate(outcome_lab=str_to_sentence(outcome_lab)) %>% 
+  mutate(exp_flag = ifelse(class_mem%in%c("Non-permanent employment","Employment discontinuity","Multiple employment"),"y","n"))
+
+primary_prev_df$dimension_pe <- gsub(" ", "\\\n", primary_prev_df$dimension_pe)
+primary_prev_df$outcome_lab <- gsub(" ", "\\\n", primary_prev_df$outcome_lab)
+
+tiff("./output/weighted/prev_final.tiff", width = 480)
+primary_prev_df %>% 
+  mutate(sample_lab = ifelse(sample_grp=="A", "2011-2015: \nhigh unemployment/\nlow income",
+                             ifelse(sample_grp=="B","2015-2019: \nlower unemployment/\nstagnant income 
+","CHECK"))) %>% 
+  filter(sex_dv == "both") %>%
+  ggplot(aes(x=tidytext::reorder_within(class_mem,value,outcome_lab), y=value,
+                fill=exp_flag)) +
+  geom_col(show.legend = FALSE, colour = "black") +
+  geom_errorbar(aes(ymin=lowercl, ymax=uppercl), colour="black", width=.1) +
+  coord_flip() +
+  theme_bw() +
+  xlab("Class membership") +
+  ylab("%") +
+  tidytext::scale_x_reordered() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","white","grey50")) +
+  facet_grid(outcome_lab+dimension_pe~sample_lab, scales = "free_y") +
+  theme(strip.text.y = element_text(angle = 0))
+dev.off()
 
 
+################################################################################
+#####                        plots comparing samples                       #####
+################################################################################
+
+#### poor srh ------------------------------------------------------------------
+
+### employment contract
+
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nself-rated\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Non-permanent employment","Permanent employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+  
+### emp continuity
+
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nself-rated\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Employment discontinuity","Continuous employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+
+### multiple emp
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nself-rated\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Multiple employment","Single employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+
+### facet version
+primary_prev_df$class_mem <- factor(primary_prev_df$class_mem)
+
+primary_prev_df$sample_lab_trunc <- str_split_i(primary_prev_df$sample_lab, ":",1)
 
 
+tiff("./output/weighted/poor_srh_prev_compared.tiff")
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nself-rated\nhealth",
+         sex_dv=="both") %>% 
+  ggplot(aes(x=sample_lab_trunc, y=value, col = class_mem, fill = class_mem, 
+             shape = class_mem, group=class_mem, linetype = class_mem)) +
+  geom_point(size=4) +
+  geom_line() +
+  scale_shape_manual(values=1:nlevels(primary_prev_df$class_mem)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 0.9, hjust = 1)) +
+  facet_wrap(~dimension_pe)
+dev.off()
+
+#### poor mh -------------------------------------------------------------------
+
+### employment contract
+
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nmental\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Non-permanent employment","Permanent employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+
+### emp continuity
+
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nmental\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Employment discontinuity","Continuous employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+
+### multiple emp
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nmental\nhealth",
+         sex_dv=="both",
+         class_mem%in%c("Multiple employment","Single employment")) %>% 
+  ggplot(aes(x=sample_lab, y=value, col = class_mem, fill = class_mem, group=class_mem)) +
+  geom_point() +
+  geom_line()
+
+### facet version
+tiff("./output/weighted/poor_mh_prev_compared.tiff")
+primary_prev_df %>% 
+  filter(outcome_lab=="Poor\nmental\nhealth",
+         sex_dv=="both") %>% 
+  ggplot(aes(x=sample_lab_trunc, y=value, col = class_mem, fill = class_mem, 
+             shape = class_mem, group=class_mem, linetype = class_mem)) +
+  geom_point(size=4) +
+  geom_line() +
+  scale_shape_manual(values=1:nlevels(primary_prev_df$class_mem)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 0.9, hjust = 1)) +
+  facet_wrap(~dimension_pe)
+dev.off()
 
 ############## junk ############################################################
 
