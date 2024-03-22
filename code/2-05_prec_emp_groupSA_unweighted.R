@@ -59,7 +59,7 @@ multi_empb_lca_final <- readRDS("./working_data/multi_empb_lca_final.rds")
 ################################################################################
 
 ### define labels and codes for sequence analysis
-emp_contract_labs <- c("fixed term", "missing", "permanent", "unemployed/not in employment" )
+emp_contract_labs <- c("fixed term", "missing", "unemployed/not in employment" , "permanent")
 emp_contract_code <- c("FT", "NA", "PE", "UE")
 
 ### create sequence data
