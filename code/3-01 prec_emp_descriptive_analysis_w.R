@@ -120,7 +120,7 @@ dfas1b_end <- dfas1b_end %>%
                              NA,sf12pcs_dv),
          sf12mcs_dv = ifelse(sf12mcs_dv %in% c("missing", "inapplicable", 
                                                "proxy", "refusal", "don't know"),
-                             NA,sf12pcs_dv)) 
+                             NA,sf12mcs_dv)) 
 
 # change to char then numeric
 dfas1b_end$sf12pcs_dv <- as.numeric(dfas1b_end$sf12pcs_dv,  na.rm = FALSE)
@@ -189,7 +189,11 @@ tableone_b <- tableone::svyCreateTableOne(vars = tab_vars,
 tableone_a_sav <- print(tableone_a, showAllLevels = TRUE, 
                         formatOptions = list(big.mark = ","))
 
-write.csv(tableone_a, "./output/weighted/tableone_a_sav.csv")
+tableone_b_sav <- print(tableone_b, showAllLevels = TRUE, 
+                        formatOptions = list(big.mark = ","))
+
+write.csv(tableone_a_sav, "./output/weighted/tableone_a_sav.csv")
+write.csv(tableone_b_sav, "./output/weighted/tableone_b_sav.csv")
 
 ### try jstable::svyCreateTableOne2
 
