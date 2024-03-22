@@ -207,9 +207,9 @@ empcontract_lca4b_memtotals <- dfas1b_pred_class %>%
 
 
 ### no covariates, 5 classes--------------------
-empcontract_lca5a <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, graphs = TRUE, na.rm = FALSE)
+empcontract_lca5a <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 9000, graphs = TRUE, na.rm = FALSE)
 
-empcontract_lca5b <- poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, graphs = TRUE, na.rm = FALSE)
+empcontract_lca5b <- poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 9000, graphs = TRUE, na.rm = FALSE)
 
 # entropy -- NOTE: poLCA uses non-normalised entropy, how to interpret?
 empcontract_lca5a_ent <- poLCA.entropy(empcontract_lca5a)
@@ -368,7 +368,7 @@ temp <- empcontract_min_bic_b <- empcontractb_lca_fit_stats %>%  filter(bic==min
 empcontract_min_bic_b <- temp[,1]
 rm(temp)  
 
-# bic elbow plot
+# bic elbow plots
 tiff("./output/descriptive/empcontracta_lca_elbow.tiff", width = 400, height = 400)
 empcontracta_lca_fit_stats %>% dplyr::select(nclass, bic) %>% 
   ggplot(aes(x=nclass,y=bic)) + 
@@ -383,6 +383,26 @@ empcontractb_lca_fit_stats %>% dplyr::select(nclass, bic) %>%
   geom_line() +
 #  geom_vline(xintercept=empcontract_min_bic_b, colour="dark green", linetype = "longdash") +
   theme_bw()
+dev.off()
+
+### faceted
+empcontracta_lca_fit_stats <- empcontracta_lca_fit_stats %>% 
+  mutate(sample_grp = "2011-2015: 
+         high unemployment/low income period")
+empcontractb_lca_fit_stats <- empcontractb_lca_fit_stats %>% 
+  mutate(sample_grp = "2015-2019: 
+         lower unemployment/stagnant income period")
+
+empcontract_lca_fit_stats <- empcontracta_lca_fit_stats %>% 
+  bind_rows(empcontractb_lca_fit_stats)
+
+tiff("./output/descriptive/empcontract_lca_elbow_facet.tiff", width = 400, height = 400)
+empcontract_lca_fit_stats %>% dplyr::select(nclass, bic,sample_grp) %>% 
+  ggplot(aes(x=nclass,y=bic)) + 
+  geom_line() +
+  geom_vline(xintercept=5, colour="dark green", linetype = "longdash") +
+  theme_bw() +
+  facet_wrap(~sample_grp, scales="free_y", ncol=1)
 dev.off()
 
 # model with lowest aic
@@ -731,6 +751,26 @@ empspellsb_lca_fit_stats %>% dplyr::select(nclass, bic) %>%
   geom_line() +
 #  geom_vline(xintercept=empspells_min_bic_b, colour="dark green", linetype = "longdash") +
   theme_bw()
+dev.off()
+
+### faceted
+empspellsa_lca_fit_stats <- empspellsa_lca_fit_stats %>% 
+  mutate(sample_grp = "2011-2015: 
+         high unemployment/low income period")
+empspellsb_lca_fit_stats <- empspellsb_lca_fit_stats %>% 
+  mutate(sample_grp = "2015-2019: 
+         lower unemployment/stagnant income period")
+
+empspells_lca_fit_stats <- empspellsa_lca_fit_stats %>% 
+  bind_rows(empspellsb_lca_fit_stats)
+
+tiff("./output/descriptive/empspells_lca_elbow_facet.tiff", width = 400, height = 400)
+empspells_lca_fit_stats %>% dplyr::select(nclass, bic,sample_grp) %>% 
+  ggplot(aes(x=nclass,y=bic)) + 
+  geom_line() +
+  geom_vline(xintercept=3, colour="dark green", linetype = "longdash") +
+  theme_bw() +
+  facet_wrap(~sample_grp, scales="free_y", ncol=1)
 dev.off()
 
 # model with lowest aic
@@ -1084,6 +1124,26 @@ multi_empb_lca_fit_stats %>% dplyr::select(nclass, bic) %>%
   theme_bw()
 dev.off()
 
+### faceted
+multi_empa_lca_fit_stats <- multi_empa_lca_fit_stats %>% 
+  mutate(sample_grp = "2011-2015: 
+         high unemployment/low income period")
+multi_empb_lca_fit_stats <- multi_empb_lca_fit_stats %>% 
+  mutate(sample_grp = "2015-2019: 
+         lower unemployment/stagnant income period")
+
+multi_emp_lca_fit_stats <- multi_empa_lca_fit_stats %>% 
+  bind_rows(multi_empb_lca_fit_stats)
+
+tiff("./output/descriptive/multi_emp_lca_elbow_facet.tiff", width = 400, height = 400)
+multi_emp_lca_fit_stats %>% dplyr::select(nclass, bic,sample_grp) %>% 
+  ggplot(aes(x=nclass,y=bic)) + 
+  geom_line() +
+  geom_vline(xintercept=3, colour="dark green", linetype = "longdash") +
+  theme_bw() +
+  facet_wrap(~sample_grp, scales="free_y", ncol=1)
+dev.off()
+
 # model with lowest aic
 multi_empa_lca_fit_stats %>%  filter(aic==min(aic))
 
@@ -1113,29 +1173,34 @@ write.csv(multi_empb_lca_fit_stats, "./output/descriptive/multi_empb_lca_fit_sta
 #### Most plausible model ------------------------------------------------------
 ### 5 classes for both samples
 
+## check the model and chart output
+empcontract_lca5a
+
 emp_contracta_lca_final <- dfas1a_pred_class %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_contract_class= ifelse(pred_class5==1, "permanent employment",
+  mutate(emp_contract_class= ifelse(pred_class5==5, "permanent employment",
                                     ifelse(pred_class5==2, "gained employment",
-                                           ifelse(pred_class5==3,"non-permanent employment",
-                                                  ifelse(pred_class5==4,"non-employment",
-                                                         ifelse(pred_class5==5,"left employment",
+                                           ifelse(pred_class5==4,"non-permanent employment",
+                                                  ifelse(pred_class5==3,"non-employment",
+                                                         ifelse(pred_class5==1,"left employment",
                                                                 "CHECK"))))))
+
 
 write_rds(emp_contracta_lca_final, "./working_data/emp_contracta_lca_final.rds")
 
+empcontract_lca5b
 
 emp_contractb_lca_final <- dfas1b_pred_class %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class5) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_contract_class= ifelse(pred_class5==1, "permanent employment",
-                                    ifelse(pred_class5==2, "non-employment",
-                                           ifelse(pred_class5==3,"gained employment",
-                                                  ifelse(pred_class5==4,"left employment",
-                                                         ifelse(pred_class5==5,"non-permanent employment",
+  mutate(emp_contract_class= ifelse(pred_class5==4, "permanent employment",
+                                    ifelse(pred_class5==3, "non-employment",
+                                           ifelse(pred_class5==1,"gained employment",
+                                                  ifelse(pred_class5==5,"left employment",
+                                                         ifelse(pred_class5==2,"non-permanent employment",
                                                                 "CHECK"))))))
 
 write_rds(emp_contractb_lca_final, "./working_data/emp_contractb_lca_final.rds")
@@ -1153,28 +1218,28 @@ write_rds(emp_contractb_5class_spine, "./working_data/emp_contractb_5class_spine
 
 ## reorder the classes so there appear in a set order (FE,PE,NE,IE,OE)
 probs.start.a <-empcontract_lca5a$probs.start
-new.probs.start.a <- poLCA.reorder(empcontract_lca5a$probs.start, c(3,1,4,2,5)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(empcontract_lca5a$probs.start, c(4,5,3,2,1)) ## <<< specify for final run <<< ##
 
 probs.start.b <-empcontract_lca5b$probs.start
-new.probs.start.b <- poLCA.reorder(empcontract_lca5b$probs.start, c(5,1,2,3,4)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(empcontract_lca5b$probs.start, c(2,4,3,1,5)) ## <<< specify for final run <<< ##
 
 #save output
-emp_contracta_lca_final_model <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=new.probs.start.a, 
+emp_contracta_lca_final_model <- poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 9000, probs.start=new.probs.start.a, 
                                        graphs = FALSE, na.rm = FALSE)
 saveRDS(emp_contracta_lca_final_model, "./output/descriptive/emp_contracta_lca_final_model.rds")
 
-emp_contractb_lca_final_model <- poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, probs.start=new.probs.start.b, 
+emp_contractb_lca_final_model <- poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 9000, probs.start=new.probs.start.b, 
                                        graphs = FALSE, na.rm = FALSE)
 saveRDS(emp_contractb_lca_final_model, "./output/descriptive/emp_contractb_lca_final_model.rds")
 
 # save plot
 tiff("./output/descriptive/emp_contracta_lca_final.tiff", width = 400, height = 400)
-poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.a, 
+poLCA(f, dfas1a_seq_wide, nclass = 5, maxiter = 9000, probs.start=probs.start.a, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
 tiff("./output/descriptive/emp_contractb_lca_final.tiff", width = 400, height = 400)
-poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 8000, probs.start=probs.start.b, 
+poLCA(f2, dfas1b_seq_wide, nclass = 5, maxiter = 9000, probs.start=probs.start.b, 
       graphs = TRUE, na.rm = FALSE)
 dev.off()
 
@@ -1184,25 +1249,28 @@ dev.off()
 #### Most plausible model ------------------------------------------------------
 ### 3 classes for both samples
 
+empspells_lca3a
+
 emp_spellsa_lca_final <- dfas1a_pred_class2 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_spells_class= ifelse(pred_class3==1, "broken employment",
+  mutate(emp_spells_class= ifelse(pred_class3==3, "broken employment",
                                     ifelse(pred_class3==2, "non-employment",
-                                           ifelse(pred_class3==3,"unbroken employment",
+                                           ifelse(pred_class3==1,"unbroken employment",
                                                                 "CHECK"))))
 
 write_rds(emp_spellsa_lca_final, "./working_data/emp_spellsa_lca_final.rds")
 
+empspells_lca3b
 
 emp_spellsb_lca_final <- dfas1b_pred_class2 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(emp_spells_class= ifelse(pred_class3==1, "unbroken employment",
-                                  ifelse(pred_class3==2, "broken employment",
-                                         ifelse(pred_class3==3,"non-employment",
+  mutate(emp_spells_class= ifelse(pred_class3==3, "unbroken employment",
+                                  ifelse(pred_class3==1, "broken employment",
+                                         ifelse(pred_class3==2,"non-employment",
                                                 "CHECK"))))
 
 write_rds(emp_spellsb_lca_final, "./working_data/emp_spellsb_lca_final.rds")
@@ -1220,10 +1288,10 @@ write_rds(emp_spellsb_3class_spine, "./working_data/emp_spellsb_3class_spine.rds
 
 ### reorder the classes so there appear in a set order
 probs.start.a<-empspells_lca3a$probs.start
-new.probs.start.a <- poLCA.reorder(empspells_lca3a$probs.start, c(1,3,2)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(empspells_lca3a$probs.start, c(3,1,2)) ## <<< specify for final run <<< ##
 
 probs.start.b <-empspells_lca3b$probs.start
-new.probs.start.b <- poLCA.reorder(empspells_lca3b$probs.start.b, c(2,1,3)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(empspells_lca3b$probs.start.b, c(1,3,2)) ## <<< specify for final run <<< ##
 
 ##save output
 emp_spellsa_lca_final_model <- poLCA(f, dfas1a_seq_wide2, nclass = 3, maxiter = 9000, probs.start=new.probs.start.a, 
@@ -1253,24 +1321,27 @@ dev.off()
 #### Most plausible model ------------------------------------------------------
 ### 3 classes for both samples
 
+multi_emp_lca3a
+
 multi_empa_lca_final <- dfas1a_pred_class3 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_3,wv_4,wv_5,wv_6,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
-  mutate(multi_emp_class= ifelse(pred_class3==1, "non-employment",
+  mutate(multi_emp_class= ifelse(pred_class3==3, "non-employment",
                                     ifelse(pred_class3==2, "multiple employment",
-                                           ifelse(pred_class3==3,"single employment","CHECK"))))
+                                           ifelse(pred_class3==1,"single employment","CHECK"))))
 
 write_rds(multi_empa_lca_final, "./working_data/multi_empa_lca_final.rds")
 
+multi_emp_lca3b
 
 multi_empb_lca_final <- dfas1b_pred_class3 %>% ## <<< specify for final run <<< ##
   mutate(across(where(is.factor), as.character)) %>% 
   dplyr::select(pidp, wv_7,wv_8,wv_9,wv_10,pred_class3) %>% 
   mutate_all(~ ifelse(is.na(.),"missing",.)) %>% 
   mutate(multi_emp_class= ifelse(pred_class3==1, "single employment",
-                                 ifelse(pred_class3==2, "Multiple employment",
-                                        ifelse(pred_class3==3,"non-employment","CHECK"))))
+                                 ifelse(pred_class3==3, "Multiple employment",
+                                        ifelse(pred_class3==2,"non-employment","CHECK"))))
 
 write_rds(multi_empb_lca_final, "./working_data/multi_empb_lca_final.rds")
 
@@ -1287,10 +1358,10 @@ write_rds(multi_empb_3class_spine, "./working_data/multi_empb_3class_spine.rds")
 
 ## reorder the classes so there appear in a set order (ME,SE,NE,...)
 probs.start.a <-multi_emp_lca3a$probs.start
-new.probs.start.a <- poLCA.reorder(multi_emp_lca3a$probs.start.a, c(2,3,1)) ## <<< specify for final run <<< ##
+new.probs.start.a <- poLCA.reorder(multi_emp_lca3a$probs.start.a, c(2,1,3)) ## <<< specify for final run <<< ##
 
 probs.start.b <-multi_emp_lca3b$probs.start
-new.probs.start.b <- poLCA.reorder(multi_emp_lca3b$probs.start.b, c(2,1,3)) ## <<< specify for final run <<< ##
+new.probs.start.b <- poLCA.reorder(multi_emp_lca3b$probs.start.b, c(3,1,2)) ## <<< specify for final run <<< ##
 
 #save output
 multi_empa_lca_final_model <- poLCA(f, dfas1a_seq_wide3, nclass = 3, maxiter = 4000, probs.start=new.probs.start.a, 
@@ -1362,28 +1433,45 @@ norm_entro_multiemp_lca_b
 
 ### all >0.9 (but al same value???)
 
-temp_posterior_df <- data.frame(empspells_lca3a$posterior)
-
-temp_posterior_df %>% filter(X1==1) %>% filter(X2==0 | X3==0)
-
-temp_posterior_df[temp_posterior_df$X1==0] <- min(temp_posterior_df$X1[temp_posterior_df$X1!=0])
-temp_posterior_df[temp_posterior_df$X2==0] <- min(temp_posterior_df$X2[temp_posterior_df$X2!=0])
-temp_posterior_df[temp_posterior_df$X3==0] <- min(temp_posterior_df$X3[temp_posterior_df$X3!=0])
-
-temp_min <- min(temp_posterior_df$X3[temp_posterior_df$X3!=0])
-
-temp_posterior_df <- temp_posterior_df %>% 
-  mutate(X3 = ifelse(X3==0,temp_min,X3))
-
-temp_posterior <- as.matrix(temp_posterior_df)
-
-nume.E <- sum(-temp_posterior * log(temp_posterior))
-##Denominator (n*log(K)): ## n is a sample size, and K is a number of class
-deno.E <- 16161*log(3)
-##Relative Entropy
-Entro_empspellsa_l <- 1-(nume.E/deno.E)
-
-rm(Entro_empcontract_l)
+#temp_posterior_df <- data.frame(empspells_lca3a$posterior)
+#
+#temp_posterior_df %>% filter(X1==1) %>% filter(X2==0 | X3==0)
+#
+## X1 recode zeros
+#temp_min <- min(temp_posterior_df$X1[temp_posterior_df$X1!=0])
+#
+#temp_posterior_df <- temp_posterior_df %>% 
+#  mutate(X1 = ifelse(X1==0,temp_min,X1))
+#
+#rm(temp_min)
+#
+## X2 recode zeros
+#temp_min <- min(temp_posterior_df$X2[temp_posterior_df$X2!=0])
+#
+#temp_posterior_df <- temp_posterior_df %>% 
+#  mutate(X2 = ifelse(X2==0,temp_min,X2))
+#temp_min <- min(temp_posterior_df$X2[temp_posterior_df$X2!=0])
+#
+#rm(temp_min)
+#
+## x3 recode zeros
+#temp_min <- min(temp_posterior_df$X3[temp_posterior_df$X3!=0])
+#
+#temp_posterior_df <- temp_posterior_df %>% 
+#  mutate(X3 = ifelse(X3==0,temp_min,X3))
+#
+#temp_posterior <- as.matrix(temp_posterior_df)
+#
+#rm(temp_min)
+#
+###  normalise
+#nume.E <- sum(-temp_posterior * log(temp_posterior))
+###Denominator (n*log(K)): ## n is a sample size, and K is a number of class
+#deno.E <- 16161*log(3)
+###Relative Entropy
+#Entro_empspellsa_l <- 1-(nume.E/deno.E)
+#
+#rm(Entro_empcontract_l)
 
 norm_entropy_vector <- (c(norm_entro_empcontract_lca_a, norm_entro_empcontract_lca_b,
                           norm_entro_empcontinuity_lca_a, norm_entro_empcontinuity_lca_b,
@@ -1399,3 +1487,4 @@ norm_entropy_df <- data.frame(model = c("Employment contract (Sample A)",
 
 
 write.csv(norm_entropy_df, "./output/descriptive/norm_entropy_df.csv")
+
