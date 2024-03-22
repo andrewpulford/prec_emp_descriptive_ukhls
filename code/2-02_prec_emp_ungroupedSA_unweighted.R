@@ -81,7 +81,7 @@ dfas1b_seq_wide  <-  dfas1b_seq %>%
 
 ### define labels and codes for sequence analysis
 emp_contract_labs <- c("fixed term", "missing", "permanent", "non-employment" )
-emp_contract_code <- c("FT", "NA", "NE", "PE")
+emp_contract_code <- c("FT", "NA", "PE", "NE")
 
 ### create sequence data
 emp_contract.seq.a <- seqdef(dfas1a_seq_wide, 2:5, states = emp_contract_code,
