@@ -155,7 +155,7 @@ dfas1a_end_class <- dfas1a_end_class %>%
 dfas1b_end_class <- dfas1b_end_class %>% 
   mutate(emp_contract_class_bin = ifelse(emp_contract_class == "non-permanent employment",1,0)) %>% 
   mutate(broken_emp_class_bin = ifelse(emp_spells_class == "employment discontinuity",1,0)) %>% 
-  mutate(multi_emp_class_bin = ifelse(multi_emp_class == "multiple employment",1,0)) %>% 
+  mutate(multi_emp_class_bin = ifelse(multi_emp_class == "Multiple employment",1,0)) %>% 
   mutate(exp_overlap = paste0(emp_contract_class_bin,"-",broken_emp_class_bin,"-",multi_emp_class_bin)) %>% 
   mutate(exp_overlap2 = paste0(emp_contract_class,"-",emp_spells_class,"-",multi_emp_class))
 
@@ -1221,7 +1221,7 @@ multi_emp_grp <- multi_emp_grp %>% bind_rows(age_b)
 #
 #multi_emp_grp <- multi_emp_grp %>% bind_rows(ed_attain_b)
 #
-rm(temp, temp2)
+#rm(temp, temp2)
 
 ## add CI calculations
 ## save outputs
