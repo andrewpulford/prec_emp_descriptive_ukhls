@@ -94,6 +94,12 @@ dfas1a_end <- dfas1a_end %>%
 dfas1a_end$sf12pcs_dv <- as.numeric(dfas1a_end$sf12pcs_dv,  na.rm = TRUE)
 dfas1a_end$sf12mcs_dv <- as.numeric(dfas1a_end$sf12mcs_dv,  na.rm = TRUE)
 
+dfas1a_end <- dfas1a_end %>% 
+  mutate(srh_bin2 = ifelse(srh_dv %in% c("excellent","very good", "good"),
+                          "excellent/very good/good",
+                          ifelse(srh_dv %in% c("fair","poor"),
+                                 "fair/poor",
+                                 NA)))
 
 ### sample B ---------
 dfas1b_end <- readRDS("./working_data/dfas1b_end.rds")
@@ -114,6 +120,13 @@ dfas1b_end <- dfas1b_end %>%
 # change to char then numeric
 dfas1b_end$sf12pcs_dv <- as.numeric(dfas1b_end$sf12pcs_dv,  na.rm = TRUE)
 dfas1b_end$sf12mcs_dv <- as.numeric(dfas1b_end$sf12mcs_dv,  na.rm = TRUE)
+
+dfas1b_end <- dfas1b_end %>% 
+  mutate(srh_bin2 = ifelse(srh_dv %in% c("excellent","very good", "good"),
+                           "excellent/very good/good",
+                           ifelse(srh_dv %in% c("fair","poor"),
+                                  "fair/poor",
+                                  NA)))
 
 #### latent class membership spines
 ### employment contract LCA spine
@@ -212,13 +225,13 @@ dfas1b_end_class3 <- dfas1b_end %>%
 srh_a_df <- dfas1a_end_class1 %>% 
   dplyr::select(pidp, indinub_xw, psu, strata,
                 emp_contract_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(emp_contract_class = factor(emp_contract_class)) 
 
 srh_b_df <- dfas1b_end_class1 %>% 
   dplyr::select(pidp, indinui_xw, psu, strata,
                 emp_contract_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(emp_contract_class = factor(emp_contract_class)) 
 
 ## GHQ-12
@@ -348,7 +361,7 @@ svy_ghq_splits_b_d <- map(svy_ghq_splits_b_d, ~ (.x %>% dplyr::select(-new_colum
 ## function to calculate numerators
 # for self-rated health
 svy_numerator_srh <- function(x){
-data.frame(svyby(~age_dv_grp, ~srh_bin, x, svytotal, na.rm=TRUE))
+data.frame(svyby(~age_dv_grp, ~srh_bin2, x, svytotal, na.rm=TRUE))
 }
 # for GHQ-12
 svy_numerator_ghq <- function(x){
@@ -388,8 +401,8 @@ svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_replace(age_dv_grp, "\\.","-"))))
 
 # select only cases
-svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
-svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
+svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
+svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
 svy_ghq_splits_a_n <- map(svy_ghq_splits_a_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 
@@ -453,12 +466,12 @@ svy_ghq_b_df <- map2_df(svy_ghq_splits_b_d, svy_ghq_splits_b_n, left_join, by = 
 svy_srh_a_df <- svy_srh_a_df %>% 
   mutate(sample_grp = "A",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_srh_b_df <- svy_srh_b_df %>% 
   mutate(sample_grp = "B",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_ghq_a_df <- svy_ghq_a_df %>% 
   mutate(sample_grp = "A",
@@ -554,13 +567,13 @@ rm(temp_list, temp_df)
 srh_a_df <- dfas1a_end_class2 %>% 
   dplyr::select(pidp, indinub_xw, psu, strata,
                 emp_spells_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(emp_spells_class = factor(emp_spells_class)) 
 
 srh_b_df <- dfas1b_end_class2 %>% 
   dplyr::select(pidp, indinui_xw, psu, strata,
                 emp_spells_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(emp_spells_class = factor(emp_spells_class)) 
 
 ## GHQ-12
@@ -690,7 +703,7 @@ svy_ghq_splits_b_d <- map(svy_ghq_splits_b_d, ~ (.x %>% dplyr::select(-new_colum
 ## function to calculate numerators
 # for self-rated health
 svy_numerator_srh <- function(x){
-  data.frame(svyby(~age_dv_grp, ~srh_bin, x, svytotal, na.rm=TRUE))
+  data.frame(svyby(~age_dv_grp, ~srh_bin2, x, svytotal, na.rm=TRUE))
 }
 # for GHQ-12
 svy_numerator_ghq <- function(x){
@@ -730,8 +743,8 @@ svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_replace(age_dv_grp, "\\.","-"))))
 
 # select only cases
-svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
-svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
+svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
+svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
 svy_ghq_splits_a_n <- map(svy_ghq_splits_a_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 
@@ -795,12 +808,12 @@ svy_ghq_b_df <- map2_df(svy_ghq_splits_b_d, svy_ghq_splits_b_n, left_join, by = 
 svy_srh_a_df <- svy_srh_a_df %>% 
   mutate(sample_grp = "A",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_srh_b_df <- svy_srh_b_df %>% 
   mutate(sample_grp = "B",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_ghq_a_df <- svy_ghq_a_df %>% 
   mutate(sample_grp = "A",
@@ -896,13 +909,13 @@ rm(temp_list, temp_df)
 srh_a_df <- dfas1a_end_class3 %>% 
   dplyr::select(pidp, indinub_xw, psu, strata,
                 multi_emp_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(emp_spells_class = factor(multi_emp_class)) 
 
 srh_b_df <- dfas1b_end_class3 %>% 
   dplyr::select(pidp, indinui_xw, psu, strata,
                 multi_emp_class, age_dv_grp, 
-                sex_dv, srh_bin) %>% 
+                sex_dv, srh_bin2) %>% 
   mutate(multi_emp_class = factor(multi_emp_class)) 
 
 ## GHQ-12
@@ -1032,7 +1045,7 @@ svy_ghq_splits_b_d <- map(svy_ghq_splits_b_d, ~ (.x %>% dplyr::select(-new_colum
 ## function to calculate numerators
 # for self-rated health
 svy_numerator_srh <- function(x){
-  data.frame(svyby(~age_dv_grp, ~srh_bin, x, svytotal, na.rm=TRUE))
+  data.frame(svyby(~age_dv_grp, ~srh_bin2, x, svytotal, na.rm=TRUE))
 }
 # for GHQ-12
 svy_numerator_ghq <- function(x){
@@ -1072,8 +1085,8 @@ svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% mutate(age_dv_grp = str_replace(age_dv_grp, "\\.","-"))))
 
 # select only cases
-svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
-svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin=="good/fair/poor")))
+svy_srh_splits_a_n <- map(svy_srh_splits_a_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
+svy_srh_splits_b_n <- map(svy_srh_splits_b_n, ~ (.x %>% filter(srh_bin2=="fair/poor")))
 svy_ghq_splits_a_n <- map(svy_ghq_splits_a_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 svy_ghq_splits_b_n <- map(svy_ghq_splits_b_n, ~ (.x %>% filter(ghq_case4=="4 or more")))
 
@@ -1137,12 +1150,12 @@ svy_ghq_b_df <- map2_df(svy_ghq_splits_b_d, svy_ghq_splits_b_n, left_join, by = 
 svy_srh_a_df <- svy_srh_a_df %>% 
   mutate(sample_grp = "A",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_srh_b_df <- svy_srh_b_df %>% 
   mutate(sample_grp = "B",
          outcome_lab = "poor self-rated health") %>% 
-  dplyr::select(-srh_bin)
+  dplyr::select(-srh_bin2)
 
 svy_ghq_a_df <- svy_ghq_a_df %>% 
   mutate(sample_grp = "A",
@@ -1349,38 +1362,38 @@ dev.off()
 
 ### employment contract
 dfas1a_end_class1 <- dfas1a_end_class1 %>% 
-    mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+    mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
            ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
            emp_contract_class = factor(emp_contract_class))
 
 
 dfas1b_end_class1 <- dfas1b_end_class1 %>% 
-  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+  mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
          ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
          emp_contract_class = factor(emp_contract_class))
 
 
 ### employment contract
 dfas1a_end_class2 <- dfas1a_end_class2 %>% 
-  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+  mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
          ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
          emp_spells_class = factor(emp_spells_class))
 
 
 dfas1b_end_class2 <- dfas1b_end_class2 %>% 
-  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+  mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
          ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
          emp_spells_class = factor(emp_spells_class))
 
 ### multiple employment
 dfas1a_end_class3 <- dfas1a_end_class3 %>% 
-  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+  mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
          ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
          multi_emp_class = factor(multi_emp_class))
 
 
 dfas1b_end_class3 <- dfas1b_end_class3 %>% 
-  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0),
+  mutate(srh_bin2 = ifelse(srh_bin2 == "fair/poor",1,0),
          ghq_case4 = ifelse(ghq_case4 == "4 or more",1,0),
          multi_emp_class = factor(multi_emp_class))
 
@@ -1416,7 +1429,7 @@ svy_multi_emp_b <- svydesign(id=~psu, strata=~strata,
 ### sample A ------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_a <- svyglm(srh_bin~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_a <- svyglm(srh_bin2~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                family=quasibinomial, design=svy_emp_contract_a, 
                na.action = na.omit)
 
@@ -1460,7 +1473,7 @@ svy_srh_emp_contract_glm_a_df <- svy_srh_emp_contract_glm_a_df %>%
 ### sample B -------------------
 
 ## logistic regression
-svy_srh_emp_contract_glm_b <- svyglm(srh_bin~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
+svy_srh_emp_contract_glm_b <- svyglm(srh_bin2~relevel(emp_contract_class, ref = 5)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_emp_contract_b, 
                                  na.action = na.omit)
 
@@ -1506,7 +1519,7 @@ svy_srh_emp_contract_glm_b_df <- svy_srh_emp_contract_glm_b_df %>%
 
 ### sample A ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_a <- svyglm(srh_bin~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_a <- svyglm(srh_bin2~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_broken_emp_a, 
                                  na.action = na.omit)
 
@@ -1549,7 +1562,7 @@ svy_srh_emp_spells_glm_a_df <- svy_srh_emp_spells_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_emp_spells_glm_b <- svyglm(srh_bin~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
+svy_srh_emp_spells_glm_b <- svyglm(srh_bin2~relevel(emp_spells_class, ref = 1)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_broken_emp_b, 
                                  na.action = na.omit)
 
@@ -1595,7 +1608,7 @@ svy_srh_emp_spells_glm_b_df <- svy_srh_emp_spells_glm_b_df %>%
 
 ### sample A -----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_a <- svyglm(srh_bin~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_a <- svyglm(srh_bin2~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_multi_emp_a, 
                                  na.action = na.omit)
 
@@ -1638,7 +1651,7 @@ svy_srh_multi_emp_glm_a_df <- svy_srh_multi_emp_glm_a_df %>%
 
 ### sample B ----------------------
 ## logistic regression
-svy_srh_multi_emp_glm_b <- svyglm(srh_bin~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
+svy_srh_multi_emp_glm_b <- svyglm(srh_bin2~relevel(multi_emp_class, ref = 3)+age_dv_grp+sex_dv, 
                                  family=quasibinomial, design=svy_multi_emp_b, 
                                  na.action = na.omit)
 
@@ -2064,7 +2077,7 @@ dev.off()
 ### sample B
 tiff("./output/weighted/multi_emp_srh_OR_grouped_b.tiff")
 plotter2(data = svy_srh_multi_emp_glm_b_df, 
-         classes = c("multiple employment", 
+         classes = c("Multiple employment", 
                      "single employment", "non-employment"),
          y_lab = "Multiple employment class",
          title_lab = "Poor self-rated health by multiple employment class\n(Sample B)")
@@ -2085,7 +2098,7 @@ dev.off()
 ### sample B
 tiff("./output/weighted/multi_emp_ghq_OR_grouped_b.tiff")
 plotter2(data = svy_ghq_multi_emp_glm_b_df, 
-         classes = c("multiple employment", 
+         classes = c("Multiple employment", 
                      "single employment", "non-employment"),
          y_lab = "Employment contract class",
          title_lab = "Common mental health conditon by multiple employment\nclass (Sample B)")
@@ -2113,6 +2126,9 @@ plotter3 <- function(data, y_lab, title_lab){
 
 ##### srh faceted chart --------------------------------------------------------
 ### create df
+
+svy_srh_multi_emp_glm_b_df$measure <- tolower(svy_srh_multi_emp_glm_b_df$measure)
+
 srh_facet_df <- svy_srh_emp_contract_glm_a_df %>% 
   bind_rows(svy_srh_emp_contract_glm_b_df,
             svy_srh_emp_spells_glm_a_df,
@@ -2130,7 +2146,7 @@ srh_facet_df <- svy_srh_emp_contract_glm_a_df %>%
 
 ## save df
 write_rds(srh_facet_df, "./working_data/weighted/srh_facet_df.rds")
-
+write.csv(srh_facet_df, "./working_data/weighted/srh_facet_df.csv")
 ### call function to create plot
 tiff("./output/weighted/srh_prev_grouped_facet.tiff")
 plotter3(data = srh_facet_df, 
@@ -2143,6 +2159,9 @@ dev.off()
 
 ##### ghq faceted chart --------------------------------------------------------
 ### create df
+
+svy_ghq_multi_emp_glm_b_df$measure <- tolower(svy_ghq_multi_emp_glm_b_df$measure)
+
 ghq_facet_df <- svy_ghq_emp_contract_glm_a_df %>% 
   bind_rows(svy_ghq_emp_contract_glm_b_df,
             svy_ghq_emp_spells_glm_a_df,
@@ -2215,6 +2234,7 @@ primary_prev_df %>%
   theme(strip.text.y = element_text(angle = 0))
 dev.off()
 
+write.csv(primary_prev_df, "./output/weighted/prev_final.csv")
 
 ################################################################################
 #####                        plots comparing samples                       #####
@@ -2327,24 +2347,24 @@ dev.off()
 ### sample A ------------
 #
 ### calculate proportions
-#srh1_a <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_a, svymean, na.rm=TRUE))
+#srh1_a <- data.frame(svyby(~srh_bin2, ~emp_contract_class,svy_emp_contract_a, svymean, na.rm=TRUE))
 #
 #srh1_a_long <- srh1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
-#  rename("se" = "se.srh_binexcellent.very.good") %>% 
-#  dplyr::select(-se.srh_bingood.fair.poor)
+#  rename("se" = "se.srh_bin2excellent.very.good") %>% 
+#  dplyr::select(-se.srh_bin2good.fair.poor)
 #
 ### calculate totals
-#srh12_a <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_a, svytotal, na.rm=TRUE))
+#srh12_a <- data.frame(svyby(~srh_bin2, ~emp_contract_class,svy_emp_contract_a, svytotal, na.rm=TRUE))
 #
 #srh12_a_long <- srh12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
-#  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+#  dplyr::select(-c(se.srh_bin2excellent.very.good, se.srh_bin2good.fair.poor))
 #
 ##join
 #srh1_a_long <- srh1_a_long %>% left_join(srh12_a_long)
 #
 #### get rid of junk text in measure strings
 #srh1_a_long$emp_contract_class <- str_to_title(srh1_a_long$emp_contract_class)
-#srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin","")
+#srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin2","")
 #srh1_a_long$measure <- str_replace(srh1_a_long$measure,"excellent.very.good","Excellent/very good")
 #srh1_a_long$measure <- str_replace(srh1_a_long$measure,"good.fair.poor","Good/fair/poor")
 #
@@ -2372,24 +2392,24 @@ dev.off()
 #### sample B ------------
 #
 ### calculate proportions
-#srh1_b <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_b, svymean, na.rm=TRUE))
+#srh1_b <- data.frame(svyby(~srh_bin2, ~emp_contract_class,svy_emp_contract_b, svymean, na.rm=TRUE))
 #
 #srh1_b_long <- srh1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
-#  rename("se" = "se.srh_binexcellent.very.good") %>% 
-#  dplyr::select(-se.srh_bingood.fair.poor)
+#  rename("se" = "se.srh_bin2excellent.very.good") %>% 
+#  dplyr::select(-se.srh_bin2good.fair.poor)
 #
 ### calculate totals
-#srh12_b <- data.frame(svyby(~srh_bin, ~emp_contract_class,svy_emp_contract_b, svytotal, na.rm=TRUE))
+#srh12_b <- data.frame(svyby(~srh_bin2, ~emp_contract_class,svy_emp_contract_b, svytotal, na.rm=TRUE))
 #
 #srh12_b_long <- srh12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
-#  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+#  dplyr::select(-c(se.srh_bin2excellent.very.good, se.srh_bin2good.fair.poor))
 #
 ##join
 #srh1_b_long <- srh1_b_long %>% left_join(srh12_b_long)
 #
 #### get rid of junk text in measure strings
 #srh1_b_long$emp_contract_class <- str_to_title(srh1_b_long$emp_contract_class)
-#srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin","")
+#srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin2","")
 #srh1_b_long$measure <- str_replace(srh1_b_long$measure,"excellent.very.good","Excellent/very good")
 #srh1_b_long$measure <- str_replace(srh1_b_long$measure,"good.fair.poor","Good/fair/poor")
 #
@@ -2659,24 +2679,24 @@ dev.off()
 #### sample A ------------
 #
 ### calculate proportions
-#srh1_a <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_a, svymean, na.rm=TRUE))
+#srh1_a <- data.frame(svyby(~srh_bin2, ~multi_emp_class,svy_multi_emp_a, svymean, na.rm=TRUE))
 #
 #srh1_a_long <- srh1_a %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
-#  rename("se" = "se.srh_binexcellent.very.good") %>% 
-#  dplyr::select(-se.srh_bingood.fair.poor)
+#  rename("se" = "se.srh_bin2excellent.very.good") %>% 
+#  dplyr::select(-se.srh_bin2good.fair.poor)
 #
 ### calculate totals
-#srh12_a <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_a, svytotal, na.rm=TRUE))
+#srh12_a <- data.frame(svyby(~srh_bin2, ~multi_emp_class,svy_multi_emp_a, svytotal, na.rm=TRUE))
 #
 #srh12_a_long <- srh12_a %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
-#  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+#  dplyr::select(-c(se.srh_bin2excellent.very.good, se.srh_bin2good.fair.poor))
 #
 ##join
 #srh1_a_long <- srh1_a_long %>% left_join(srh12_a_long)
 #
 #### get rid of junk text in measure strings
 #srh1_a_long$multi_emp_class <- str_to_title(srh1_a_long$multi_emp_class)
-#srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin","")
+#srh1_a_long$measure <- str_replace(srh1_a_long$measure,"srh_bin2","")
 #srh1_a_long$measure <- str_replace(srh1_a_long$measure,"excellent.very.good","Excellent/very good")
 #srh1_a_long$measure <- str_replace(srh1_a_long$measure,"good.fair.poor","Good/fair/poor")
 #
@@ -2696,24 +2716,24 @@ dev.off()
 #### sample B ------------
 #
 ### calculate proportions
-#srh1_b <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_b, svymean, na.rm=TRUE))
+#srh1_b <- data.frame(svyby(~srh_bin2, ~multi_emp_class,svy_multi_emp_b, svymean, na.rm=TRUE))
 #
 #srh1_b_long <- srh1_b %>% pivot_longer(2:3,names_to = "measure",values_to = "est") %>% 
-#  rename("se" = "se.srh_binexcellent.very.good") %>% 
-#  dplyr::select(-se.srh_bingood.fair.poor)
+#  rename("se" = "se.srh_bin2excellent.very.good") %>% 
+#  dplyr::select(-se.srh_bin2good.fair.poor)
 #
 ### calculate totals
-#srh12_b <- data.frame(svyby(~srh_bin, ~multi_emp_class,svy_multi_emp_b, svytotal, na.rm=TRUE))
+#srh12_b <- data.frame(svyby(~srh_bin2, ~multi_emp_class,svy_multi_emp_b, svytotal, na.rm=TRUE))
 #
 #srh12_b_long <- srh12_b %>% pivot_longer(2:3,names_to = "measure",values_to = "total") %>% 
-#  dplyr::select(-c(se.srh_binexcellent.very.good, se.srh_bingood.fair.poor))
+#  dplyr::select(-c(se.srh_bin2excellent.very.good, se.srh_bin2good.fair.poor))
 #
 ##join
 #srh1_b_long <- srh1_b_long %>% left_join(srh12_b_long)
 #
 #### get rid of junk text in measure strings
 #srh1_b_long$multi_emp_class <- str_to_title(srh1_b_long$multi_emp_class)
-#srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin","")
+#srh1_b_long$measure <- str_replace(srh1_b_long$measure,"srh_bin2","")
 #srh1_b_long$measure <- str_replace(srh1_b_long$measure,"excellent.very.good","Excellent/very good")
 #srh1_b_long$measure <- str_replace(srh1_b_long$measure,"good.fair.poor","Good/fair/poor")
 #
@@ -2960,11 +2980,11 @@ dev.off()
 ##### self-rated health ---------------------------------------------------------
 #### Sample A
 #srh_reg_a <- dfas1a_end_class1 %>% 
-#  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0))
+#  mutate(srh_bin2 = ifelse(srh_bin2 == "good/fair/poor",1,0))
 #
 #srh_reg_a$emp_contract_class <- factor(srh_reg_a$emp_contract_class)
 #
-#srh_model_a <- glm(srh_bin ~ relevel(emp_contract_class, ref = 4)+sex_dv+age_dv,
+#srh_model_a <- glm(srh_bin2 ~ relevel(emp_contract_class, ref = 4)+sex_dv+age_dv,
 #    family=binomial,data=srh_reg_a)
 #
 #srh_model_a_df <- data.frame(exp(cbind(OR = coef(srh_model_a), round(confint(srh_model_a),2))))
@@ -2974,11 +2994,11 @@ dev.off()
 #
 #### Sample B
 #srh_reg_b <- dfas1b_end_class1 %>% 
-#  mutate(srh_bin = ifelse(srh_bin == "good/fair/poor",1,0))
+#  mutate(srh_bin2 = ifelse(srh_bin2 == "good/fair/poor",1,0))
 #
 #srh_reg_b$emp_contract_class <- factor(srh_reg_b$emp_contract_class)
 #
-#srh_model_b <- glm(srh_bin ~ relevel(emp_contract_class, ref = 4)+sex_dv+age_dv,
+#srh_model_b <- glm(srh_bin2 ~ relevel(emp_contract_class, ref = 4)+sex_dv+age_dv,
 #                   family=binomial,data=srh_reg_b)
 #
 #srh_model_b_df <- data.frame(exp(cbind(OR = coef(srh_model_b), round(confint(srh_model_b),2))))
