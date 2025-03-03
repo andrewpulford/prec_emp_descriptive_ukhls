@@ -269,18 +269,18 @@ multi_b <- nrow(multi_empb_5class_spine)
 
 # events
 srh_case <- "x"
-srh_case_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="good/fair/poor")
+srh_case_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="fair/poor")
 srh_case_a <- srh_case_a %>% nrow()
   
-srh_case_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="good/fair/poor")
+srh_case_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="fair/poor")
 srh_case_b <- srh_case_b %>% nrow()
 
 # non-events
 srh_nocase <- "x"
-srh_nocase_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="excellent/very good")
+srh_nocase_a <- dfas1a %>% filter(wv_n==6 & srh_bin=="excellent/very good/good")
 srh_nocase_a <- srh_nocase_a %>% nrow()
   
-srh_nocase_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="excellent/very good")
+srh_nocase_b <- dfas1b %>% filter(wv_n==10 & srh_bin=="excellent/very good/good")
 srh_nocase_b <- srh_nocase_b %>% nrow()
 ## GHQ-12
 # events
