@@ -577,3 +577,87 @@ seqlegend(emp_contract.seq.a, cex = 1.8)
 seqlegend(broken_emp.seq.a, cex = 1.8)
 seqlegend(multi_jobs.seq.a, cex = 1.8)
 dev.off()
+
+pdf("output/weighted/ungrouped_seqfplot.pdf", width = 15, height = 15)
+par(mfrow=c(3,3), mar = c(3,7,3,7))
+seqfplot(emp_contract.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(broken_emp.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment continuity (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(multi_jobs.seq.a, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment (A)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(emp_contract.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment contract (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(broken_emp.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Employment continuity (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqfplot(multi_jobs.seq.b, 
+         idxs=1:900, # to add more lines
+         with.legend = F, 
+         border = NA, 
+         main = "Multiple employment (B)",
+         ylab = "Cumulative frequency (%)",
+         cex.main = 2,
+         cex.axis = 1.7,
+         cex.lab = 1.8)
+seqlegend(emp_contract.seq.a, cex = 1.8)
+seqlegend(broken_emp.seq.a, cex = 1.8)
+seqlegend(multi_jobs.seq.a, cex = 1.8)
+dev.off()
+
+
+################################################################################
+#####                               scrapbook                              #####
+################################################################################
+
+## 10 sequences
+tiff("./output/weighted/emp_contract_seqiplot10.tiff", width = 960, height = 960)
+par(mfrow=c(1,2))
+#seqiplot(emp_contract.seq.a,
+#         idxs=1:10, # to add more lines
+#         with.legend = F, 
+#         main = "Index plot (10 sequences)",
+#         border = NA)
+seqiplot(emp_contract.seq.b,
+         idxs=41:50, # to add more lines
+         with.legend = F, 
+         main = "Index plot (10 sequences)",
+         border = NA)
+seqlegend(emp_contract.seq.a, cex = 1.3)
+dev.off()
+
+
