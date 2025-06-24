@@ -2234,6 +2234,26 @@ primary_prev_df %>%
   theme(strip.text.y = element_text(angle = 0))
 dev.off()
 
+pdf("./output/weighted/prev_final.pdf")#, width = 480)
+primary_prev_df %>% 
+  mutate(sample_lab = ifelse(sample_grp=="A", "2011-2015: \nhigh unemployment/\nlow income",
+                             ifelse(sample_grp=="B","2015-2019: \nlower unemployment/\nstagnant income 
+","CHECK"))) %>% 
+  filter(sex_dv == "both") %>%
+  ggplot(aes(x=tidytext::reorder_within(class_mem,value,outcome_lab), y=value,
+             fill=exp_flag)) +
+  geom_col(show.legend = FALSE, colour = "black") +
+  geom_errorbar(aes(ymin=lowercl, ymax=uppercl), colour="black", width=.1) +
+  coord_flip() +
+  theme_bw() +
+  xlab("Class membership") +
+  ylab("%") +
+  tidytext::scale_x_reordered() +
+  scale_fill_manual(name = "exp_flag", values=c("grey50","white","grey50")) +
+  facet_grid(outcome_lab+dimension_pe~sample_lab, scales = "free_y") +
+  theme(strip.text.y = element_text(angle = 0))
+dev.off()
+
 write.csv(primary_prev_df, "./output/weighted/prev_final.csv")
 
 ################################################################################
